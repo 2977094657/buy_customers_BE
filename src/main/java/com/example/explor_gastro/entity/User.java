@@ -1,0 +1,99 @@
+package com.example.explor_gastro.entity;
+
+import java.util.Date;
+
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+
+import java.io.Serializable;
+
+/**
+ * 用户表(User)表实体类
+ *
+ * @author makejava
+ * @since 2023-05-08 11:38:11
+ */
+@SuppressWarnings("serial")
+public class User extends Model<User> {
+    //用户id，主键自增
+    private Integer userId;
+    //用户名
+    private String name;
+    //用户密码
+    private String pwd;
+    //手机号
+    private String phone;
+    //注册时间
+    private Date signupTime;
+    //用户简介有默认值
+    private String description;
+    //下单地址
+    private String address;
+
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Date getSignupTime() {
+        return signupTime;
+    }
+
+    public void setSignupTime(Date signupTime) {
+        this.signupTime = signupTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
+     * 获取主键值
+     *
+     * @return 主键值
+     */
+    @Override
+    protected Serializable pkVal() {
+        return this.userId;
+    }
+}
+
