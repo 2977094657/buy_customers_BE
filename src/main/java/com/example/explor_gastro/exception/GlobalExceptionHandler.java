@@ -1,6 +1,5 @@
 package com.example.explor_gastro.exception;
 
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +17,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("errorMessage", "上传的文件大小超过5MB限制。");
+        errorResponse.put("errorMessage", "请将图片控制在50MB内");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 

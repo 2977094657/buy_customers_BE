@@ -1,5 +1,6 @@
 package com.example.explor_gastro.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.explor_gastro.entity.Product;
 
@@ -10,6 +11,6 @@ import com.example.explor_gastro.entity.Product;
  * @since 2023-05-06 20:16:11
  */
 public interface ProductService extends IService<Product> {
-
+    IPage<Product> testSelectPage(int current,int size,boolean isAsc,String sortField);
 }
 

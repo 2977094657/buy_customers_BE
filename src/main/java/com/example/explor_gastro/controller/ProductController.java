@@ -2,11 +2,14 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("product")
+@Tag(name = "商品功能")
 public class ProductController extends ApiController {
     /**
      * 服务对象
@@ -31,14 +35,14 @@ public class ProductController extends ApiController {
     /**
      * 分页查询所有数据
      *
-     * @param page    分页对象
-     * @param product 查询实体
+     * @param current 所在页面
+     * @param size 每页显示数据
      * @return 所有数据
      */
     @GetMapping
-    public R selectAll(Page<Product> page, Product product) {
-        return success(this.productService.page(page, new QueryWrapper<>(product)));
-    }
+    @Operation(summary = "分页查询所有商品")
+    public IPage<Product> page(int current, int size,boolean isAsc,String sortField){return productService.testSelectPage(current,size,isAsc,sortField);}
+
 
     /**
      * 通过主键查询单条数据
