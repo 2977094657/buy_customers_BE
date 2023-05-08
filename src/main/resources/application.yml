@@ -1,0 +1,66 @@
+server:
+  port: 8081
+spring:
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+    messages:
+      encoding: UTF-8
+  redis:
+    database: 0
+    host: 1.14.126.98
+    port: 6379
+    timeout: 5000
+    password: 17628887613Hyw.
+  #    host: 1.15.97.154
+  #    password: qwer123
+  servlet:
+    multipart:
+      location: /home/img/add
+      enabled: true
+      max-file-size: 5MB  #设置上传文件最大不超过5mb
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.14.126.98:3306/explor_gastro?serverTimezone=GMT%2B8
+    username: explor_gastro
+    password: 2bNiEXb3SBFkHnHk
+  mvc:
+    static-path-pattern: /static/**
+  thymeleaf:
+    prefix: classpath:/templates/
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  type-aliases-package: com.example.demo.model
+  #  加入日志功能
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+upload: D:\logger
+
+# springdoc-openapi configuration
+# To get help follow the link to get more information
+# https://doc.xiaominfo.com/docs/quick-start
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      # Scan your controller package.
+      packages-to-scan: com.example.explor_gastro.controller
+logging:
+  config: classpath:log4j2.xml
+  level:
+    root: INFO
+    javax.activation: info
+    org.apache.catalina: INFO
+    org.apache.commons.beanutils.converters: INFO
+    org.apache.coyote.http11.Http11Processor: INFO
+    org.apache.http: INFO
+    org.apache.tomcat: INFO
+    org.springframework: INFO
+    com.chinamobile.cmss.bdpaas.resource.monitor: DEBUG
