@@ -17,7 +17,7 @@ import java.util.List;
  * 商品图片表(ProductImg)表控制层
  *
  * @author makejava
- * @since 2023-05-09 08:47:22
+ * @since 2023-05-09 09:32:26
  */
 @RestController
 @RequestMapping("productImg")

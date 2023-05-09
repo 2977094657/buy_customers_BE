@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * 商品图片表(ProductImg)表服务实现类
  *
  * @author makejava
- * @since 2023-05-09 08:47:23
+ * @since 2023-05-09 09:32:26
  */
 @Service("productImgService")
 public class ProductImgServiceImpl extends ServiceImpl<ProductImgDao, ProductImg> implements ProductImgService {
