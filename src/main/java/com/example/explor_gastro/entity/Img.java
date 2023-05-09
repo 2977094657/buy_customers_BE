@@ -1,24 +1,23 @@
 package com.example.explor_gastro.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.io.Serializable;
 
 /**
- * 商品图片表(ProductImg)表实体类
+ * 评论图片表(Img)表实体类
  *
  * @author makejava
- * @since 2023-05-09 09:32:26
+ * @since 2023-05-09 09:43:46
  */
 @SuppressWarnings("serial")
-public class ProductImg extends Model<ProductImg> {
-    //商品图片id，主键自增
-    @TableId(type = IdType.AUTO)
+public class Img extends Model<Img> {
+    //评论图片id，主键自增
     private Integer imgId;
-    //商品图片
+    //图片地址
     private String img;
+    //用户id
+    private Integer userId;
     //商品id
     private Integer productId;
 
@@ -37,6 +36,14 @@ public class ProductImg extends Model<ProductImg> {
 
     public void setImg(String img) {
         this.img = img;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getProductId() {
