@@ -2,6 +2,8 @@ package com.example.explor_gastro.entity;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.io.Serializable;
@@ -14,6 +16,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 public class User extends Model<User> {
+    @TableId(type = IdType.AUTO)
     //用户id，主键自增
     private Integer userId;
     //用户名

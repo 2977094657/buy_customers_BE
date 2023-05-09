@@ -7,36 +7,36 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 
 /**
- * 收藏表(Star)表实体类
+ * 商品图片表(ProductImg)表实体类
  *
  * @author makejava
- * @since 2023-05-08 11:38:10
+ * @since 2023-05-09 08:47:23
  */
 @SuppressWarnings("serial")
-public class Star extends Model<Star> {
+public class ProductImg extends Model<ProductImg> {
     @TableId(type = IdType.AUTO)
-    //收藏id，主键自增
-    private Integer id;
-    //用户id
-    private Integer userId;
+    //商品图片id，主键自增
+    private Integer imgId;
+    //商品图片
+    private String img;
     //商品id
     private Integer productId;
 
 
-    public Integer getId() {
-        return id;
+    public Integer getImgId() {
+        return imgId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setImgId(Integer imgId) {
+        this.imgId = imgId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getImg() {
+        return img;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setImg(String img) {
+        this.img = img;
     }
 
     public Integer getProductId() {
@@ -54,7 +54,7 @@ public class Star extends Model<Star> {
      */
     @Override
     protected Serializable pkVal() {
-        return this.id;
+        return this.imgId;
     }
 }
 

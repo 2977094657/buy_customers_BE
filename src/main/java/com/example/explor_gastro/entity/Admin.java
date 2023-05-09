@@ -1,5 +1,7 @@
 package com.example.explor_gastro.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.io.Serializable;
@@ -12,6 +14,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 public class Admin extends Model<Admin> {
+    @TableId(type = IdType.AUTO)
     //管理员id，主键自增
     private Integer adminId;
     //管理员账号

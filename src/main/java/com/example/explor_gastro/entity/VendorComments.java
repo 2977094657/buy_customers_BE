@@ -2,6 +2,8 @@ package com.example.explor_gastro.entity;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.io.Serializable;
@@ -14,6 +16,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 public class VendorComments extends Model<VendorComments> {
+    @TableId(type = IdType.AUTO)
     //评论id，主键自增
     private Integer id;
     //用户id
