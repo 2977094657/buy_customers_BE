@@ -13,7 +13,7 @@ import javax.xml.transform.Result;
  */
 public interface UserService extends IService<User> {
 
-    boolean LoginIn(String phone, String pwd);
+    User LoginIn(String phone, String pwd);
 
 }
 

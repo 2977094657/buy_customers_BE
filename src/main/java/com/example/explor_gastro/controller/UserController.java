@@ -40,12 +40,13 @@ public class UserController extends ApiController {
      */
     @PostMapping("/loginIn")
     public String login(@RequestParam("phone") String phone, @RequestParam("pwd") String pwd){
-
-        if(userService.LoginIn(phone,pwd)){
+        try{
+            userService.LoginIn(phone,pwd);
             return "true";
-        }else {
-            return "false";
+        }catch (RuntimeException e){
+            return e.getMessage();
         }
+
     }
 
     /**

@@ -23,12 +23,18 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Autowired
     UserDao userDao;
 
-    public boolean LoginIn(String phone, String pwd) {
+    public User LoginIn(String phone, String pwd) {
         User user = userDao.selectByUsername(phone);
-        if (user != null && user.getPwd().equals(pwd)){
-            return true;
+//        if (user != null && user.getPwd().equals(pwd)){
+//            return true;
+//        } else
+            if (user==null) {
+            throw new RuntimeException("The user does not exist");
         }
-        return false;
+            if (!user.getPwd().equals(pwd)){
+                throw new RuntimeException("User name or password rough");
+            }
+        return user;
     }
 
 }
