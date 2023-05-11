@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,14 +21,32 @@ import java.util.List;
  * @author makejava
  * @since 2023-05-08 11:38:11
  */
+@Slf4j
 @RestController
 @RequestMapping("user")
+@Tag(name = "用户登录")
 public class UserController extends ApiController {
     /**
      * 服务对象
      */
     @Resource
     private UserService userService;
+
+    /**
+     * 登录功能
+     * @param phone 手机号
+     * @param pwd 密码
+     * @return true登录成功，false登录失败
+     */
+    @PostMapping("/loginIn")
+    public String login(@RequestParam("phone") String phone, @RequestParam("pwd") String pwd){
+
+        if(userService.LoginIn(phone,pwd)){
+            return "true";
+        }else {
+            return "false";
+        }
+    }
 
     /**
      * 分页查询所有数据
