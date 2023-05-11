@@ -97,6 +97,7 @@ public class ImageUploadController {
         List<ProductImg> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
         boolean allValid = true; // 标记所有文件是否都合法
         List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
+        List<String> imageUrls1 = new ArrayList<>();
         try {
             // 遍历上传的文件数组
             for (int i = 0; i < files.length; i++) {
@@ -136,10 +137,13 @@ public class ImageUploadController {
                             file.transferTo(dest);
                         }
                         String url = null;
+                        String url1 = null;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
-                            url = "add/" + dest.getName(); // 修改为不包含前缀的 URL
+                            url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL
                             imageUrls.add(url);
+                            url1 = dest.getName();
+                            imageUrls1.add(url1);
                         }
                         Map<String, String> response = new HashMap<>();
                         response.put("url", url);
@@ -152,60 +156,36 @@ public class ImageUploadController {
             }
             // 如果存在不合法的文件，清除已经上传的图片
             if (!allValid) {
-                for (String imageUrl : imageUrls) {
+                for (String imageUrl : imageUrls1) {
                     try {
-                        URL url = new URL("http://1.14.126.98:5000/" + imageUrl); // 修改为包含前缀的 URL
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setRequestMethod("DELETE");
-                        connection.connect();
-                        int responseCode = connection.getResponseCode();
-                        if (responseCode != 200) {
-                            Map<String, String> error = new HashMap<>();
-                            error.put("message", "删除图片 " + imageUrl + " 失败，错误码为 " + responseCode);
-                            responseList.add(error);
+                        File file = new File("/home/img/add/" + imageUrl); // 修改后的文件路径
+                        if (file.exists()) {
+                            boolean deleted = file.delete();
+                            if (!deleted) {
+                                Map<String, String> error = new HashMap<>();
+                                error.put("message", "删除图片 " + imageUrl + " 失败");
+                                responseList.add(error);
+                            }
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         Map<String, String> error = new HashMap<>();
                         error.put("message", "删除图片 " + imageUrl + " 失败，错误信息为 " + e.getMessage());
                         responseList.add(error);
                     }
                 }
                 return new ResponseEntity<>(responseList, HttpStatus.BAD_REQUEST);
-            } else {
-                // 如果所有文件都合法，则将生成的图片 URL 存入数据库
-                ProductImg productImg = new ProductImg();
-                productImg.setImg(imageUrls.toString());
-                productImg.setProductId(productId);
-                productImgList.add(productImg);
-                productImgServiceImpl.saveBatch(productImgList);
-                return new ResponseEntity<>(responseList, HttpStatus.OK);
             }
+            // 将上传成功的图片信息保存到数据库中
+            List<String> imgUrls = new ArrayList<>(imageUrls);
+            ProductImg productImg = new ProductImg();
+            productImg.setProductId(productId);
+            productImg.setImg(imgUrls.toString());
+            productImgList.add(productImg);
+            productImgServiceImpl.saveBatch(productImgList);
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
         } catch (Exception e) {
-            // 如果出现异常，将异常信息存入结果列表并返回 500 错误
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-            responseList.clear(); // 清空上传结果列表
-            responseList.add(error);
-            // 清除已经上传的图片
-            for (String imageUrl : imageUrls) {
-                try {
-                    URL url = new URL("http://1.14.126.98:5000/" + imageUrl); // 修改为包含前缀的 URL
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("DELETE");
-                    connection.connect();
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode != 200) {
-                        Map<String, String> deleteError = new HashMap<>();
-                        deleteError.put("message", "删除图片 " + imageUrl + " 失败，错误码为 " + responseCode);
-                        responseList.add(deleteError);
-                    }
-                } catch (IOException ioException) {
-                    Map<String, String> deleteError = new HashMap<>();
-                    deleteError.put("message", "删除图片 " + imageUrl + " 失败，错误信息为 " + ioException.getMessage());
-                    responseList.add(deleteError);
-                }
-            }
-            return new ResponseEntity<>(responseList, HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
