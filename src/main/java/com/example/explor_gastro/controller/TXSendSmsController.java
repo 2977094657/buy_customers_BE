@@ -8,6 +8,8 @@ import com.tencentcloudapi.sms.v20210111.SmsClient;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("sigup")
-@Tag(name = "用户注册")
+@Tag(name = "验证码")
 public class TXSendSmsController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -62,7 +64,10 @@ public class TXSendSmsController {
      *
      */
     @PostMapping("user")
-    @Operation(summary = "手机号注册")
+    @Operation(summary = "手机号获取验证码")
+    @Parameters({
+            @Parameter(name = "phoneNumber", description = "手机号"),
+    })
     public String sms(String phoneNumber) throws TencentCloudSDKException {
         this.PhoneNumber = phoneNumber;
         // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
@@ -97,6 +102,9 @@ public class TXSendSmsController {
     }
     @GetMapping(value = "code", produces = "text/plain;charset=UTF-8")
     @Operation(summary = "验证验证码")
+    @Parameters({
+            @Parameter(name = "code", description = "传入的验证码"),
+    })
     public ResponseEntity<String> code(int code) {
         int s = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(PhoneNumber)));
         Boolean hasKey = stringRedisTemplate.hasKey(PhoneNumber);

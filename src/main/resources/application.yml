@@ -30,7 +30,7 @@ spring:
   thymeleaf:
     prefix: classpath:/templates/
 mybatis-plus:
-  mapper-locations: classpath*:/mapper/**Mapper.xml
+  mapper-locations: classpath*:mapper/*Mapper.xml
   type-aliases-package: com.example.demo.model
   #  加入日志功能
   configuration:
@@ -40,18 +40,28 @@ upload: D:\logger
 # springdoc-openapi configuration
 # To get help follow the link to get more information
 # https://doc.xiaominfo.com/docs/quick-start
+# springdoc-openapi 配置
 springdoc:
+  # Swagger-UI 路径配置
   swagger-ui:
     path: /swagger-ui.html
+    # 标签排序规则
     tags-sorter: alpha
+    # 操作排序规则
     operations-sorter: alpha
+  # API 文档路径配置
   api-docs:
     path: /v3/api-docs
+  # 接口分组配置
   group-configs:
+    # 默认分组
     - group: 'default'
+      # 匹配所有路径
       paths-to-match: '/**'
-      # Scan your controller package.
+      # 扫描控制器包
       packages-to-scan: com.example.explor_gastro.controller
+knife4j:
+  enable: true
 logging:
   config: classpath:log4j2.xml
   level:

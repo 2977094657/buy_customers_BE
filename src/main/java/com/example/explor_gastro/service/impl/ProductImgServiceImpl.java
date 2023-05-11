@@ -6,6 +6,8 @@ import com.example.explor_gastro.entity.ProductImg;
 import com.example.explor_gastro.service.ProductImgService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 商品图片表(ProductImg)表服务实现类
  *

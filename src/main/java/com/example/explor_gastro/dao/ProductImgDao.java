@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.explor_gastro.entity.ProductImg;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 商品图片表(ProductImg)表数据库访问层
  *
@@ -12,6 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ProductImgDao extends BaseMapper<ProductImg> {
-
 }
 

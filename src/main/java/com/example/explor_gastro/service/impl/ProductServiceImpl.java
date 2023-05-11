@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.explor_gastro.dao.ProductDao;
+import com.example.explor_gastro.dao.ProductImgDao;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * 商品表(Product)表服务实现类
@@ -20,7 +23,11 @@ import org.springframework.stereotype.Service;
 public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> implements ProductService {
     @Autowired
     private ProductDao productDao;
+    @Autowired
+    private ProductImgDao productImgDao;
     //    current – 当前页 size – 每页显示条数
+
+
     /**
      *
      * @param current 当前所在页面
@@ -29,16 +36,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
      * @param sortField 根据传入的此字段来排序，不填则原序
      * @return 返回所有数据
      */
+
     @Override
-    public IPage<Product> testSelectPage(int current, int size,boolean isAsc,String sortField) {
+    public IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
         // 创建一个 Page 对象，指定当前页码和每页记录数
         Page<Product> page = new Page<>(current, size);
-        // 创建一个 QueryWrapper 对象，指定按照 score 字段升序排列
+        // 创建一个 QueryWrapper 对象
         QueryWrapper<Product> wrapper = new QueryWrapper<>();
-        if (isAsc) {
-            wrapper.orderByAsc(sortField);
-        } else {
-            wrapper.orderByDesc(sortField);
+        // 判断是否传入了 isAsc 参数
+        if (isAsc.isPresent()) {
+            if (isAsc.get()) {
+                wrapper.orderByAsc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 升序排序，否则不排序
+            } else {
+                wrapper.orderByDesc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 降序排序，否则不排序
+            }
         }
         // 调用 ProductDao 的 selectPage 方法进行分页查询
         IPage<Product> iPage = productDao.selectPage(page, wrapper);
@@ -49,6 +60,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         // 打印当前页上的记录
         System.out.println("记录: " + iPage.getRecords());
         return iPage;
+    }
+    @Override
+    public boolean updateProduct(Integer productId, String productName, String description, Integer price, String category) {
+        Product product = new Product();
+        product.setProductId(productId);
+        product.setProductName(productName);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCategory(category);
+
+        return this.updateById(product);
     }
 }
 

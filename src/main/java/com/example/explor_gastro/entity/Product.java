@@ -3,6 +3,7 @@ package com.example.explor_gastro.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import org.apache.ibatis.annotations.Update;
 
 import java.io.Serializable;
 
@@ -33,8 +34,6 @@ public class Product extends Model<Product> {
     private Integer price;
     //商品类别,默认主食
     private String category;
-    //用户id
-    private Integer userId;
 
 
     public Integer getProductId() {
@@ -109,14 +108,6 @@ public class Product extends Model<Product> {
         this.category = category;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
     /**
      * 获取主键值
      *
@@ -126,5 +117,13 @@ public class Product extends Model<Product> {
     protected Serializable pkVal() {
         return this.productId;
     }
+    public Product(String productName, String description, Integer price, String category, String name) {
+        this.productName = productName;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.name = name;
+    }
+    public Product() {}
 }
 

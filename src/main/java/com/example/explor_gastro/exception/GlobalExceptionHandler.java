@@ -21,11 +21,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("errorMessage", "发生了一个未知错误，请稍后重试。");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseBody
+//    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+//        Map<String, Object> errorResponse = new HashMap<>();
+//        errorResponse.put("errorMessage", "发生了一个未知错误，请稍后重试。");
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+//    }
 }
