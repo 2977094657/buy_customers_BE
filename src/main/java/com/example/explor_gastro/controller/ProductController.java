@@ -10,10 +10,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -31,6 +36,8 @@ public class ProductController extends ApiController {
      */
     @Resource
     private ProductService productService;
+    @Resource
+    private ImageUploadController imageUploadController;
 
     /**
      * @param current   当前所在页面
@@ -55,26 +62,45 @@ public class ProductController extends ApiController {
         return productService.testSelectPage(current, size, isAsc, sortField);
     }
 
-
-    @Operation(summary = "增加商品")
-    @PostMapping("add")
+    @PostMapping("/add")
+    @Operation(summary = "新增商品")
     @Parameters({
+            @Parameter(name = "images", description = "多个图片，以数组存入"),
             @Parameter(name = "productName", description = "商品名字"),
             @Parameter(name = "name", description = "商家名字，根据商家登陆的账号来传入此参数，不允许商家填入"),
             @Parameter(name = "description", description = "商品介绍"),
             @Parameter(name = "price", description = "价格"),
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
-    public R insert(@RequestParam("productName") String productName,
-                    @RequestParam("description") String description,
-                    @RequestParam("price") Integer price,
-                    @RequestParam("category") String category,
-                    @RequestParam("name") String name
+    public ResponseEntity<Map<String, Object>> addProduct(
+            @RequestParam("images") MultipartFile[] files,
+            @RequestParam("productName") String productName,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") Integer price,
+            @RequestParam("category") String category
     ) {
-        Product product = new Product(productName, description, price, category,name);
-        return success(this.productService.save(product));
+        List<Map<String, String>> responseList = imageUploadController.add(files, productName, name, description, price, category).getBody();
+        boolean isSuccess = true;
+        if (responseList != null) {
+            for (Map<String, String> response : responseList) {
+                if (response.containsKey("message")) {
+                    isSuccess = false;
+                    break;
+                }
+            }
+        }
+        if (isSuccess) {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("message", "商品添加成功");
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+        } else {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("message", "商品添加失败");
+            responseBody.put("errors", responseList);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+        }
     }
-
 
     @Operation(summary = "修改商品")
     @PutMapping("update")
@@ -114,6 +140,23 @@ public class ProductController extends ApiController {
     @DeleteMapping
     public R delete(@RequestParam("idList") List<Long> idList) {
         return success(this.productService.removeByIds(idList));
+    }
+    @Operation(summary = "模糊搜索商品")
+    @GetMapping("search")
+    @Parameters({
+            @Parameter(name = "keyword", description = "搜索关键字"),
+            @Parameter(name = "current", description = "所在页面"),
+            @Parameter(name = "size", description = "每页显示数据"),
+            @Parameter(name = "isAsc", description = "是否升序排列，不传或传入空值则不排序"),
+            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
+    })
+    public IPage<Product> search(
+            @RequestParam(name = "keyword", required = true) String keyword,
+            @RequestParam(name = "current", required = true) int current,
+            @RequestParam(name = "size", required = true) int size,
+            @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
+            @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
+        return productService.searchProduct(keyword, current, size, isAsc, sortField);
     }
 }
 

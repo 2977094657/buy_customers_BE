@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.explor_gastro.dao.ProductDao;
-import com.example.explor_gastro.dao.ProductImgDao;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,6 @@ import java.util.Optional;
 public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> implements ProductService {
     @Autowired
     private ProductDao productDao;
-    @Autowired
-    private ProductImgDao productImgDao;
     //    current – 当前页 size – 每页显示条数
 
 
@@ -71,6 +68,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         product.setCategory(category);
 
         return this.updateById(product);
+    }
+    public IPage<Product> searchProduct(String keyword, int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("product_name", keyword)
+                .orderBy(isAsc.orElse(false), sortField.orElse("id").isEmpty());
+        return productDao.selectPage(new Page<>(current, size), queryWrapper);
+    }
+    @Override
+    public boolean updateImgByProductId(Integer productId, String img) {
+        int result = productDao.updateImgByProductId(productId, img);
+        return result > 0;
     }
 }
 

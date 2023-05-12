@@ -3,9 +3,11 @@ package com.example.explor_gastro.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.Data;
 import org.apache.ibatis.annotations.Update;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 商品表(Product)表实体类
@@ -13,6 +15,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2023-05-06 20:16:11
  */
+@Data
 @SuppressWarnings("serial")
 public class Product extends Model<Product> {
     @TableId(type = IdType.AUTO)
@@ -34,6 +37,8 @@ public class Product extends Model<Product> {
     private Integer price;
     //商品类别,默认主食
     private String category;
+
+    private String img;
 
 
     public Integer getProductId() {

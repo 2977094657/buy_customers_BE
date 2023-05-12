@@ -1,5 +1,8 @@
 package com.example.explor_gastro.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.explor_gastro.entity.User;
+import com.example.explor_gastro.service.impl.UserServiceImpl;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +35,8 @@ public class TXSendSmsController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     private String PhoneNumber;
+    @Autowired
+    UserServiceImpl userService;
 
     /**
      * 生成指定长度的随机数
@@ -69,6 +75,12 @@ public class TXSendSmsController {
             @Parameter(name = "phoneNumber", description = "手机号"),
     })
     public String sms(String phoneNumber) throws TencentCloudSDKException {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("phone", phoneNumber);
+        User user = userService.getOne(wrapper);
+        if (user != null) {
+            return "手机号已被注册";
+        }
         this.PhoneNumber = phoneNumber;
         // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
         // 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
