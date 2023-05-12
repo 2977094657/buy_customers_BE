@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
+import com.example.explor_gastro.utils.ImageUpload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -37,7 +38,7 @@ public class ProductController extends ApiController {
     @Resource
     private ProductService productService;
     @Resource
-    private ImageUploadController imageUploadController;
+    private ImageUpload imageUpload;
 
     /**
      * @param current   当前所在页面
@@ -80,7 +81,7 @@ public class ProductController extends ApiController {
             @RequestParam("price") Integer price,
             @RequestParam("category") String category
     ) {
-        List<Map<String, String>> responseList = imageUploadController.add(files, productName, name, description, price, category).getBody();
+        List<Map<String, String>> responseList = imageUpload.add(files, productName, name, description, price, category).getBody();
         boolean isSuccess = true;
         if (responseList != null) {
             for (Map<String, String> response : responseList) {
@@ -102,7 +103,7 @@ public class ProductController extends ApiController {
         }
     }
 
-    @Operation(summary = "修改商品")
+    @Operation(summary = "根据商品id修改商品")
     @PutMapping("update")
     @Parameters({
             @Parameter(name = "productId", description = "商品id,根据此字段修改"),
@@ -132,7 +133,7 @@ public class ProductController extends ApiController {
      * @param idList 主键结合
      * @return 删除结果
      */
-    @Operation(summary = "删除商品")
+    @Operation(summary = "根据商品id删除商品")
     @PostMapping("delete")
     @Parameters({
             @Parameter(name = "idList", description = "商品id，根据商家登陆的账号来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
@@ -141,7 +142,7 @@ public class ProductController extends ApiController {
     public R delete(@RequestParam("idList") List<Long> idList) {
         return success(this.productService.removeByIds(idList));
     }
-    @Operation(summary = "模糊搜索商品")
+    @Operation(summary = "根据商品名字模糊搜索商品")
     @GetMapping("search")
     @Parameters({
             @Parameter(name = "keyword", description = "搜索关键字"),

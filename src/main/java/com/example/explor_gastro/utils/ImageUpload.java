@@ -1,4 +1,4 @@
-package com.example.explor_gastro.controller;
+package com.example.explor_gastro.utils;
 
 import com.example.explor_gastro.dao.ProductImgDao;
 import com.example.explor_gastro.entity.Product;
@@ -23,7 +23,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/Image")
 @Tag(name = "图片上传")
-public class ImageUploadController {
+public class ImageUpload {
     @Autowired
     private ProductImgDao productImgDao;
     @Autowired

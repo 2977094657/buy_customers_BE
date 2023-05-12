@@ -1,4 +1,4 @@
-package com.example.explor_gastro.controller;
+package com.example.explor_gastro.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.explor_gastro.entity.User;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("sigup")
 @Tag(name = "验证码")
-public class TXSendSmsController {
+public class TXSendSms {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     private String PhoneNumber;
