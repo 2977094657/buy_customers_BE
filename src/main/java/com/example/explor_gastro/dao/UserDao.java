@@ -20,5 +20,7 @@ public interface UserDao extends BaseMapper<User> {
     @Select("SELECT * FROM user WHERE phone = #{phone}")
     User selectByUsername(String phone);
 
+    @Select("SELECT * FROM user WHERE phone = #{phone}")
+    User selectUserByPhone(String phone);
 }
 
