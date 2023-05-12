@@ -30,5 +30,7 @@ public interface ProductService extends IService<Product> {
     IPage<Product> searchProduct(String keyword, int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
 
     boolean updateImgByProductId(Integer productId, String img);
+
+    List<Product> selectByCategory(int current, int size, String category);
 }
 

@@ -10,6 +10,9 @@ import com.example.explor_gastro.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -80,5 +83,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         int result = productDao.updateImgByProductId(productId, img);
         return result > 0;
     }
+    @Override
+    public List<Product> selectByCategory(int current, int size, String category) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("category", category);
+        params.put("offset", (current - 1) * size);
+        params.put("limit", size);
+        return productDao.selectByCategory(params);
+    }
+
 }
 

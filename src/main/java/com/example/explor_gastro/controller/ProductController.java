@@ -56,11 +56,32 @@ public class ProductController extends ApiController {
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
     public IPage<Product> page(
-            @RequestParam(name = "current", required = true) int current,
-            @RequestParam(name = "size", required = true) int size,
+            @RequestParam(name = "current") int current,
+            @RequestParam(name = "size") int size,
             @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
             @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
         return productService.testSelectPage(current, size, isAsc, sortField);
+    }
+
+    /**
+     * 按照category字段的内容查询所有商品
+     *
+     * @param current  当前所在页面
+     * @param size     每页显示数量
+     * @param category 商品类别
+     * @return 返回查询结果
+     */
+    @GetMapping("productsByCategory")
+    @Operation(summary = "按照category字段的内容查询所有商品")
+    @Parameters({
+            @Parameter(name = "current", description = "所在页面"),
+            @Parameter(name = "size", description = "每页数量"),
+            @Parameter(name = "category", description = "商品类别")
+    })
+    public List<Product> selectByCategory(@RequestParam(defaultValue = "1") int current,
+                                          @RequestParam(defaultValue = "10") int size,
+                                          @RequestParam String category) {
+        return productService.selectByCategory(current, size, category);
     }
 
     @PostMapping("/add")
@@ -91,12 +112,11 @@ public class ProductController extends ApiController {
                 }
             }
         }
+        Map<String, Object> responseBody = new HashMap<>();
         if (isSuccess) {
-            Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("message", "商品添加成功");
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } else {
-            Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("message", "商品添加失败");
             responseBody.put("errors", responseList);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
@@ -152,9 +172,9 @@ public class ProductController extends ApiController {
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
     public IPage<Product> search(
-            @RequestParam(name = "keyword", required = true) String keyword,
-            @RequestParam(name = "current", required = true) int current,
-            @RequestParam(name = "size", required = true) int size,
+            @RequestParam(name = "keyword") String keyword,
+            @RequestParam(name = "current") int current,
+            @RequestParam(name = "size") int size,
             @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
             @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
