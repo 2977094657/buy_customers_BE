@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.Md5;
+import com.example.explor_gastro.utils.TXSendSms;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -39,6 +41,9 @@ public class UserController extends ApiController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private TXSendSms txSendSms;
 
     /**
      * 登录功能
@@ -95,6 +100,20 @@ public class UserController extends ApiController {
         }
         else  {  return  "注册失败，用户名或手机号已存在";  }  }
 
+    /**
+     * 短信获取
+     * @param phoneNumber
+     * @return
+     * @throws TencentCloudSDKException
+     */
+    @PostMapping(value  =  "/message",produces  =  "text/plain;charset=UTF-8")
+    @Operation(summary  =  "获取短信")
+    @Parameters({
+            @Parameter(name = "phoneNumber", description = "手机号",required = true),
+    })
+    public String sms(String phoneNumber) throws TencentCloudSDKException {
+        return txSendSms.sms(phoneNumber);
+    }
     /**
      * 修改数据
      *
