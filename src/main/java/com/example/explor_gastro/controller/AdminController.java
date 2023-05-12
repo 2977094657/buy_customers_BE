@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.entity.Admin;
 import com.example.explor_gastro.service.AdminService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("admin")
+@Tag(name = "管理员")
 public class AdminController extends ApiController {
     /**
      * 服务对象

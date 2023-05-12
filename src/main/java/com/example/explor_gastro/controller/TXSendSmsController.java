@@ -69,7 +69,7 @@ public class TXSendSmsController {
      * 30秒内只能发送2条消息
      *
      */
-    @PostMapping("user")
+    @PostMapping(value = "user",produces = "text/plain;charset=UTF-8")
     @Operation(summary = "手机号获取验证码")
     @Parameters({
             @Parameter(name = "phoneNumber", description = "手机号"),

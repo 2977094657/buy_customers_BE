@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.explor_gastro.entity.User;
 
 import javax.xml.transform.Result;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * 用户表(User)表服务接口
@@ -14,6 +15,8 @@ import javax.xml.transform.Result;
 public interface UserService extends IService<User> {
 
     User LoginIn(String phone, String pwd);
+
+    boolean register(User user) throws NoSuchAlgorithmException;
 
 }
 
