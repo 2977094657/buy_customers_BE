@@ -33,6 +33,12 @@ public class User extends Model<User> {
     //下单地址
     private String address;
 
+    public User(Integer userId, String name, String phone, Date signupTime, String description, String address) {
+    }
+
+    public User(){
+
+    }
 
     public Integer getUserId() {
         return userId;

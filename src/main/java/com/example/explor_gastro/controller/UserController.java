@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
+import com.example.explor_gastro.utils.JwtService;
 import com.example.explor_gastro.utils.Md5;
 import com.example.explor_gastro.utils.TXSendSms;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -14,12 +15,12 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -44,25 +45,46 @@ public class UserController extends ApiController {
 
     @Resource
     private TXSendSms txSendSms;
+    @Resource
+    private JwtService jwtService;
 
     /**
      * 登录功能
      * @param phone 手机号
      * @param pwd 密码
-     * @return true登录成功，false登录失败
+     * @return 响应内容
      */
-    @PostMapping(value = "/loginIn",produces  =  "text/plain;charset=UTF-8")
+    @PostMapping(value = "/loginIn", produces = "application/json")
     @Operation(summary = "用户登录")
     @Parameters({
             @Parameter(name = "phone", description = "手机号"),
             @Parameter(name = "pwd", description = "用户密码"),
     })
-    public String login(@RequestParam(value = "phone",required = true) String phone, @RequestParam(value = "pwd",required = true) String pwd){
-        try{
-            userService.LoginIn(phone,pwd);
-            return "登录成功";
-        }catch (RuntimeException e){
-            return e.getMessage();
+    public ResponseEntity<?> login(@RequestParam String phone, @RequestParam String pwd) {
+        try {
+            // 调用 userService 的 LoginIn 方法进行登录
+            User user = userService.LoginIn(phone, pwd);
+            // 生成 JWT token
+            String token = jwtService.generateToken(user);
+            // 构造响应内容
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", user);
+            // 返回成功响应
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            // 如果出现异常，返回错误响应
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping(value = "/user", produces = "application/json")
+    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
+        try {
+            User user = jwtService.parseToken(token);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
