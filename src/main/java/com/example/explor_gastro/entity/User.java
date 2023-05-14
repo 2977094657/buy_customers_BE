@@ -122,5 +122,9 @@ public class User extends Model<User> {
     protected Serializable pkVal() {
         return this.userId;
     }
+
+    public void getUserId(Integer userId) {
+
+    }
 }
 

@@ -146,6 +146,45 @@ public class UserController extends ApiController {
         return success(this.userService.updateById(user));
     }
 
+
+
+    /**
+     * 根据用户ID查询用户信息
+     *
+     * @param userId 用户ID
+     * @return 用户信息
+     */
+    @GetMapping("/{userId}")
+    public R<User> selectUserById(@PathVariable Integer userId) {
+        User user = userService.selectUserById(userId);
+        return R.ok(user);
+    }
+
+    /**
+     * 修改用户信息
+     *
+     * @param userId      用户ID
+     * @param name        用户名
+     * @param description 用户简介
+     * @param address     用户地址
+     * @param signupTime  用户注册时间
+     * @param phone       用户手机号
+     * @return 是否修改成功
+     */
+    @PutMapping("/{userId}")
+    public boolean updateUser(@PathVariable Integer userId,
+                              @RequestParam String name,
+                              @RequestParam String description,
+                              @RequestParam String address,
+                              @RequestParam Date signupTime,
+                              @RequestParam String phone) {
+        boolean result = userService.updateUser(userId, name, description, address, signupTime, phone);
+        return result;
+    }
+
+
+
+
     /**
      * 删除数据
      *
