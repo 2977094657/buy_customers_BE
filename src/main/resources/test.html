@@ -13,7 +13,7 @@
         const size = 10; // 每页显示数据
         const isAsc = false; // 是否升序排列
         const sortField = 'product_id'; // 根据此字段传入的字段排序
-        const url = `http://localhost:8081/product/all?current=${current}&size=${size}&isAsc=${isAsc}&sortField=${sortField}`;
+        const url = `http://1.14.126.98:8081/product/all?current=${current}&size=${size}&isAsc=${isAsc}&sortField=${sortField}`;
         fetch(url, {
             headers: {
                 'Authorization': 'Bearer ' + token

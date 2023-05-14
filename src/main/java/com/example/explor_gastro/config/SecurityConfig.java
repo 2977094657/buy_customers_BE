@@ -29,11 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and()
                 .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
                 .and()
-//                .csrf().disable() // 禁用 CSRF 防护
+                .csrf().disable() // 禁用 CSRF 防护
                 .authorizeRequests()
 //                .antMatchers("/user/loginIn", "/user/loginIn/**").permitAll()  // 所有人都可以访问此处定义的接口
-                .anyRequest().authenticated() // 只有验证过的用户才可以通过
-//                .anyRequest().permitAll() // 允许所有用户通过
+//                .anyRequest().authenticated() // 只有验证过的用户才可以通过
+                .anyRequest().permitAll() // 允许所有用户通过
                 .and()
                 .httpBasic();
     }
