@@ -4,6 +4,7 @@ package com.example.explor_gastro.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.utils.ImageUpload;
@@ -84,6 +85,17 @@ public class ProductController extends ApiController {
         return productService.selectByCategory(current, size, category);
     }
 
+    /**
+     * 新增商品
+     *
+     * @param files        多个图片，以数组存入
+     * @param productName 商品名字
+     * @param name        商家名字，根据商家登陆的账号来传入此参数，不允许商家填入
+     * @param description 商品介绍
+     * @param price       价格
+     * @param category    商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料
+     * @return 新增商品的结果
+     */
     @PostMapping("/add")
     @Operation(summary = "新增商品")
     @Parameters({
@@ -123,6 +135,16 @@ public class ProductController extends ApiController {
         }
     }
 
+    /**
+     * 根据商品id修改商品
+     *
+     * @param productId   商品id,根据此字段修改
+     * @param productName 商品名字
+     * @param description 商品介绍
+     * @param price       价格
+     * @param category    商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料
+     * @return 修改商品的结果
+     */
     @Operation(summary = "根据商品id修改商品")
     @PutMapping("update")
     @Parameters({
@@ -162,6 +184,17 @@ public class ProductController extends ApiController {
     public R delete(@RequestParam("idList") List<Long> idList) {
         return success(this.productService.removeByIds(idList));
     }
+
+    /**
+     * 根据商品名字模糊搜索商品
+     *
+     * @param keyword   搜索关键字
+     * @param current   所在页面
+     * @param size      每页显示数据
+     * @param isAsc     是否升序排列，不传或传入空值则不排序
+     * @param sortField 根据此参数传入的字段排序
+     * @return 商品列表
+     */
     @Operation(summary = "根据商品名字模糊搜索商品")
     @GetMapping("search")
     @Parameters({
@@ -178,6 +211,30 @@ public class ProductController extends ApiController {
             @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
             @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
+    }
+
+    /**
+     * 获取指定商品的评价列表
+     *
+     * @param productId  商品id
+     * @param pageNum    所在页面，默认为1
+     * @param pageSize   每页显示数量，默认为10
+     * @param sortByTime 是否按照时间排序，默认为true
+     * @return 评论列表
+     */
+    @GetMapping("/{productId}/comments")
+    @Operation(summary = "商品评价")
+    @Parameters({
+            @Parameter(name = "productId", description = "商品id"),
+            @Parameter(name = "pageNum", description = "所在页面", example = "1"),
+            @Parameter(name = "pageSize", description = "每页显示数量", example = "10"),
+            @Parameter(name = "sortByTime", description = "是否按照时间排序", example = "true")
+    })
+    public List<CommentDto> getProductComments(@PathVariable Integer productId,
+                                               @RequestParam(defaultValue = "1") Integer pageNum,
+                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                               @RequestParam(defaultValue = "true") Boolean sortByTime) {
+        return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
     }
 }
 

@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("errorMessage", "请将图片控制在50MB内");
+        errorResponse.put("errorMessage", "请将图片控制在10MB内");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 

@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @author makejava
  * @since 2023-05-09 09:43:45
  */
-
+@Mapper
 public interface ProductCommentsDao extends BaseMapper<ProductComments> {
 
 }

@@ -4,16 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.explor_gastro.dao.ProductCommentsDao;
 import com.example.explor_gastro.dao.ProductDao;
+import com.example.explor_gastro.dao.UserDao;
+import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
+import com.example.explor_gastro.entity.ProductComments;
+import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 商品表(Product)表服务实现类
@@ -26,16 +28,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
     @Autowired
     private ProductDao productDao;
     //    current – 当前页 size – 每页显示条数
-
-
-    /**
-     *
-     * @param current 当前所在页面
-     * @param size 每页显示数量
-     * @param isAsc 是否升序排列,false为降序，不填则原序
-     * @param sortField 根据传入的此字段来排序，不填则原序
-     * @return 返回所有数据
-     */
+    @Autowired
+    private ProductCommentsDao productCommentsDao;
+    @Autowired
+    private UserDao userDao;
 
     @Override
     public IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
@@ -91,6 +87,42 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         params.put("limit", size);
         return productDao.selectByCategory(params);
     }
+    /**
+     * 根据商品ID获取商品评价列表
+     *
+     * @param productId 商品ID
+     * @param pageNum   当前页数
+     * @param pageSize  每页显示数量
+     * @param sortByTime 是否按时间排序
+     * @return 商品评价列表
+     */
+    public List<CommentDto> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime) {
+        // 计算起始索引
+        int startIndex = (pageNum - 1) * pageSize;
 
+        // 使用QueryWrapper构建查询条件，并根据sortByTime参数指定排序方式
+        QueryWrapper<ProductComments> productCommentsQueryWrapper = new QueryWrapper<>();
+        QueryWrapper<ProductComments> orderByTime = productCommentsQueryWrapper
+                .eq("product_id", productId)
+                .orderBy(true, sortByTime, "time")
+                .last("LIMIT " + startIndex + ", " + pageSize);
+
+        // 调用DAO层获取商品评价列表
+        List<ProductComments> comments = productCommentsDao.selectList(orderByTime);
+
+        // 将ProductComments转换为CommentDto
+        List<CommentDto> commentDtos = new ArrayList<>();
+        for (ProductComments comment : comments) {
+            CommentDto commentDto = new CommentDto();
+            commentDto.setComments(comment.getComments());
+            commentDto.setImgId(comment.getImgId());
+            commentDto.setTime(comment.getTime());
+            User user = userDao.selectById(comment.getUserId());
+            commentDto.setUserName(user.getName());
+            commentDtos.add(commentDto);
+        }
+
+        return commentDtos;
+    }
 }
 

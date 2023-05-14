@@ -3,6 +3,7 @@ package com.example.explor_gastro.entity;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -35,8 +36,10 @@ public class User extends Model<User> {
     //下单地址
     private String address;
     // JWT 的签发时间
+    @TableField(value = "iat", exist = false)
     private Date iat;
     // JWT 的过期时间
+    @TableField(value = "exp", exist = false)
     private Date exp;
 
     public User(Integer userId, String name, String phone, Date signupTime, String description, String address, Date iat, Date exp) {

@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.JwtService;
-import com.example.explor_gastro.utils.Md5;
 import com.example.explor_gastro.utils.TXSendSms;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,7 +72,12 @@ public class UserController extends ApiController {
         }
     }
 
+
     @GetMapping(value = "/user", produces = "application/json")
+    @Operation(summary = "解析token")
+    @Parameters({
+            @Parameter(name = "Authorization", description = "用户token"),
+    })
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
         try {
             User user = jwtService.parseToken(token);

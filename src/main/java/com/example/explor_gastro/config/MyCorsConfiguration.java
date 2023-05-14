@@ -11,7 +11,7 @@ public class MyCorsConfiguration {
         CorsConfiguration config = new CorsConfiguration();
 
         // 设置允许访问的域名
-        config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("*");
 
         // 设置允许的 HTTP 方法
         config.addAllowedMethod("GET");

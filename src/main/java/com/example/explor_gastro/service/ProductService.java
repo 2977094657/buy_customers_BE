@@ -2,6 +2,7 @@ package com.example.explor_gastro.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.ProductImg;
 
@@ -32,5 +33,6 @@ public interface ProductService extends IService<Product> {
     boolean updateImgByProductId(Integer productId, String img);
 
     List<Product> selectByCategory(int current, int size, String category);
+    List<CommentDto> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime);
 }
 
