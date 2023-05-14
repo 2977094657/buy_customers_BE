@@ -62,18 +62,13 @@ public class UserController extends ApiController {
     })
     public ResponseEntity<?> login(@RequestParam String phone, @RequestParam String pwd) {
         try {
-            // 调用 userService 的 LoginIn 方法进行登录
             User user = userService.LoginIn(phone, pwd);
-            // 生成 JWT token
             String token = jwtService.generateToken(user);
-            // 构造响应内容
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", user);
-            // 返回成功响应
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            // 如果出现异常，返回错误响应
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }

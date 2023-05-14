@@ -1,36 +1,52 @@
 package com.example.explor_gastro.config;
 
-import com.example.explor_gastro.utils.JwtAuthenticationFilter;
-import com.example.explor_gastro.utils.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Spring Security 配置类
  */
 @Configuration
-@EnableWebSecurity // 启用 Spring Security
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private JwtService jwtService;
-
-    /**
-     * 配置 HTTP 安全策略
-     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // 禁用 CSRF 防护
-                .authorizeRequests()
-                .antMatchers("/user/loginIn","/user/register").permitAll() // /此处接口允许所有用户访问
-//                .anyRequest().authenticated() // 其他接口需要经过身份验证才能访问
-                .anyRequest().permitAll() // 允许所有用户通过
+//                .formLogin()
+//                .loginPage("/user/loginIn")
+//                .loginProcessingUrl("/user/loginIn")
+//                .defaultSuccessUrl("/doc.html")
+//                .and()
+                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class); // 添加 JwtAuthenticationFilter 过滤器
+//                .csrf().disable() // 禁用 CSRF 防护
+                .authorizeRequests()
+//                .antMatchers("/user/loginIn", "/user/loginIn/**").permitAll()  // 所有人都可以访问此处定义的接口
+                .anyRequest().authenticated() // 只有验证过的用户才可以通过
+//                .anyRequest().permitAll() // 允许所有用户通过
+                .and()
+                .httpBasic();
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

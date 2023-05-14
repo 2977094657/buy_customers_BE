@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2023-05-08 11:38:11
  */
+@Data
 @SuppressWarnings("serial")
 public class User extends Model<User> {
     @TableId(type = IdType.AUTO)
@@ -32,8 +34,20 @@ public class User extends Model<User> {
     private String description;
     //下单地址
     private String address;
+    // JWT 的签发时间
+    private Date iat;
+    // JWT 的过期时间
+    private Date exp;
 
-    public User(Integer userId, String name, String phone, Date signupTime, String description, String address) {
+    public User(Integer userId, String name, String phone, Date signupTime, String description, String address, Date iat, Date exp) {
+        this.userId = userId;
+        this.name = name;
+        this.phone = phone;
+        this.signupTime = signupTime;
+        this.description = description;
+        this.address = address;
+        this.iat = iat;
+        this.exp = exp;
     }
 
     public User(){

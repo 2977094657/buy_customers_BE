@@ -24,6 +24,7 @@ public class JwtService {
         claims.put("userId", user.getUserId());
         claims.put("name", user.getName());
         claims.put("phone", user.getPhone());
+        claims.put("pwd", user.getPwd());
         claims.put("signupTime", user.getSignupTime());
         claims.put("description", user.getDescription());
         claims.put("address", user.getAddress());
@@ -39,6 +40,11 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * 解密token
+     * @param token 前段传入的token
+     * @return 解析后的明文
+     */
     public User parseToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
@@ -47,12 +53,14 @@ public class JwtService {
 
         Integer userId = (Integer) claims.get("userId");
         String name = (String) claims.get("name");
-        String phone = (String) claims.get("phone"); // 解析为整数类型
+        String phone = (String) claims.get("phone");
         Date signupTime = new Date((Long) claims.get("signupTime"));
         String description = (String) claims.get("description");
         String address = (String) claims.get("address");
+        Date iat = claims.getIssuedAt();
+        Date exp = claims.getExpiration();
 
-        return new User(userId, name, phone, signupTime, description, address);
+        return new User(userId, name, phone, signupTime, description, address, iat, exp);
     }
     public boolean validateToken(String token) {
         try {

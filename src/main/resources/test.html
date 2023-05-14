@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Send JWT Token in HTTP Request Header</title>
+</head>
+<body>
+<button onclick="sendRequest()">Send Request</button>
+<script>
+    function sendRequest() {
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMzQ1Njc4OTAxMiIsInVzZXJJZCI6MiwibmFtZSI6IuWImOiKsyIsInBob25lIjoiMjM0NTY3ODkwMTIiLCJwd2QiOiIxMjM0NTYiLCJzaWdudXBUaW1lIjoxNjgzMTk4ODc1MDAwLCJkZXNjcmlwdGlvbiI6IuS9oOaJgOeDreeIseeahOWwseaYr-S9oOeahOeUn-a0uyIsImFkZHJlc3MiOiLkuIrmtbfluILlvpDmsYfljLoiLCJpYXQiOjE2ODM5ODM4NDUsImV4cCI6MTY4NDA3MDI0NX0.ci5dTfiOJAnbOPrZWafgxIc5t7rS98AxbYJBg8Ik6G0";
+        const current = 1; // 当前所在页面
+        const size = 10; // 每页显示数据
+        const isAsc = false; // 是否升序排列
+        const sortField = 'product_id'; // 根据此字段传入的字段排序
+        const url = `http://localhost:8081/product/all?current=${current}&size=${size}&isAsc=${isAsc}&sortField=${sortField}`;
+        fetch(url, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    }
+</script>
+</body>
+</html>
