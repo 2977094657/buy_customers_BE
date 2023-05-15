@@ -163,23 +163,7 @@ public class UserController extends ApiController {
         User user = userService.selectUserById(userId);
         return R.ok(user);
     }
-//    @PutMapping("/{userId}")
-//    public boolean updateUser(@PathVariable Integer userId,
-//                              @RequestParam String name,
-//                              @RequestParam String description,
-//                              @RequestParam String address,
-//                              @RequestParam Date signupTime,
-//                              @RequestParam String phone) {
-//        boolean result = userService.updateUser(userId, name, description, address, signupTime, phone);
-//        return result;
-//    }
 
-//    @PutMapping("/updateUser")
-//    @Operation(summary = "用户修改")
-//    public boolean updateUser2(@RequestBody User user) {
-//        boolean result = userService.updateById(user);
-//        return result;
-//    }
 
     /**
      *
