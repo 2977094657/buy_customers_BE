@@ -3,6 +3,7 @@ package com.example.explor_gastro.controller;
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.JwtService;
@@ -38,6 +39,9 @@ public class UserController extends ApiController {
      */
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserDao userDao;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -154,11 +158,13 @@ public class UserController extends ApiController {
      * @param userId 用户ID
      * @return 用户信息
      */
-    @GetMapping("/{userId}")
+    @GetMapping(value = "/{userId}",produces = "text/plain;charset=UTF-8")
+    @Operation(summary  =  "根据用户ID查询用户信息")
     public R<User> selectUserById(@PathVariable Integer userId) {
         User user = userService.selectUserById(userId);
         return R.ok(user);
     }
+
 
     /**
      * 修改用户信息
@@ -167,33 +173,64 @@ public class UserController extends ApiController {
      * @param name        用户名
      * @param description 用户简介
      * @param address     用户地址
-     * @param signupTime  用户注册时间
      * @param phone       用户手机号
      * @return 是否修改成功
      */
-    @PutMapping("/{userId}")
+    @PutMapping(value = "/{userId}",produces = "text/plain;charset=UTF-8")
+    @Operation(summary  =  "修改用户信息")
+    @Parameters({
+            @Parameter(name = "name", description = "用户名",required = true),
+            @Parameter(name = "description", description = "用户简介",required = false),
+            @Parameter(name = "address", description = "下单地址",required = true),
+            @Parameter(name = "phone", description = "手机号",required = true),
+    })
     public boolean updateUser(@PathVariable Integer userId,
                               @RequestParam String name,
                               @RequestParam String description,
                               @RequestParam String address,
-                              @RequestParam Date signupTime,
                               @RequestParam String phone) {
-        boolean result = userService.updateUser(userId, name, description, address, signupTime, phone);
+        boolean result = userService.updateUser(userId, name, description, address, phone);
         return result;
     }
 
 
-
-
     /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
+     * 修改用户密码
+     * @param userId
+     * @param oldPassword
+     * @param newPassword
+     * @param confirmPassword
+     * @return
      */
-    @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.userService.removeByIds(idList));
+    @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
+    @Operation(summary  =  "用户修改密码")
+    @Parameters({
+            @Parameter(name = "userId", description = "用户id",required = true),
+            @Parameter(name = "oldPassword", description = "旧密码",required = true),
+            @Parameter(name = "newPassword", description = "新密码",required = true),
+            @Parameter(name = "confirmPassword", description = "确认密码",required = true),
+    })
+    public ResponseEntity<String> updatePassword(@PathVariable("userId") Integer userId,
+                                                 @RequestParam("oldPassword") String oldPassword,
+                                                 @RequestParam("newPassword") String newPassword,
+                                                 @RequestParam("confirmPassword") String confirmPassword) {
+        User user = userDao.selectByUserId1(userId);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("未找到用户");
+        }
+
+        if (!user.getPwd().equals(oldPassword)) {
+            return ResponseEntity.badRequest().body("旧密码不匹配");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body("新密码和确认密码不匹配");
+        }
+
+        user.setPwd(newPassword);
+        userDao.updateById(user);
+
+        return ResponseEntity.ok("密码更新成功");
     }
 }
 

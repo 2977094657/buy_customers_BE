@@ -19,8 +19,7 @@ public interface UserService extends IService<User> {
     boolean register(User user) throws NoSuchAlgorithmException;
 
 
-    boolean updateUser(Integer userId, String name, String description, String address, Date signupTime, String phone);
-
+    boolean updateUser(Integer userId, String name, String description, String address, String phone);
 
 
     /**
