@@ -24,7 +24,6 @@ public class JwtService {
         claims.put("userId", user.getUserId());
         claims.put("name", user.getName());
         claims.put("phone", user.getPhone());
-        claims.put("pwd", user.getPwd());
         claims.put("signupTime", user.getSignupTime());
         claims.put("description", user.getDescription());
         claims.put("address", user.getAddress());
