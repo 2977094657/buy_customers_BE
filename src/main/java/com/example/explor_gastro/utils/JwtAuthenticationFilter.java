@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -12,7 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -27,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 从请求头中获取 Authorization 字段
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        logger.info(authorizationHeader);
 
         // 检查 Authorization 字段是否以 "Bearer " 开头
         if (StringUtils.isNotBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {

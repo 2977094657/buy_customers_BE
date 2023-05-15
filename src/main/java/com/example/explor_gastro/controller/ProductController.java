@@ -56,10 +56,10 @@ public class ProductController extends ApiController {
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
     public IPage<Product> page(
-            @RequestParam(name = "current") int current,
-            @RequestParam(name = "size") int size,
-            @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
-            @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
+            @RequestParam(name = "current",defaultValue = "1") int current,
+            @RequestParam(name = "size",defaultValue = "10") int size,
+            @RequestParam(name = "isAsc", required = false,defaultValue = "true") Optional<Boolean> isAsc,
+            @RequestParam(name = "sortField", required = false,defaultValue = "price") Optional<String> sortField) {
         return productService.testSelectPage(current, size, isAsc, sortField);
     }
 
@@ -78,9 +78,9 @@ public class ProductController extends ApiController {
             @Parameter(name = "size", description = "每页数量"),
             @Parameter(name = "category", description = "商品类别")
     })
-    public List<Product> selectByCategory(@RequestParam(defaultValue = "1") int current,
-                                          @RequestParam(defaultValue = "10") int size,
-                                          @RequestParam String category) {
+    public List<Product> selectByCategory(@RequestParam(defaultValue = "1",name = "current") int current,
+                                          @RequestParam(defaultValue = "10",name = "size") int size,
+                                          @RequestParam(defaultValue = "主食",name = "category") String category) {
         return productService.selectByCategory(current, size, category);
     }
 
@@ -107,11 +107,11 @@ public class ProductController extends ApiController {
     })
     public ResponseEntity<Map<String, Object>> addProduct(
             @RequestParam("images") MultipartFile[] files,
-            @RequestParam("productName") String productName,
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") Integer price,
-            @RequestParam("category") String category
+            @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
+            @RequestParam(defaultValue = "川之味",name = "name") String name,
+            @RequestParam(defaultValue = "小时候的味道",name = "description") String description,
+            @RequestParam(defaultValue = "32",name = "price") Integer price,
+            @RequestParam(defaultValue = "主食",name = "category") String category
     ) {
         List<Map<String, String>> responseList = imageUpload.add(files, productName, name, description, price, category).getBody();
         boolean isSuccess = true;
@@ -154,11 +154,11 @@ public class ProductController extends ApiController {
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
     public R update(
-            @RequestParam("productId") Integer productId,
-            @RequestParam("productName") String productName,
-            @RequestParam("description") String description,
-            @RequestParam("price") Integer price,
-            @RequestParam("category") String category
+            @RequestParam(name = "productId",defaultValue = "1") Integer productId,
+            @RequestParam(name = "productName",defaultValue = "红烧肉") String productName,
+            @RequestParam(name = "description",defaultValue = "很好吃") String description,
+            @RequestParam(name = "price",defaultValue = "12") Integer price,
+            @RequestParam(name = "category",defaultValue = "主食") String category
     ) {
         boolean result = this.productService.updateProduct(productId, productName, description, price, category);
         if (result) {
@@ -180,7 +180,7 @@ public class ProductController extends ApiController {
             @Parameter(name = "idList", description = "商品id，根据商家登陆的账号来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
             })
     @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
+    public R delete(@RequestParam(name = "idList",defaultValue = "1") List<Long> idList) {
         return success(this.productService.removeByIds(idList));
     }
 
@@ -204,11 +204,11 @@ public class ProductController extends ApiController {
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
     public IPage<Product> search(
-            @RequestParam(name = "keyword") String keyword,
-            @RequestParam(name = "current") int current,
-            @RequestParam(name = "size") int size,
-            @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
-            @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
+            @RequestParam(name = "keyword",defaultValue = "肉") String keyword,
+            @RequestParam(name = "current",defaultValue = "1") int current,
+            @RequestParam(name = "size",defaultValue = "5") int size,
+            @RequestParam(name = "isAsc", required = false,defaultValue = "") Optional<Boolean> isAsc,
+            @RequestParam(name = "sortField", required = false,defaultValue = "price") Optional<String> sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 /**
  * 用户表(User)表服务实现类
@@ -67,28 +66,21 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     }
 
 
-
-
-
-
     @Override
     public User selectUserById(Integer userId) {
         return userDao.selectUserById(userId);
     }
 
     @Override
-    public boolean updateUser(Integer userId, String name, String description, String address, Date signupTime, String phone) {
+    public boolean updateUser(Integer userId, String name, String description, String address, String phone) {
         User user = new User();
         user.setUserId(userId);
         user.setName(name);
         user.setDescription(description);
         user.setAddress(address);
-        user.setSignupTime(signupTime);
         user.setPhone(phone);
         return userDao.updateUser(user);
     }
-
-
 }
 
 

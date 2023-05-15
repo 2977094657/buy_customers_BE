@@ -19,7 +19,8 @@ public interface UserService extends IService<User> {
     boolean register(User user) throws NoSuchAlgorithmException;
 
 
-    boolean updateUser(Integer userId, String name, String description, String address, Date signupTime, String phone);
+//    boolean updateUser(Integer userId, String name, String description, String address, Date signupTime, String phone);
+//    public boolean updateUer2(User user);
 
 
 
@@ -30,6 +31,10 @@ public interface UserService extends IService<User> {
      * @return 用户信息
      */
     User selectUserById(Integer userId);
+
+    boolean updateUser(Integer userId, String name, String description, String address, String phone);
+
+//    boolean update(User user);
 
     /**
      * 修改用户信息

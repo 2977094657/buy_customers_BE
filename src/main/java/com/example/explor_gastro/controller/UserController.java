@@ -2,6 +2,7 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
+import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,7 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("user")
 @Tag(name = "用户管理")
+@CrossOrigin
 public class UserController extends ApiController {
     /**
      * 服务对象
@@ -141,10 +144,10 @@ public class UserController extends ApiController {
      * @param user 实体对象
      * @return 修改结果
      */
-    @PutMapping
-    public R update(@RequestBody User user) {
-        return success(this.userService.updateById(user));
-    }
+//    @PutMapping
+//    public R update(@RequestBody User user) {
+//        return success(this.userService.updateById(user));
+//    }
 
 
 
@@ -154,33 +157,58 @@ public class UserController extends ApiController {
      * @param userId 用户ID
      * @return 用户信息
      */
+
+
+
+    //  通过  Get  请求访问URL中的  {userId}，并返回相应的用户信息
     @GetMapping("/{userId}")
+    //  自定义接口描述信息
+    @Operation(summary = "获取用户")
+    //  定义一个通用的返回结果类型，封装操作结果以及数据
     public R<User> selectUserById(@PathVariable Integer userId) {
+        //  根据传入的  userId  查询对应的用户信息
         User user = userService.selectUserById(userId);
+        //  将查询结果封装到通用返回结果类型中，并返回
         return R.ok(user);
     }
 
+
     /**
-     * 修改用户信息
      *
-     * @param userId      用户ID
-     * @param name        用户名
-     * @param description 用户简介
-     * @param address     用户地址
-     * @param signupTime  用户注册时间
-     * @param phone       用户手机号
-     * @return 是否修改成功
+     * @param user
+     * @return
      */
-    @PutMapping("/{userId}")
-    public boolean updateUser(@PathVariable Integer userId,
-                              @RequestParam String name,
-                              @RequestParam String description,
-                              @RequestParam String address,
-                              @RequestParam Date signupTime,
-                              @RequestParam String phone) {
-        boolean result = userService.updateUser(userId, name, description, address, signupTime, phone);
-        return result;
+    @PutMapping("/updateUser")
+    @Operation(summary  =  "用户修改")
+    public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
+        try  {
+            //  校验用户信息是否为空
+            if  (user  ==  null)  {
+                return  ResponseEntity.badRequest().body(false);
+            }
+
+            //  从数据库中获取待修改的用户信息
+            User  oldUser  =  userService.getById(user.getUserId());
+            if  (oldUser  ==  null)  {
+                //  待修改用户不存在
+                return  ResponseEntity.unprocessableEntity().body(false);
+            }
+
+            //  更新用户信息到数据库
+            boolean  result  =  userService.updateById(user);
+            if  (result)  {
+                //  更新成功
+                return  ResponseEntity.ok(true);
+            }  else  {
+                //  更新失败
+                return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            }
+        }  catch  (Exception  e)  {
+            //  捕获异常并返回错误信息
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
     }
+
 
 
 
