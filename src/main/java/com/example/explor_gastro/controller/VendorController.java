@@ -7,6 +7,10 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.VendorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("vendor")
+@Tag(name = "商家功能")
 public class VendorController extends ApiController {
     /**
      * 服务对象
@@ -36,6 +41,11 @@ public class VendorController extends ApiController {
      * @return 所有数据
      */
     @GetMapping
+    @Operation(summary = "查询所有数据")
+    @Parameters({
+            @Parameter(name = "page", description = "分页对象"),
+            @Parameter(name = "vendor", description = "查询实体"),
+    })
     public R selectAll(Page<Vendor> page, Vendor vendor) {
         return success(this.vendorService.page(page, new QueryWrapper<>(vendor)));
     }
@@ -47,6 +57,10 @@ public class VendorController extends ApiController {
      * @return 单条数据
      */
     @GetMapping("{id}")
+    @Operation(summary = "通过主键查询单条数据")
+    @Parameters({
+            @Parameter(name = "id", description = "主键"),
+    })
     public R selectOne(@PathVariable Serializable id) {
         return success(this.vendorService.getById(id));
     }
@@ -58,6 +72,10 @@ public class VendorController extends ApiController {
      * @return 新增结果
      */
     @PostMapping
+    @Operation(summary = "新增数据")
+    @Parameters({
+            @Parameter(name = "vendor", description = "实体对象"),
+    })
     public R insert(@RequestBody Vendor vendor) {
         return success(this.vendorService.save(vendor));
     }
@@ -69,6 +87,10 @@ public class VendorController extends ApiController {
      * @return 修改结果
      */
     @PutMapping
+    @Operation(summary = "修改数据")
+    @Parameters({
+            @Parameter(name = "vendor", description = "实体对象"),
+    })
     public R update(@RequestBody Vendor vendor) {
         return success(this.vendorService.updateById(vendor));
     }
@@ -80,6 +102,10 @@ public class VendorController extends ApiController {
      * @return 删除结果
      */
     @DeleteMapping
+    @Operation(summary = "删除数据")
+    @Parameters({
+            @Parameter(name = "idList", description = "主键结合"),
+    })
     public R delete(@RequestParam("idList") List<Long> idList) {
         return success(this.vendorService.removeByIds(idList));
     }
