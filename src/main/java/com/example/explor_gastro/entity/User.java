@@ -1,5 +1,6 @@
 package com.example.explor_gastro.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -126,5 +127,9 @@ public class User extends Model<User> {
     public void getUserId(Integer userId) {
 
     }
+
+//    public void setSignupTime(LocalDateTime parse) {
+//
+//    }
 }
 
