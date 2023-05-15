@@ -66,37 +66,22 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return true;
     }
 
+
     @Override
     public User selectUserById(Integer userId) {
         return userDao.selectUserById(userId);
     }
 
-//    @Override
-//    public boolean update(User user) {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean updateUser(Integer userId, String name, String description, String address, Date signupTime, String phone) {
-//        User user = new User();
-//        user.setUserId(userId);
-//        user.setName(name);
-//        user.setDescription(description);
-//        user.setAddress(address);
-//        user.setSignupTime(signupTime);
-//        user.setPhone(phone);
-//        return userDao.updateUser(user);
-//    }
-//
-//    @Override
-//    public boolean updateUer2(User user) {
-//        boolean flag = false;
-//        if (userDao.updateById(user) !=0)
-//            flag = true;
-//        return flag;
-//    }
-
-
+    @Override
+    public boolean updateUser(Integer userId, String name, String description, String address, String phone) {
+        User user = new User();
+        user.setUserId(userId);
+        user.setName(name);
+        user.setDescription(description);
+        user.setAddress(address);
+        user.setPhone(phone);
+        return userDao.updateUser(user);
+    }
 }
 
 
