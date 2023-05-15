@@ -4,6 +4,7 @@ package com.example.explor_gastro.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.utils.ImageUpload;
@@ -145,7 +146,7 @@ public class ProductController extends ApiController {
      * @return 返回修改结果
      */
     @Operation(summary = "根据商品id修改商品")
-    @PutMapping("update")
+    @PutMapping("{productId}/update")
     @Parameters({
             @Parameter(name = "productId", description = "商品id,根据此字段修改"),
             @Parameter(name = "productName", description = "商品名字"),
@@ -154,7 +155,7 @@ public class ProductController extends ApiController {
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
     public R update(
-            @RequestParam(name = "productId",defaultValue = "1") Integer productId,
+            @RequestParam(name = "productId") @PathVariable Integer productId,
             @RequestParam(name = "productName",defaultValue = "红烧肉") String productName,
             @RequestParam(name = "description",defaultValue = "很好吃") String description,
             @RequestParam(name = "price",defaultValue = "12") Integer price,
@@ -171,17 +172,17 @@ public class ProductController extends ApiController {
     /**
      * 删除数据
      *
-     * @param idList 主键结合
+     * @param id 主键
      * @return 删除结果
      */
     @Operation(summary = "根据商品id删除商品")
-    @PostMapping("delete")
+    @PostMapping("/{id}delete")
     @Parameters({
             @Parameter(name = "idList", description = "商品id，根据商家登陆的账号来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
             })
     @DeleteMapping
-    public R delete(@RequestParam(name = "idList",defaultValue = "1") List<Long> idList) {
-        return success(this.productService.removeByIds(idList));
+    public R delete(@RequestParam(name = "idList",defaultValue = "1") @PathVariable List<Long> id) {
+        return success(this.productService.removeByIds(id));
     }
 
     /**
@@ -210,6 +211,30 @@ public class ProductController extends ApiController {
             @RequestParam(name = "isAsc", required = false,defaultValue = "") Optional<Boolean> isAsc,
             @RequestParam(name = "sortField", required = false,defaultValue = "price") Optional<String> sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
+    }
+
+    /**
+     * 获取指定商品的评价列表
+     *
+     * @param productId  商品id
+     * @param pageNum    所在页面，默认为1
+     * @param pageSize   每页显示数量，默认为10
+     * @param sortByTime 是否按照时间排序，默认为true
+     * @return 评论列表
+     */
+    @GetMapping("{productId}/comments")
+    @Operation(summary = "商品评价")
+    @Parameters({
+            @Parameter(name = "productId", description = "商品id"),
+            @Parameter(name = "pageNum", description = "所在页面", example = "1"),
+            @Parameter(name = "pageSize", description = "每页显示数量", example = "10"),
+            @Parameter(name = "sortByTime", description = "是否按照时间排序", example = "true")
+    })
+    public List<CommentDto> getProductComments(@PathVariable Integer productId,
+                                               @RequestParam(defaultValue = "1") Integer pageNum,
+                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                               @RequestParam(defaultValue = "true") Boolean sortByTime) {
+        return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
     }
 }
 

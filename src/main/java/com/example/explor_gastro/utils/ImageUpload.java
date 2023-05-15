@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,14 +25,15 @@ import java.util.*;
 @RequestMapping("/Image")
 @Tag(name = "图片上传")
 public class ImageUpload {
-    @Autowired
+    @Resource
     private ProductImgDao productImgDao;
-    @Autowired
-    ProductServiceImpl productServiceImpl;
-    @Autowired
-    ProductService productService;
+    @Resource
+    private ProductServiceImpl productServiceImpl;
+    @Resource
+    private ProductService productService;
     // 创建一个新的ProductImg实体并设置其属性
-    ProductImg productImg = new ProductImg();
+    @Autowired(required = false)
+    private ProductImg productImg;
 
     @PostMapping("/upload")
     @Operation(summary = "单图上传,最大1MB")
@@ -150,7 +152,7 @@ public class ImageUpload {
                         String url1;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
-                            url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL
+                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
                             imageUrls.add(url);
                             url1 = dest.getName();
                             imageUrls1.add(url1);

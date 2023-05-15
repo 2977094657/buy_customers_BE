@@ -2,7 +2,6 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
@@ -21,7 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -56,7 +58,7 @@ public class UserController extends ApiController {
      * @param pwd 密码
      * @return 响应内容
      */
-    @PostMapping(value = "/loginIn", produces = "application/json")
+    @PostMapping(value = "/login", produces = "application/json")
     @Operation(summary = "用户登录")
     @Parameters({
             @Parameter(name = "phone", description = "手机号"),
@@ -138,17 +140,6 @@ public class UserController extends ApiController {
     public String sms(String phoneNumber) throws TencentCloudSDKException {
         return txSendSms.sms(phoneNumber);
     }
-    /**
-     * 修改数据
-     *
-     * @param user 实体对象
-     * @return 修改结果
-     */
-//    @PutMapping
-//    public R update(@RequestBody User user) {
-//        return success(this.userService.updateById(user));
-//    }
-
 
 
     /**
@@ -157,9 +148,6 @@ public class UserController extends ApiController {
      * @param userId 用户ID
      * @return 用户信息
      */
-
-
-
     //  通过  Get  请求访问URL中的  {userId}，并返回相应的用户信息
     @GetMapping("/{userId}")
     //  自定义接口描述信息
@@ -207,21 +195,6 @@ public class UserController extends ApiController {
             //  捕获异常并返回错误信息
             return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
-    }
-
-
-
-
-
-    /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
-     */
-    @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.userService.removeByIds(idList));
     }
 }
 

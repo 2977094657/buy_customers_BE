@@ -111,4 +111,3 @@ public class VendorController extends ApiController {
         return success(this.vendorService.removeByIds(idList));
     }
 }
-
