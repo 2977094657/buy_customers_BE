@@ -32,6 +32,8 @@ public interface UserService extends IService<User> {
      */
     User selectUserById(Integer userId);
 
+    boolean updateUser(Integer userId, String name, String description, String address, String phone);
+
 //    boolean update(User user);
 
     /**
