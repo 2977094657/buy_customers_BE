@@ -27,6 +27,7 @@ import java.util.List;
 @RequestMapping("vendor")
 @Tag(name = "商家功能")
 public class VendorController extends ApiController {
+    //
     /**
      * 服务对象
      */
