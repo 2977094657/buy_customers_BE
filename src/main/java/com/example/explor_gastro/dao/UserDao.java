@@ -25,6 +25,8 @@ public interface UserDao extends BaseMapper<User> {
     @Select("SELECT * FROM user WHERE phone = #{phone}")
     User selectUserByPhone(String phone);
 
+    @Select("SELECT * FROM user WHERE user_Id = #{userId}")//用于修改用户密码
+    User selectByUserId1(Integer userId);
 
     /**
      * 根据用户ID查询用户信息
@@ -41,7 +43,7 @@ public interface UserDao extends BaseMapper<User> {
      * @param user 用户信息
      * @return 是否修改成功
      */
-    @Update("UPDATE user SET name = #{name}, description = #{description}, address = #{address}, signup_time = #{signupTime}, phone = #{phone} WHERE user_id = #{userId}")
+    @Update("UPDATE user SET name = #{name}, description = #{description}, address = #{address}, phone = #{phone} WHERE user_id = #{userId}")
     boolean updateUser(User user);
 
 }
