@@ -181,6 +181,11 @@ public class UserController extends ApiController {
 //        return result;
 //    }
 
+    /**
+     *
+     * @param user
+     * @return
+     */
     @PutMapping("/updateUser")
     @Operation(summary  =  "用户修改")
     public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
