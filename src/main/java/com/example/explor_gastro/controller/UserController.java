@@ -2,8 +2,8 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
+import com.baomidou.mybatisplus.extension.api.IErrorCode;
 import com.baomidou.mybatisplus.extension.api.R;
-import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.JwtService;
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,15 +34,13 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("user")
 @Tag(name = "用户管理")
+@CrossOrigin
 public class UserController extends ApiController {
     /**
      * 服务对象
      */
     @Resource
     private UserService userService;
-
-    @Resource
-    private UserDao userDao;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -145,10 +144,10 @@ public class UserController extends ApiController {
      * @param user 实体对象
      * @return 修改结果
      */
-    @PutMapping
-    public R update(@RequestBody User user) {
-        return success(this.userService.updateById(user));
-    }
+//    @PutMapping
+//    public R update(@RequestBody User user) {
+//        return success(this.userService.updateById(user));
+//    }
 
 
 
@@ -158,79 +157,71 @@ public class UserController extends ApiController {
      * @param userId 用户ID
      * @return 用户信息
      */
-    @GetMapping(value = "/{userId}",produces = "text/plain;charset=UTF-8")
-    @Operation(summary  =  "根据用户ID查询用户信息")
+
+
+
+    //  通过  Get  请求访问URL中的  {userId}，并返回相应的用户信息
+    @GetMapping("/{userId}")
+    //  自定义接口描述信息
+    @Operation(summary = "获取用户")
+    //  定义一个通用的返回结果类型，封装操作结果以及数据
     public R<User> selectUserById(@PathVariable Integer userId) {
+        //  根据传入的  userId  查询对应的用户信息
         User user = userService.selectUserById(userId);
+        //  将查询结果封装到通用返回结果类型中，并返回
         return R.ok(user);
     }
 
 
     /**
-     * 修改用户信息
      *
-     * @param userId      用户ID
-     * @param name        用户名
-     * @param description 用户简介
-     * @param address     用户地址
-     * @param phone       用户手机号
-     * @return 是否修改成功
+     * @param user
+     * @return
      */
-    @PutMapping(value = "/{userId}",produces = "text/plain;charset=UTF-8")
-    @Operation(summary  =  "修改用户信息")
-    @Parameters({
-            @Parameter(name = "name", description = "用户名",required = true),
-            @Parameter(name = "description", description = "用户简介",required = false),
-            @Parameter(name = "address", description = "下单地址",required = true),
-            @Parameter(name = "phone", description = "手机号",required = true),
-    })
-    public boolean updateUser(@PathVariable Integer userId,
-                              @RequestParam String name,
-                              @RequestParam String description,
-                              @RequestParam String address,
-                              @RequestParam String phone) {
-        boolean result = userService.updateUser(userId, name, description, address, phone);
-        return result;
+    @PutMapping("/updateUser")
+    @Operation(summary  =  "用户修改")
+    public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
+        try  {
+            //  校验用户信息是否为空
+            if  (user  ==  null)  {
+                return  ResponseEntity.badRequest().body(false);
+            }
+
+            //  从数据库中获取待修改的用户信息
+            User  oldUser  =  userService.getById(user.getUserId());
+            if  (oldUser  ==  null)  {
+                //  待修改用户不存在
+                return  ResponseEntity.unprocessableEntity().body(false);
+            }
+
+            //  更新用户信息到数据库
+            boolean  result  =  userService.updateById(user);
+            if  (result)  {
+                //  更新成功
+                return  ResponseEntity.ok(true);
+            }  else  {
+                //  更新失败
+                return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            }
+        }  catch  (Exception  e)  {
+            //  捕获异常并返回错误信息
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
     }
 
 
+
+
+
     /**
-     * 修改用户密码
-     * @param userId
-     * @param oldPassword
-     * @param newPassword
-     * @param confirmPassword
-     * @return
+     * 删除数据
+     *
+     * @param idList 主键结合
+     * @return 删除结果
      */
-    @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
-    @Operation(summary  =  "用户修改密码")
-    @Parameters({
-            @Parameter(name = "userId", description = "用户id",required = true),
-            @Parameter(name = "oldPassword", description = "旧密码",required = true),
-            @Parameter(name = "newPassword", description = "新密码",required = true),
-            @Parameter(name = "confirmPassword", description = "确认密码",required = true),
-    })
-    public ResponseEntity<String> updatePassword(@PathVariable("userId") Integer userId,
-                                                 @RequestParam("oldPassword") String oldPassword,
-                                                 @RequestParam("newPassword") String newPassword,
-                                                 @RequestParam("confirmPassword") String confirmPassword) {
-        User user = userDao.selectByUserId1(userId);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("未找到用户");
-        }
-
-        if (!user.getPwd().equals(oldPassword)) {
-            return ResponseEntity.badRequest().body("旧密码不匹配");
-        }
-
-        if (!newPassword.equals(confirmPassword)) {
-            return ResponseEntity.badRequest().body("新密码和确认密码不匹配");
-        }
-
-        user.setPwd(newPassword);
-        userDao.updateById(user);
-
-        return ResponseEntity.ok("密码更新成功");
+    @DeleteMapping
+    public R delete(@RequestParam("idList") List<Long> idList) {
+        return success(this.userService.removeByIds(idList));
     }
 }
 
