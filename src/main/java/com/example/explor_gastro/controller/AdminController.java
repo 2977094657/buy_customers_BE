@@ -2,6 +2,7 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 管理员表(Admin)表控制层
@@ -41,11 +43,36 @@ public class AdminController extends ApiController {
     @Resource
     private UserDao userDao;
 
+
+    /**
+     * @param current   当前所在页面
+     * @param size      每页显示数量
+     * @param isAsc     是否升序排列，不传或传入空值则不排序
+     * @param sortField 根据传入的此字段来排序，不传或传入空值则不排序
+     * @return 返回所有数据
+     * cy
+     */
+    @GetMapping("all")
+    @Operation(summary = "分页查询所有用户")
+    @Parameters({
+            @Parameter(name = "current", description = "所在页面"),
+            @Parameter(name = "size", description = "每页显示数据"),
+            @Parameter(name = "isAsc", description = "是否升序排列"),
+            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
+    })
+    public IPage<User> page(
+            @RequestParam(name = "current",defaultValue = "1") int current,
+            @RequestParam(name = "size",defaultValue = "10") int size,
+            @RequestParam(name = "isAsc", required = false,defaultValue = "true") Optional<Boolean> isAsc,
+            @RequestParam(name = "sortField", required = false,defaultValue = "user_id") Optional<String> sortField) {
+        return adminService.testSelectPage(current, size, isAsc, sortField);
+    }
     /**
      * 修改用户密码
      * @param userId
      * @param pwd
      * @return
+     * cy
      */
     @PutMapping(value = "/{userId}/pwd",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "修改用户密码")
@@ -61,6 +88,7 @@ public class AdminController extends ApiController {
      * 删除用户
      * @param userId
      * @return
+     * cy
      */
     @PutMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
