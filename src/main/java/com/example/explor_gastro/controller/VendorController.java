@@ -5,17 +5,22 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.List;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * 商家表(Vendor)表控制层
@@ -33,6 +38,8 @@ public class VendorController extends ApiController {
      */
     @Resource
     private VendorService vendorService;
+
+
 
     /**
      * 分页查询所有数据
@@ -69,6 +76,44 @@ public class VendorController extends ApiController {
             @RequestParam(name = "id",defaultValue = "1") int id1,
             @PathVariable Serializable id) {
         return success(this.vendorService.getById(id));
+    }
+
+
+
+        /**
+         * 商家登录接口
+         */
+        @PostMapping(value = "/login",produces  =  "text/plain;charset=UTF-8")
+        @Operation(summary = "商家登录")
+        @Parameters({
+                @Parameter(name = "phone", description = "手机号"),
+                @Parameter(name = "password", description = "用户密码"),
+        })
+        public String login(@RequestParam(defaultValue = "12222222222") String phone, @RequestParam(defaultValue = "5555") String password){
+            Vendor vendor=vendorService.LoginIn(phone, password);
+            if (vendor==null){
+                return "登录失败";
+            }
+            return "登录成功";
+        }
+
+        /**
+         * 商家注册接口
+         */
+        @PostMapping(value = "/register",produces  =  "text/plain;charset=UTF-8")
+        @Operation(summary = "商家注册")
+        @Parameters({
+                @Parameter(name = "username", description = "用户名"),
+                @Parameter(name = "phone", description = "手机号"),
+                @Parameter(name = "password", description = "用户密码"),
+        })
+        public String register(@RequestParam String username, @RequestParam String phone, @RequestParam String password) {
+            Vendor vendor=vendorService.register(username, phone, password);
+            if (vendor==null){
+                return "该手机号已经注册过，请直接登录";
+            }
+            return "注册成功";
+        }
     }
 
 //    /**
@@ -115,4 +160,3 @@ public class VendorController extends ApiController {
 //    public R delete(@RequestParam("idList") List<Long> idList) {
 //        return success(this.vendorService.removeByIds(idList));
 //    }
-}
