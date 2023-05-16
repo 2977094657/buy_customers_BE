@@ -38,21 +38,28 @@ public class StarController extends ApiController {
      * @return
      */
     @GetMapping("/select")
-    @Operation(summary  =  "查询收藏")
+    @Operation(summary  =  "收藏的分页查")
     public  R  selectAll(@RequestParam("page")  Page<Star>  page,  @RequestBody  Star  starQuery)  {
         return  success(this.starService.page(page,  new  QueryWrapper<>(starQuery)));
     }
 
 
+//    @GetMapping("{userid}")
+//    @Operation(summary  =  "查询收藏")
+//    public R selectOne(@PathVariable Serializable userid) {
+//        return success(this.starService.getById(userid));
+//    }
+
     /**
-     * 通过主键查询单条数据
      *
-     * @param id 主键
-     * @return 单条数据
+     * @param userid
+     * @return
      */
-    @GetMapping("{id}")
-    public R selectOne(@PathVariable Serializable id) {
-        return success(this.starService.getById(id));
+    @GetMapping("/stars/{userid}")
+    @Operation(summary  =  "查询用户收藏")
+    public  R  selectByUserId(@PathVariable  Long  userid)  {
+        List<Star>  starList  =  this.starService.list(new  QueryWrapper<Star>().eq("user_id",  userid));
+        return  success(starList);
     }
 
     /**

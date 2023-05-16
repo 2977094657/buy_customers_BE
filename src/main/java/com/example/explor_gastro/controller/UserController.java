@@ -169,6 +169,9 @@ public class UserController extends ApiController {
     @PutMapping("/updateUser")
     @Operation(summary  =  "用户修改")
     public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
+
+
+
         try  {
             //  校验用户信息是否为空
             if  (user  ==  null)  {
