@@ -2,6 +2,7 @@ package com.example.explor_gastro.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,17 +32,6 @@ public class StarController extends ApiController {
     @Resource
     private StarService starService;
 
-    /**
-     *
-     * @param page
-     * @param starQuery
-     * @return
-     */
-    @GetMapping("/select")
-    @Operation(summary  =  "收藏的分页查")
-    public  R  selectAll(@RequestParam("page")  Page<Star>  page,  @RequestBody  Star  starQuery)  {
-        return  success(this.starService.page(page,  new  QueryWrapper<>(starQuery)));
-    }
 
 
 //    @GetMapping("{userid}")
@@ -55,11 +45,21 @@ public class StarController extends ApiController {
      * @param userid
      * @return
      */
+//    @GetMapping("/stars/{userid}")
+//    @Operation(summary  =  "查询用户收藏")
+//    public  R  selectByUserId(@PathVariable  Long  userid)  {
+//        List<Star>  starList  =  this.starService.list(new  QueryWrapper<Star>().eq("user_id",  userid));
+//        return  success(starList);
+//    }
+
     @GetMapping("/stars/{userid}")
-    @Operation(summary  =  "查询用户收藏")
-    public  R  selectByUserId(@PathVariable  Long  userid)  {
-        List<Star>  starList  =  this.starService.list(new  QueryWrapper<Star>().eq("user_id",  userid));
-        return  success(starList);
+    @Operation(summary    =    "查询用户收藏")
+    public  R  selectByUserId(@PathVariable  Long  userid,
+                              @RequestParam(defaultValue  =  "1")  Integer  pageNum,
+                              @RequestParam(defaultValue  =  "10")  Integer  pageSize)  {
+        Page<Star>  page  =  new  Page<>(pageNum,  pageSize);
+        IPage<Star> stars  =  this.starService.page(page,  new  QueryWrapper<Star>().eq("user_id",  userid));
+        return  success(stars);
     }
 
     /**
