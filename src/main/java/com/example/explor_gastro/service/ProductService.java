@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
-import com.example.explor_gastro.entity.ProductImg;
 
 import java.util.List;
 import java.util.Optional;

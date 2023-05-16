@@ -3,7 +3,10 @@ package com.example.explor_gastro.controller;
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.dao.UserDao;
+import com.example.explor_gastro.dao.VendorDao;
 import com.example.explor_gastro.entity.User;
+import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.JwtService;
 import com.example.explor_gastro.utils.TXSendSms;
@@ -20,10 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -45,10 +45,14 @@ public class UserController extends ApiController {
     private UserService userService;
 
     @Resource
+    private VendorDao vendorDao;
+
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private TXSendSms txSendSms;
+
     @Resource
     private JwtService jwtService;
 
@@ -64,7 +68,8 @@ public class UserController extends ApiController {
             @Parameter(name = "phone", description = "手机号"),
             @Parameter(name = "pwd", description = "用户密码"),
     })
-    public ResponseEntity<?> login(@RequestParam String phone, @RequestParam String pwd) {
+    public ResponseEntity<?> login(@RequestParam(defaultValue = "12345678955") String phone,
+                                   @RequestParam(defaultValue = "888") String pwd) {
         try {
             User user = userService.LoginIn(phone, pwd);
             String token = jwtService.generateToken(user);
@@ -126,6 +131,7 @@ public class UserController extends ApiController {
         }
         else  {  return  "注册失败，用户名或手机号已存在";  }  }
 
+
     /**
      * 短信获取
      * @param phoneNumber
@@ -143,15 +149,29 @@ public class UserController extends ApiController {
 
 
     /**
-     * 根据用户ID查询用户信息
+     * 搜索商家功能
+     * @param keyword
+     * @return
+     */
+    @GetMapping("/search")
+    @Operation(summary = "搜索商家")
+    @Parameters({
+            @Parameter(name = "keyword",description = "关键词，示例值：江湖菜;瓦香鸡"),
+    })
+    public List<Vendor> searchVendors(@RequestParam(required = false) String keyword) {
+        return vendorDao.searchVendors(keyword);
+    }
+
+
+    /**
      *
-     * @param userId 用户ID
-     * @return 用户信息
+     * @param userId
+     * @return
      */
     //  通过  Get  请求访问URL中的  {userId}，并返回相应的用户信息
     @GetMapping("/{userId}")
     //  自定义接口描述信息
-    @Operation(summary = "获取用户")
+    @Operation(summary = "个人中心的获取用户")
     //  定义一个通用的返回结果类型，封装操作结果以及数据
     public R<User> selectUserById(@PathVariable Integer userId) {
         //  根据传入的  userId  查询对应的用户信息
@@ -167,7 +187,7 @@ public class UserController extends ApiController {
      * @return
      */
     @PutMapping("/updateUser")
-    @Operation(summary  =  "用户修改")
+    @Operation(summary  =  "个人中心的用户修改")
     public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
 
 

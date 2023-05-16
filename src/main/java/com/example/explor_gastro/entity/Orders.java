@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @since 2023-05-09 08:53:40
  */
 @SuppressWarnings("serial")
-public class Order extends Model<Order> {
+public class Orders extends Model<Orders> {
 
     //订单id，主键自增
     @TableId(type = IdType.AUTO)
