@@ -106,6 +106,7 @@ public class VendorController extends ApiController {
          * username 用户名
          * phone 手机号
          * password 用户密码
+         *
          */
         @PostMapping(value = "/register",produces  =  "text/plain;charset=UTF-8")
         @Operation(summary = "商家注册")
