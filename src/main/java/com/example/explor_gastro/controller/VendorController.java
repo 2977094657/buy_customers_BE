@@ -57,7 +57,7 @@ public class VendorController extends ApiController {
      * @param id 主键
      * @return 单条数据
      */
-    @GetMapping("vendorid")
+    @PostMapping("/{id}/vendorid")
     @Operation(summary = "通过主键查询单条数据")
     @Parameters({
             @Parameter(name = "id", description = "主键"),

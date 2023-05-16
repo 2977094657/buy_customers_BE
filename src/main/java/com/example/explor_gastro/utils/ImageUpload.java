@@ -39,11 +39,11 @@ public class ImageUpload {
     @Operation(summary = "单图上传,最大1MB")
     @Parameters({
             @Parameter(name = "image", description = "传入的图片"),
-            @Parameter(name = "productId", description = "商品id"),
+            @Parameter(name = "userid", description = "用户id"),
     })
     public ResponseEntity<Map<String, String>> upload(
-            @RequestParam(name = "image",required = true) MultipartFile file,
-            @RequestParam(name = "productId" ,required = true) Integer productId) throws IOException {
+            @RequestParam(name = "image") MultipartFile file,
+            @RequestParam(name = "userid") Integer userid) throws IOException {
         if (file.getSize() > 1024 * 1024) {
             Map<String, String> error = new HashMap<>();
             error.put("message", "请将图片控制在1MB内");
@@ -80,7 +80,7 @@ public class ImageUpload {
             response.put("fileName", dest.getName());
         }
         productImg.setImg(url);
-        productImg.setProductId(productId);
+        productImg.setUserId(userid);
 
         // 保存ProductImg实体
         productImgDao.insert(productImg);
