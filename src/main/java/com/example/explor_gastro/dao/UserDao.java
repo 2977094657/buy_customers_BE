@@ -1,6 +1,7 @@
 package com.example.explor_gastro.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -9,6 +10,7 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户表(User)表数据库访问层
@@ -27,6 +29,10 @@ public interface UserDao extends BaseMapper<User> {
 
     @Select("SELECT * FROM user WHERE user_Id = #{userId}")//用于修改用户密码
     User selectByUserId1(Integer userId);
+
+    @Select("SELECT * FROM user WHERE phone LIKE CONCAT('%', #{keyword}, '%') OR name LIKE CONCAT('%', #{keyword}, '%')")
+    List<User> searchUsers(@Param("keyword") String keyword);
+
 
     /**
      * 根据用户ID查询用户信息
