@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.entity.Star;
 import com.example.explor_gastro.service.StarService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("star")
+@Tag(name = "收藏管理")
 public class StarController extends ApiController {
     /**
      * 服务对象
@@ -29,16 +32,17 @@ public class StarController extends ApiController {
     private StarService starService;
 
     /**
-     * 分页查询所有数据
      *
-     * @param page 分页对象
-     * @param star 查询实体
-     * @return 所有数据
+     * @param page
+     * @param starQuery
+     * @return
      */
-    @GetMapping
-    public R selectAll(Page<Star> page, Star star) {
-        return success(this.starService.page(page, new QueryWrapper<>(star)));
+    @GetMapping("/select")
+    @Operation(summary  =  "查询收藏")
+    public  R  selectAll(@RequestParam("page")  Page<Star>  page,  @RequestBody  Star  starQuery)  {
+        return  success(this.starService.page(page,  new  QueryWrapper<>(starQuery)));
     }
+
 
     /**
      * 通过主键查询单条数据
