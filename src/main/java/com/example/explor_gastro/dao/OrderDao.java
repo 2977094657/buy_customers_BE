@@ -2,14 +2,13 @@ package com.example.explor_gastro.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.explor_gastro.entity.Orders;
-import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+@Mapper
 public interface OrderDao extends BaseMapper<Orders> {
 
     /**
@@ -42,14 +41,5 @@ public interface OrderDao extends BaseMapper<Orders> {
      */
     @Update("UPDATE orders SET price = #{price}, notes = #{notes} WHERE order_id = #{orderId}")
     int updatePriceAndNotesById(Integer orderId, Integer price, String notes);
-
-    /**
-     * 删除订单
-     *
-     * @param orderId 订单id
-     * @return 影响的行数，若为1则表示删除成功
-     */
-    @Delete("DELETE FROM orders WHERE order_id = #{orderId}")
-    int deleteById(Integer orderId);
 
 }
