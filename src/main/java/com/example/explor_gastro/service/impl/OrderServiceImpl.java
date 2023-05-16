@@ -2,7 +2,7 @@ package com.example.explor_gastro.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.explor_gastro.dao.OrderDao;
-import com.example.explor_gastro.entity.Order;
+import com.example.explor_gastro.entity.Orders;
 import com.example.explor_gastro.service.OrderService;
 import org.springframework.stereotype.Service;
 
@@ -13,20 +13,20 @@ import org.springframework.stereotype.Service;
  * @since 2023-05-09 08:53:40
  */
 @Service("orderService")
-public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderDao, Orders> implements OrderService {
     @Override
-    public Order getOrderById(Integer orderId) {
+    public Orders getOrderById(Integer orderId) {
         return getById(orderId);
     }
 
     @Override
-    public boolean createOrder(Order order) {
-        return save(order);
+    public boolean createOrder(Orders orders) {
+        return save(orders);
     }
 
     @Override
-    public boolean updateOrder(Order order) {
-        return updateById(order);
+    public boolean updateOrder(Orders orders) {
+        return updateById(orders);
     }
 
     @Override

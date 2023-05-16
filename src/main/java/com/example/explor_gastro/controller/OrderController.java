@@ -50,7 +50,7 @@ package com.example.explor_gastro.controller;//package com.example.explor_gastro
 //}
 //}
 //
-import com.example.explor_gastro.entity.Order;
+import com.example.explor_gastro.entity.Orders;
 import com.example.explor_gastro.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -66,42 +66,55 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/{orderId}")
-    public Order getOrderById(@PathVariable Integer orderId) {
+    public Orders getOrderById(@PathVariable Integer orderId) {
         return orderService.getOrderById(orderId);
     }
-    @PostMapping("/")
-    public boolean createOrder(
-            //订单ID(orderId)
-            @RequestParam Integer orderId,
+
+    @PostMapping("/orders")
+    public Orders createOrder(
             //商家ID(vendorId)
             @RequestParam Integer vendorId,
+            //订单号(orderLong)
             @RequestParam String orderLong,
+            //用户ID(userId)
             @RequestParam Integer userId,
+            //下单时间(data)
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") Date data,
+            //下单地址(address)
             @RequestParam String address,
+            //订单总计价格(price)
             @RequestParam Integer price,
+            //商品ID(productId)
             @RequestParam Integer productId,
+            //订单备注(notes)
             @RequestParam String notes,
+            //订单类型(type)
             @RequestParam String type) {
-        Order order = new Order();
-        order.setOrderId(orderId);
-        order.setVendorId(vendorId);
-        order.setOrderLong(orderLong);
-        order.setUserId(userId);
-        order.setData(data);
-        order.setAddress(address);
-        order.setPrice(price);
-        order.setProductId(productId);
-        order.setNotes(notes);
 
-        if ("外卖".equals(type) || "堂食".equals(type)) {
-            order.setType(type);
-        } else {
+        // 判断订单类型是否正确
+        if (!"外卖".equals(type) && !"堂食".equals(type)) {
             throw new IllegalArgumentException("订单类型不正确");
         }
 
-        return orderService.createOrder(order);
+        // 创建新订单
+        Orders orders = new Orders();
+        orders.setVendorId(vendorId);
+        orders.setOrderLong(orderLong);
+        orders.setUserId(userId);
+        orders.setData(data);
+        orders.setAddress(address);
+        orders.setPrice(price);
+        orders.setProductId(productId);
+        orders.setNotes(notes);
+        orders.setType(type);
+
+        // 将订单保存到数据库
+        orderService.save(orders);
+
+        return orders;
     }
+
+
 
     @PutMapping("/{orderId}")
     public boolean updateOrder(
@@ -125,23 +138,23 @@ public class OrderController {
             @RequestParam String notes,
             //订单类型(type)
             @RequestParam String type) {
-        Order order = orderService.getById(orderId);
-        order.setVendorId(vendorId);
-        order.setOrderLong(orderLong);
-        order.setUserId(userId);
-        order.setData(data);
-        order.setAddress(address);
-        order.setPrice(price);
-        order.setProductId(productId);
-        order.setNotes(notes);
+        Orders orders = orderService.getById(orderId);
+        orders.setVendorId(vendorId);
+        orders.setOrderLong(orderLong);
+        orders.setUserId(userId);
+        orders.setData(data);
+        orders.setAddress(address);
+        orders.setPrice(price);
+        orders.setProductId(productId);
+        orders.setNotes(notes);
 
         if ("外卖".equals(type) || "堂食".equals(type)) {
-            order.setType(type);
+            orders.setType(type);
         } else {
             throw new IllegalArgumentException("订单类型不正确");
         }
 
-        return orderService.updateById(order);
+        return orderService.updateById(orders);
     }
 
     @DeleteMapping("/{orderId}")
