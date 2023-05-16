@@ -42,12 +42,16 @@ public class VendorController extends ApiController {
      * @return 所有数据
      */
     @GetMapping("vendorInquire")
-    @Operation(summary = "查询所有数据")
+    @Operation(summary = "所有商家")
     @Parameters({
             @Parameter(name = "page", description = "分页对象"),
             @Parameter(name = "vendor", description = "查询实体"),
     })
-    public R selectAll(Page<Vendor> page, Vendor vendor) {
+    public R selectAll(
+            @RequestParam(name = "page",defaultValue = "1") int page1,
+            @RequestParam(name = "vendor",defaultValue = "1") int vendor1,
+            Page<Vendor> page, Vendor vendor) {
+
         return success(this.vendorService.page(page, new QueryWrapper<>(vendor)));
     }
 
@@ -57,57 +61,14 @@ public class VendorController extends ApiController {
      * @param id 主键
      * @return 单条数据
      */
-    @GetMapping("vendorid")
-    @Operation(summary = "通过主键查询单条数据")
+    @GetMapping("{id}vendorid")
+    @Operation(summary = "商家详情")
     @Parameters({
             @Parameter(name = "id", description = "主键"),
     })
-    public R selectOne(@PathVariable Serializable id) {
+    public R selectOne(
+            @RequestParam(name = "id",defaultValue = "1") int id1,
+            @PathVariable Serializable id) {
         return success(this.vendorService.getById(id));
-    }
-
-    /**
-     * 新增数据
-     *
-     * @param vendor 实体对象
-     * @return 新增结果
-     */
-    @PostMapping("add")
-    @Operation(summary = "新增数据")
-    @Parameters({
-            @Parameter(name = "vendor", description = "实体对象"),
-    })
-    public R insert(@RequestBody Vendor vendor) {
-        return success(this.vendorService.save(vendor));
-    }
-
-    /**
-     * 修改数据
-     *
-     * @param vendor 实体对象
-     * @return 修改结果
-     */
-    @PutMapping("update")
-    @Operation(summary = "修改数据")
-    @Parameters({
-            @Parameter(name = "vendor", description = "实体对象"),
-    })
-    public R update(@RequestBody Vendor vendor) {
-        return success(this.vendorService.updateById(vendor));
-    }
-
-    /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
-     */
-    @DeleteMapping("delete")
-    @Operation(summary = "删除数据")
-    @Parameters({
-            @Parameter(name = "idList", description = "主键结合"),
-    })
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.vendorService.removeByIds(idList));
     }
 }
