@@ -17,6 +17,9 @@ import java.util.List;
  */
 @Mapper
 public interface VendorDao extends BaseMapper<Vendor> {
+//
+    @Select("SELECT * FROM vendor WHERE phone=#{phone}")
+    Vendor findByPhone(@Param("phone") String phone);
 
     @Select("SELECT * FROM vendor WHERE name LIKE CONCAT('%', #{keyword}, '%')")
     List<Vendor> searchVendors(@Param("keyword") String keyword);
