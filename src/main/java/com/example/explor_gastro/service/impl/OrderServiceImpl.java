@@ -14,6 +14,25 @@ import org.springframework.stereotype.Service;
  */
 @Service("orderService")
 public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements OrderService {
+    @Override
+    public Order getOrderById(Integer orderId) {
+        return getById(orderId);
+    }
+
+    @Override
+    public boolean createOrder(Order order) {
+        return save(order);
+    }
+
+    @Override
+    public boolean updateOrder(Order order) {
+        return updateById(order);
+    }
+
+    @Override
+    public boolean deleteOrder(Integer orderId) {
+        return removeById(orderId);
+    }
 
 }
 

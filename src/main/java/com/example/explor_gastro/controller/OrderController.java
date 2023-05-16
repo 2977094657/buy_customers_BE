@@ -1,87 +1,151 @@
-package com.example.explor_gastro.controller;
-
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.baomidou.mybatisplus.extension.api.R;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+package com.example.explor_gastro.controller;//package com.example.explor_gastro.controller;
+//
+//
+//import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+//import com.baomidou.mybatisplus.extension.api.ApiController;
+//import com.baomidou.mybatisplus.extension.api.R;
+//import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+//import com.example.explor_gastro.entity.Order;
+//import com.example.explor_gastro.service.OrderService;
+//import org.springframework.web.bind.annotation.*;
+//
+//import javax.annotation.Resource;
+//import java.io.Serializable;
+//import java.util.List;
+//
+///**
+// * 订单表(Order)表控制层
+// *
+// * @author makejava
+// * @since 2023-05-09 08:53:40
+// */
+//@RestController
+//@RequestMapping("order")
+//public class OrderController extends ApiController {
+//    /**
+//     * 服务对象
+//     */
+//    @Resource
+//    private OrderService orderService;
+////“getOrderById” 的意思是根据订单ID获取订单信息。
+//    @GetMapping("/{orderId}")
+//    public Order getOrderById(@PathVariable Integer orderId) {
+//        return orderService.getById(orderId);
+//    }
+////    createOrder” 的意思是创建订单
+//    @PostMapping("/")
+//    public boolean createOrder(@RequestBody Order order) {
+//        return orderService.createOrder(order);
+//    }
+////“updateOrder” 的意思是更新订单
+//    @PutMapping("/")
+//    public boolean updateOrder(@RequestBody Order order){
+//        return orderService.updateOrder(order);
+//    }
+//
+////“removeByIds” 的意思是根据ID批量删除数据
+//@DeleteMapping("/{orderId}")
+//public boolean deleteOrder(@PathVariable Integer orderId) {
+//    return orderService.removeById(orderId);
+//}
+//}
+//
 import com.example.explor_gastro.entity.Order;
 import com.example.explor_gastro.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import java.io.Serializable;
-import java.util.List;
+import java.util.Date;
 
-/**
- * 订单表(Order)表控制层
- *
- * @author makejava
- * @since 2023-05-09 08:53:40
- */
 @RestController
-@RequestMapping("order")
-public class OrderController extends ApiController {
-    /**
-     * 服务对象
-     */
-    @Resource
+@RequestMapping("/order")
+public class OrderController {
+
+    @Autowired
     private OrderService orderService;
 
-    /**
-     * 分页查询所有数据
-     *
-     * @param page  分页对象
-     * @param order 查询实体
-     * @return 所有数据
-     */
-    @GetMapping
-    public R selectAll(Page<Order> page, Order order) {
-        return success(this.orderService.page(page, new QueryWrapper<>(order)));
+    @GetMapping("/{orderId}")
+    public Order getOrderById(@PathVariable Integer orderId) {
+        return orderService.getOrderById(orderId);
+    }
+    @PostMapping("/")
+    public boolean createOrder(
+            //订单ID(orderId)
+            @RequestParam Integer orderId,
+            //商家ID(vendorId)
+            @RequestParam Integer vendorId,
+            @RequestParam String orderLong,
+            @RequestParam Integer userId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") Date data,
+            @RequestParam String address,
+            @RequestParam Integer price,
+            @RequestParam Integer productId,
+            @RequestParam String notes,
+            @RequestParam String type) {
+        Order order = new Order();
+        order.setOrderId(orderId);
+        order.setVendorId(vendorId);
+        order.setOrderLong(orderLong);
+        order.setUserId(userId);
+        order.setData(data);
+        order.setAddress(address);
+        order.setPrice(price);
+        order.setProductId(productId);
+        order.setNotes(notes);
+
+        if ("外卖".equals(type) || "堂食".equals(type)) {
+            order.setType(type);
+        } else {
+            throw new IllegalArgumentException("订单类型不正确");
+        }
+
+        return orderService.createOrder(order);
     }
 
-    /**
-     * 通过主键查询单条数据
-     *
-     * @param id 主键
-     * @return 单条数据
-     */
-    @GetMapping("{id}")
-    public R selectOne(@PathVariable Serializable id) {
-        return success(this.orderService.getById(id));
+    @PutMapping("/{orderId}")
+    public boolean updateOrder(
+            //订单ID(orderId)
+            @PathVariable Integer orderId,
+            //商家ID(vendorId)
+            @RequestParam Integer vendorId,
+            //订单号(orderLong)
+            @RequestParam String orderLong,
+            //用户ID(userId)
+            @RequestParam Integer userId,
+            //下单时间(data)
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") Date data,
+            //下单地址(address)
+            @RequestParam String address,
+            //订单总计价格(price)
+            @RequestParam Integer price,
+            //商品ID(productId)
+            @RequestParam Integer productId,
+            //订单备注(notes)
+            @RequestParam String notes,
+            //订单类型(type)
+            @RequestParam String type) {
+        Order order = orderService.getById(orderId);
+        order.setVendorId(vendorId);
+        order.setOrderLong(orderLong);
+        order.setUserId(userId);
+        order.setData(data);
+        order.setAddress(address);
+        order.setPrice(price);
+        order.setProductId(productId);
+        order.setNotes(notes);
+
+        if ("外卖".equals(type) || "堂食".equals(type)) {
+            order.setType(type);
+        } else {
+            throw new IllegalArgumentException("订单类型不正确");
+        }
+
+        return orderService.updateById(order);
     }
 
-    /**
-     * 新增数据
-     *
-     * @param order 实体对象
-     * @return 新增结果
-     */
-    @PostMapping
-    public R insert(@RequestBody Order order) {
-        return success(this.orderService.save(order));
-    }
-
-    /**
-     * 修改数据
-     *
-     * @param order 实体对象
-     * @return 修改结果
-     */
-    @PutMapping
-    public R update(@RequestBody Order order) {
-        return success(this.orderService.updateById(order));
-    }
-
-    /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
-     */
-    @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.orderService.removeByIds(idList));
+    @DeleteMapping("/{orderId}")
+    public boolean deleteOrder(@PathVariable Integer orderId) {
+        return orderService.deleteOrder(orderId);
     }
 }
-
