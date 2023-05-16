@@ -28,7 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 从请求头中获取 Authorization 字段
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        logger.info(authorizationHeader);
 
         // 检查 Authorization 字段是否以 "Bearer " 开头
         if (StringUtils.isNotBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {

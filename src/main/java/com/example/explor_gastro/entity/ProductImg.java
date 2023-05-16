@@ -13,6 +13,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2023-05-09 09:32:26
  */
+@Data
 @SuppressWarnings("serial")
 public class ProductImg extends Model<ProductImg> {
     //商品图片id，主键自增
@@ -21,7 +22,7 @@ public class ProductImg extends Model<ProductImg> {
     //商品图片
     private String img;
     //商品id
-    private Integer productId;
+    private Integer userId;
 
     public Integer getImgId() {
         return imgId;
@@ -37,14 +38,6 @@ public class ProductImg extends Model<ProductImg> {
 
     public void setImg(String img) {
         this.img = img;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
     }
 
     /**
