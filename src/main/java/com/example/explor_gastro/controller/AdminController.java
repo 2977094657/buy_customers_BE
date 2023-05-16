@@ -46,6 +46,20 @@ public class AdminController extends ApiController {
 
 
     /**
+     * 搜索功能
+     * @param keyword
+     * @return
+     */
+    @GetMapping("/search")
+    @Operation(summary = "搜索用户")
+    @Parameters({
+            @Parameter(name = "keyword", description = "关键词，示例值：陈;刘"),
+    })
+    public List<User> searchUsers(@RequestParam String keyword) {
+        return userDao.searchUsers(keyword);
+    }
+
+    /**
      * @param current   当前所在页面
      * @param size      每页显示数量
      * @param isAsc     是否升序排列，不传或传入空值则不排序
@@ -97,8 +111,18 @@ public class AdminController extends ApiController {
         userDao.deleteById(userId);
         return "删除成功";
     }
+
+    /**
+     * 管理员登录
+     * @param admin
+     * @return
+     */
     @PostMapping(value = "login",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "管理员登录")
+    @Parameters({
+            @Parameter(name = "admin", description = "管理员账号;示例值(admin)"),
+            @Parameter(name = "pwd", description = "管理员密码;示例值(admin)"),
+    })
     public String login(@RequestBody Admin admin) {
         Admin result = adminService.getOne(
                 new LambdaQueryWrapper<Admin>()
