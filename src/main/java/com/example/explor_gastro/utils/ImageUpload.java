@@ -1,8 +1,8 @@
 package com.example.explor_gastro.utils;
 
-import com.example.explor_gastro.dao.ProductImgDao;
+import com.example.explor_gastro.dao.UserImgDao;
 import com.example.explor_gastro.entity.Product;
-import com.example.explor_gastro.entity.ProductImg;
+import com.example.explor_gastro.entity.UserImg;
 import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.service.impl.ProductServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,14 +26,14 @@ import java.util.*;
 @Tag(name = "图片上传")
 public class ImageUpload {
     @Resource
-    private ProductImgDao productImgDao;
+    private UserImgDao userImgDao;
     @Resource
     private ProductServiceImpl productServiceImpl;
     @Resource
     private ProductService productService;
     // 创建一个新的ProductImg实体并设置其属性
     @Autowired(required = false)
-    private ProductImg productImg;
+    private UserImg userImg;
 
     @PostMapping("/upload")
     @Operation(summary = "单图上传,最大1MB")
@@ -79,11 +79,11 @@ public class ImageUpload {
         if (dest != null) {
             response.put("fileName", dest.getName());
         }
-        productImg.setImg(url);
-        productImg.setUserId(userid);
+        userImg.setImg(url);
+        userImg.setUserId(userid);
 
         // 保存ProductImg实体
-        productImgDao.insert(productImg);
+        userImgDao.insert(userImg);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
