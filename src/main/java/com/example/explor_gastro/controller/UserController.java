@@ -3,7 +3,10 @@ package com.example.explor_gastro.controller;
 
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.dao.UserDao;
+import com.example.explor_gastro.dao.VendorDao;
 import com.example.explor_gastro.entity.User;
+import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.JwtService;
 import com.example.explor_gastro.utils.TXSendSms;
@@ -20,10 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -45,10 +45,14 @@ public class UserController extends ApiController {
     private UserService userService;
 
     @Resource
+    private VendorDao vendorDao;
+
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private TXSendSms txSendSms;
+
     @Resource
     private JwtService jwtService;
 
@@ -64,7 +68,8 @@ public class UserController extends ApiController {
             @Parameter(name = "phone", description = "手机号"),
             @Parameter(name = "pwd", description = "用户密码"),
     })
-    public ResponseEntity<?> login(@RequestParam String phone, @RequestParam String pwd) {
+    public ResponseEntity<?> login(@RequestParam(defaultValue = "12345678955") String phone,
+                                   @RequestParam(defaultValue = "888") String pwd) {
         try {
             User user = userService.LoginIn(phone, pwd);
             String token = jwtService.generateToken(user);
@@ -126,6 +131,7 @@ public class UserController extends ApiController {
         }
         else  {  return  "注册失败，用户名或手机号已存在";  }  }
 
+
     /**
      * 短信获取
      * @param phoneNumber
@@ -139,6 +145,21 @@ public class UserController extends ApiController {
     })
     public String sms(String phoneNumber) throws TencentCloudSDKException {
         return txSendSms.sms(phoneNumber);
+    }
+
+
+    /**
+     * 搜索商家功能
+     * @param keyword
+     * @return
+     */
+    @GetMapping("/search")
+    @Operation(summary = "搜索商家")
+    @Parameters({
+            @Parameter(name = "keyword",description = "关键词，示例值：江湖菜;瓦香鸡"),
+    })
+    public List<Vendor> searchVendors(@RequestParam(required = false) String keyword) {
+        return vendorDao.searchVendors(keyword);
     }
 
 
