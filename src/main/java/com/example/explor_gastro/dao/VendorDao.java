@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Mapper
 public interface VendorDao extends BaseMapper<Vendor> {
-
+//
     @Select("SELECT * FROM vendor WHERE phone=#{phone}")
     Vendor findByPhone(@Param("phone") String phone);
 }

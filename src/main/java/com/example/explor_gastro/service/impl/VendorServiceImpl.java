@@ -32,7 +32,7 @@ public class VendorServiceImpl extends ServiceImpl<VendorDao, Vendor> implements
         queryWrapper.eq("pwd", pwd);
         return getOne(queryWrapper);
     }
-
+//
     @Override
     public Vendor register(String name, String phone,String password) {
         Vendor vendor = vendorDao.findByPhone(phone);

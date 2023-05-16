@@ -82,6 +82,9 @@ public class VendorController extends ApiController {
 
         /**
          * 商家登录接口
+         *
+         * phone 手机号
+         * password 用户密码
          */
         @PostMapping(value = "/login",produces  =  "text/plain;charset=UTF-8")
         @Operation(summary = "商家登录")
@@ -99,6 +102,10 @@ public class VendorController extends ApiController {
 
         /**
          * 商家注册接口
+         *
+         * username 用户名
+         * phone 手机号
+         * password 用户密码
          */
         @PostMapping(value = "/register",produces  =  "text/plain;charset=UTF-8")
         @Operation(summary = "商家注册")
