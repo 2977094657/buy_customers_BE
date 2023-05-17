@@ -109,7 +109,7 @@ public class AdminController extends ApiController {
      * @return
      * cy
      */
-    @PutMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
+    @DeleteMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
     public String deleteUserPwd(@PathVariable Integer userId) {
         if (userDao.selectById(userId) == null) {
