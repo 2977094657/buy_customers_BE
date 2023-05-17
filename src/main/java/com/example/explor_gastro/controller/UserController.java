@@ -160,7 +160,7 @@ public class UserController extends ApiController {
     @Parameters({
             @Parameter(name = "keyword",description = "关键词，示例值：江湖菜;瓦香鸡"),
     })
-    public List<Vendor> searchVendors(@RequestParam(required = false) String keyword) {
+    public List<Vendor> searchVendors(@RequestParam(required = false,defaultValue = "江湖菜") String keyword) {
         return vendorDao.searchVendors(keyword);
     }
 
