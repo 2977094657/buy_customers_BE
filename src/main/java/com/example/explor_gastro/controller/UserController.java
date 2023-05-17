@@ -45,6 +45,8 @@ public class UserController extends ApiController {
     private UserService userService;
 
     @Resource
+    private UserDao userDao;
+    @Resource
     private VendorDao vendorDao;
 
     @Resource
@@ -190,8 +192,6 @@ public class UserController extends ApiController {
     @Operation(summary  =  "个人中心的用户修改")
     public  ResponseEntity<Boolean>  updateUser(@RequestBody  User  user)  {
 
-
-
         try  {
             //  校验用户信息是否为空
             if  (user  ==  null)  {
@@ -219,5 +219,37 @@ public class UserController extends ApiController {
             return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
+
+
+        @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
+        @Operation(summary  =  "用户修改密码")
+        @Parameters({
+                @Parameter(name = "userId", description = "用户id",required = true),
+                @Parameter(name = "oldPassword", description = "旧密码",required = true),
+                @Parameter(name = "newPassword", description = "新密码",required = true),
+                @Parameter(name = "confirmPassword", description = "确认密码",required = true),
+        })
+        public ResponseEntity<String> updatePassword(@PathVariable("userId") Integer userId,
+                @RequestParam("oldPassword") String oldPassword,
+                @RequestParam("newPassword") String newPassword,
+                @RequestParam("confirmPassword") String confirmPassword) {
+            User user = userDao.selectByUserId1(userId);
+            if (user == null) {
+                return ResponseEntity.badRequest().body("未找到用户");
+            }
+
+            if (!user.getPwd().equals(oldPassword)) {
+                return ResponseEntity.badRequest().body("旧密码不匹配");
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                return ResponseEntity.badRequest().body("新密码和确认密码不匹配");
+            }
+
+            user.setPwd(newPassword);
+            userDao.updateById(user);
+
+            return ResponseEntity.ok("密码更新成功");
+        }
 }
 
