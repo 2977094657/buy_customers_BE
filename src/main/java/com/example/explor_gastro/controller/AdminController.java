@@ -112,8 +112,12 @@ public class AdminController extends ApiController {
     @PutMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
     public String deleteUserPwd(@PathVariable Integer userId) {
-        userDao.deleteById(userId);
-        return "删除成功";
+        if (userDao.selectById(userId) == null) {
+            return "删除失败，该用户不存在";
+        } else {
+            userDao.deleteById(userId);
+            return "删除成功";
+        }
     }
 
     /**
