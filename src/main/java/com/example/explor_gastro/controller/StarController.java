@@ -24,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("star")
-@Tag(name = "收藏管理")
+@Tag(name = "用户的收藏")
 public class StarController extends ApiController {
     /**
      * 服务对象
@@ -40,11 +40,11 @@ public class StarController extends ApiController {
 //        return success(this.starService.getById(userid));
 //    }
 
-    /**
-     *
-     * @param userid
-     * @return
-     */
+//    /**
+//     *
+//     * @param userid
+//     * @return
+//     */
 //    @GetMapping("/stars/{userid}")
 //    @Operation(summary  =  "查询用户收藏")
 //    public  R  selectByUserId(@PathVariable  Long  userid)  {
@@ -53,7 +53,7 @@ public class StarController extends ApiController {
 //    }
 
     @GetMapping("/stars/{userid}")
-    @Operation(summary    =    "查询用户收藏")
+    @Operation(summary    =    "用户查看收藏")
     public  R  selectByUserId(@PathVariable  Long  userid,
                               @RequestParam(defaultValue  =  "1")  Integer  pageNum,
                               @RequestParam(defaultValue  =  "10")  Integer  pageSize)  {
@@ -68,31 +68,28 @@ public class StarController extends ApiController {
      * @param star 实体对象
      * @return 新增结果
      */
-    @PostMapping
+    @PostMapping("stars/star")
+    @Operation(summary    =    "新增用户的收藏")
     public R insert(@RequestBody Star star) {
         return success(this.starService.save(star));
     }
 
-    /**
-     * 修改数据
-     *
-     * @param star 实体对象
-     * @return 修改结果
-     */
-    @PutMapping
-    public R update(@RequestBody Star star) {
-        return success(this.starService.updateById(star));
-    }
+//    /**
+//     * 修改数据
+//     *
+//     * @param star 实体对象
+//     * @return 修改结果
+//     */
+//    @PutMapping
+//    public R update(@RequestBody Star star) {
+//        return success(this.starService.updateById(star));
+//    }
 
-    /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
-     */
-    @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.starService.removeByIds(idList));
+
+    @DeleteMapping("/{id}")
+    @Operation(summary    =    "取消用户收藏")
+    public  R  delete(@PathVariable("id")  Long  id)  {
+        return  success(this.starService.removeById(id));
     }
 }
 
