@@ -101,37 +101,53 @@ public class UserController extends ApiController {
 
     /**
      * 用户注册功能
-     * @param user
+     * @param
      * @return
      */
-    @PostMapping(value  =  "/register",produces  =  "text/plain;charset=UTF-8")
-    @Operation(summary  =  "注册")
+    @PostMapping(value = "/register", produces = "text/plain;charset=UTF-8")
+    @Operation(summary = "注册")
     @Parameters({
-            @Parameter(name = "phone", description = "手机号",required = true),
-            @Parameter(name = "name", description = "用户名",required = true),
-            @Parameter(name = "pwd", description = "用户密码",required = true),
-            @Parameter(name = "code", description = "验证码",required = true),
+            @Parameter(name = "phone", description = "手机号", required = true),
+            @Parameter(name = "name", description = "用户名", required = true),
+            @Parameter(name = "pwd", description = "用户密码", required = true),
+            @Parameter(name = "code", description = "验证码", required = true),
     })
-    public  String  register(@RequestBody  User  user,  @RequestParam(value = "code",required = true) int  code) throws NoSuchAlgorithmException {
-        if  (user.getPhone()  ==  null)  {
-            return  "手机号不能为空";
-        }  //  手机号正则校验，可自行定义
-        if  (!Pattern.matches("^1[3-9]\\d{9}$",  user.getPhone()))  {
-            return  "手机号格式不正确";
+    public String register(@RequestParam(value = "phone", required = true) String phone,
+                           @RequestParam(value = "name", required = true) String name,
+                           @RequestParam(value = "pwd", required = true) String pwd,
+                           @RequestParam(value = "code", required = true) int code) throws NoSuchAlgorithmException {
+        // 校验参数
+        if (phone == null) {
+            return "手机号不能为空";
         }
-        boolean  hasKey  = Boolean.TRUE.equals(stringRedisTemplate.hasKey(user.getPhone()));
-        if  (!hasKey)  {
-            return  "验证码已过期，请重新发送";
+        // 手机号正则校验，可自行定义
+        if (!Pattern.matches("^1[3-9]\\d{9}$", phone)) {
+            return "手机号格式不正确";
         }
-        int  redisCode  =  Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(user.getPhone())));
-        if  (code  !=  redisCode)  {
-            return  "验证码错误";
+
+        User user = new User();
+        user.setPhone(phone);
+        user.setName(name);
+        user.setPwd(pwd);
+
+        // 校验验证码
+        boolean hasKey = Boolean.TRUE.equals(stringRedisTemplate.hasKey(phone));
+        if (!hasKey) {
+            return "验证码已过期，请重新发送";
         }
-        boolean  success  =  userService.register(user);
-        if  (success)  {
-            return  "注册成功";
+        int redisCode = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(phone)));
+        if (code != redisCode) {
+            return "验证码错误";
         }
-        else  {  return  "注册失败，用户名或手机号已存在";  }  }
+
+        // 注册用户
+        boolean success = userService.register(user);
+        if (success) {
+            return "注册成功";
+        } else {
+            return "注册失败，用户名或手机号已存在";
+        }
+    }
 
 
     /**
