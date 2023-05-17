@@ -98,7 +98,9 @@ public class VendorController extends ApiController {
                 @Parameter(name = "phone", description = "手机号"),
                 @Parameter(name = "password", description = "商家密码"),
         })
-        public String login(@RequestParam(defaultValue = "12222222222") String phone, @RequestParam(defaultValue = "5555") String password){
+        public String login(
+                @RequestParam(defaultValue = "12222222222") String phone,
+                @RequestParam(defaultValue = "5555") String password){
             Vendor vendor=vendorService.LoginIn(phone, password);
             if (vendor==null){
                 return "登录失败";
@@ -130,21 +132,35 @@ public class VendorController extends ApiController {
         }
 
     /**
-     * 修改数据
+     * 修改商家信息
      *
-     * @param vendor 实体对象
-     * @return 修改结果
+     * @param vendorId 商家id
+     * @param phone 手机号
+     * @param name  商家名
+     * @param pwd   商家密码
+     * @param description 商家简介
+     * @param openingTime 营业时间
+     * @return
      */
+
     @PutMapping("update")
     @Operation(summary = "修改商家信息")
-    @Parameters({
-            @Parameter(name = "vendor", description = "修改商家信息"),
-    })
-    public R update(@RequestBody Vendor vendor) {
-        return success(this.vendorService.updateById(vendor));
+    public R updateVendor(@RequestParam("vendorId") Integer vendorId,
+                          @RequestParam("phone") String phone,
+                          @RequestParam("name") String name,
+                          @RequestParam("pwd") String pwd,
+                          @RequestParam(value = "description", required = false) String description,
+                          @RequestParam(value = "openingTime", required = false) String openingTime) {
+
+        Vendor vendor = new Vendor();
+        vendor.setVendorId(vendorId);
+        vendor.setPhone(phone);
+        vendor.setName(name);
+        vendor.setPwd(pwd);
+        vendor.setDescription(description);
+        vendor.setOpeningTime(openingTime);
+        return success(vendorService.updateById(vendor));
     }
-
-
 
 
 //    /**
