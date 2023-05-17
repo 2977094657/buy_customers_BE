@@ -127,18 +127,17 @@ public class AdminController extends ApiController {
             @Parameter(name = "admin", description = "管理员账号;示例值(admin)"),
             @Parameter(name = "pwd", description = "管理员密码;示例值(admin)"),
     })
-    public String login(@RequestBody Admin admin) {
-        Admin result = adminService.getOne(
-                new LambdaQueryWrapper<Admin>()
-                        .eq(Admin::getAdmin, admin.getAdmin())
-                        .eq(Admin::getPwd, admin.getPwd())
-        );
-        if (result == null) {
-            // 登录失败，返回错误提示
-            return "账号或密码错误";
-        } else {
-            // 登录成功，返回成功提示
+    public String login(@RequestParam(value = "admin",defaultValue = "admin") String admin,
+                        @RequestParam(value = "pwd",defaultValue = "admin") String pwd) {
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("admin", admin)
+                .eq("pwd", pwd);
+
+        Admin result = adminService.getOne(queryWrapper);
+        if (result != null) {
             return "登录成功";
+        } else {
+            return "登录失败";
         }
     }
 
