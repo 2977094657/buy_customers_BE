@@ -91,6 +91,10 @@ public class AdminController extends ApiController {
      */
     @PutMapping(value = "/{userId}/pwd",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "修改用户密码")
+    @Parameters({
+            @Parameter(name = "userId", description = "用户id ;示例值：2"),
+            @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
+    })
     public String updateUserPwd(@PathVariable Integer userId, @RequestParam String pwd) {
         User user = new User();
         user.setUserId(userId);
