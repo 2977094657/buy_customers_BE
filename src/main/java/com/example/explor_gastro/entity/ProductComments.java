@@ -1,12 +1,12 @@
 package com.example.explor_gastro.entity;
 
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 商品评价表(ProductComments)表实体类
@@ -15,6 +15,7 @@ import java.io.Serializable;
  * @since 2023-05-09 09:43:45
  */
 @SuppressWarnings("serial")
+@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查处为null的字段则不显示，可以单独给某字段加
 public class ProductComments extends Model<ProductComments> {
     @TableId(type = IdType.AUTO)
     //评论id，主键自增

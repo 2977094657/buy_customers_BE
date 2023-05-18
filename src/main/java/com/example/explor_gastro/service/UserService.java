@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.explor_gastro.entity.User;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 /**
  * 用户表(User)表服务接口
@@ -39,18 +38,6 @@ public interface UserService extends IService<User> {
 //    boolean updateById(Integer userId, String name, String pwd, String phone, String description, String address);
 
     boolean update(User user);
-
-    /**
-     * 修改用户信息
-     *
-     * @param userId      用户ID
-     * @param name        用户名
-     * @param description 用户简介
-     * @param address     用户地址
-     * @param signupTime  用户注册时间
-     * @param phone       用户手机号
-     * @return 是否修改成功
-     */
 
 
 }

@@ -4,10 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
-import org.apache.ibatis.annotations.Update;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 商品表(Product)表实体类
@@ -37,9 +35,10 @@ public class Product extends Model<Product> {
     private Integer price;
     //商品类别,默认主食
     private String category;
-
+    //商品图片
     private String img;
-
+    //评分总人数
+    private long totalComments;
 
     public Integer getProductId() {
         return productId;

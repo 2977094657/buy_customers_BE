@@ -86,27 +86,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return false;
     }
 
-//    @Override
-//    public boolean updateUser(Integer userId, String name, String description, String address, String phone) {
-//        User user = new User();
-//        user.setUserId(userId);
-//        user.setName(name);
-//        user.setDescription(description);
-//        user.setAddress(address);
-//        user.setPhone(phone);
-//        return userDao.updateUser(user);
-//    }
-//
-//    @Override
-//    public boolean updateById(Integer userId, String name, String pwd, String phone, String description, String address) {
-//        User user = new User();
-//        user.setUserId(userId);
-//        user.setName(name);
-//        user.setDescription(description);
-//        user.setAddress(address);
-//        user.setPhone(phone);
-//        return userDao.updateUser(user);
-//    }
 }
 
 
