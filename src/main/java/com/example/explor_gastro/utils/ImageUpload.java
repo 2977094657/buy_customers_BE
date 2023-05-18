@@ -2,7 +2,9 @@ package com.example.explor_gastro.utils;
 
 import com.example.explor_gastro.dao.UserImgDao;
 import com.example.explor_gastro.entity.Product;
+import com.example.explor_gastro.entity.ProductComments;
 import com.example.explor_gastro.entity.UserImg;
+import com.example.explor_gastro.service.ProductCommentsService;
 import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.service.impl.ProductServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +37,8 @@ public class ImageUpload {
     @Autowired(required = false)
     private UserImg userImg;
 
+    @Resource
+    private ProductCommentsService productCommentsService;
     @PostMapping("/upload")
     @Operation(summary = "单图上传,最大1MB")
     @Parameters({
@@ -85,6 +89,129 @@ public class ImageUpload {
         // 保存ProductImg实体
         userImgDao.insert(userImg);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Map<String, String>>> comments(
+            @RequestParam int userId,
+            @RequestParam String comments,
+            @RequestParam(name = "imgId") MultipartFile[] files,
+            @RequestParam int productId
+    ){
+        List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
+        List<String> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
+        boolean allValid = true; // 标记所有文件是否都合法
+        List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
+        List<String> imageUrls1 = new ArrayList<>();
+        try {
+            // 遍历上传的文件数组
+            for (int i = 0; i < files.length; i++) {
+                MultipartFile file = files[i];
+                // 判断文件大小是否超过限制
+                if (file.getSize() > 10 * 1024 * 1024) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了10MB，请将其控制在10MB以内");
+                    responseList.add(error);
+                    allValid = false;
+                    break; // 如果有不合法的文件，立即退出循环
+                } else {
+                    String fileName = file.getOriginalFilename();
+                    String contentType = file.getContentType();
+                    // 判断文件是否为有效的图像文件
+                    if (contentType != null && !contentType.startsWith("image/")) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "第 " + (i + 1) + " 张图片不是有效的图像文件，请上传有效的图像文件");
+                        responseList.add(error);
+                        allValid = false;
+                        break; // 如果有不合法的文件，立即退出循环
+                    } else if (fileName != null && fileName.length() > 20) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
+                        responseList.add(error);
+                        allValid = false;
+                        break; // 如果有不合法的文件，立即退出循环
+                    } else {
+                        File dest = null;
+                        // 生成新的文件名并保存文件
+                        if (fileName != null) {
+                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
+                            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            dest = new File(newFileName);
+                        }
+                        if (dest != null) {
+                            file.transferTo(dest);
+                        }
+                        String url = null;
+                        String url1;
+                        // 生成访问图片的 URL，并将其加入列表中
+                        if (dest != null) {
+                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
+                            imageUrls.add(url);
+                            url1 = dest.getName();
+                            imageUrls1.add(url1);
+                        }
+                        Map<String, String> response = new HashMap<>();
+                        response.put("url", url);
+                        if (dest != null) {
+                            response.put("fileName", dest.getName());
+                        }
+                        responseList.add(response);
+                        // 创建数据库实体对象并保存到数据库中
+                        productImgList.add(url);
+                    }
+                }
+            }
+            // 如果存在不合法的文件，清除已经上传的图片
+            if (!allValid) {
+                for (String imageUrl : imageUrls1) {
+                    try {
+                        File file = new File("/home/img/add/" + imageUrl); // 修改后的文件路径
+                        if (file.exists()) {
+                            boolean deleted = file.delete();
+                            if (!deleted) {
+                                Map<String, String> error = new HashMap<>();
+                                error.put("message", "删除图片 " + imageUrl + " 失败");
+                                responseList.add(error);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "删除图片 " + imageUrl + " 失败，错误信息为 " + e.getMessage());
+                        responseList.add(error);
+                    }
+                }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseList);
+            }
+            ProductComments productComments = new ProductComments();
+            productComments.setUserId(userId);
+            productComments.setComments(comments);
+            productComments.setProductId(productId);
+            productComments.setImgId(productImgList.toString());
+            productCommentsService.save(productComments);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "上传文件失败，错误信息为 " + e.getMessage());
+            responseList.add(error);
+            // 如果发生异常，清除已经上传的图片
+            for (String imageUrl : imageUrls) {
+                try {
+                    File file = new File("/home/img/add/" + imageUrl); // 修改后的文件路径
+                    if (file.exists()) {
+                        boolean deleted = file.delete();
+                        if (!deleted) {
+                            Map<String, String> error2 = new HashMap<>();
+                            error2.put("message", "删除图片 " + imageUrl + " 失败");
+                            responseList.add(error2);
+                        }
+                    }
+                } catch (Exception e2) {
+                    Map<String, String> error2 = new HashMap<>();
+                    error2.put("message", "删除图片 " + imageUrl + " 失败，错误信息为 " + e2.getMessage());
+                    responseList.add(error2);
+                }
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseList);
+        }
+        return ResponseEntity.ok(responseList);
     }
 
     /**
@@ -324,6 +451,107 @@ public class ImageUpload {
             product.setImg(imgUrls.toString());
             productImgList.add(product);
             productServiceImpl.updateBatchById(productImgList);
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public ResponseEntity<List<Map<String, String>>> updateComments(int id, MultipartFile[] files) throws IOException {
+        List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
+        List<ProductComments> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
+        boolean allValid = true; // 标记所有文件是否都合法
+        List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
+        List<String> imageUrls1 = new ArrayList<>();
+        try {
+            ProductComments productComments = productCommentsService.getById(id); // 根据id获取评论信息
+            if (productComments == null) { // 如果评论不存在，返回错误信息
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "评论不存在");
+                responseList.add(error);
+                return new ResponseEntity<>(responseList, HttpStatus.NOT_FOUND);
+            }
+            // 遍历上传的文件数组
+            for (int i = 0; i < files.length; i++) {
+                MultipartFile file = files[i];
+                // 判断文件大小是否超过限制
+                if (file.getSize() > 10 * 1024 * 1024) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了10MB，请将其控制在10MB以内");
+                    responseList.add(error);
+                    allValid = false;
+                    break; // 如果有不合法的文件，立即退出循环
+                } else {
+                    String fileName = file.getOriginalFilename();
+                    String contentType = file.getContentType();
+                    // 判断文件是否为有效的图像文件
+                    if (contentType != null && !contentType.startsWith("image/")) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "第 " + (i + 1) + " 张图片不是有效的图像文件，请上传有效的图像文件");
+                        responseList.add(error);
+                        allValid = false;
+                        break; // 如果有不合法的文件，立即退出循环
+                    } else if (fileName != null && fileName.length() > 20) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
+                        responseList.add(error);
+                        allValid = false;
+                        break; // 如果有不合法的文件，立即退出循环
+                    } else {
+                        File dest = null;
+                        // 生成新的文件名并保存文件
+                        if (fileName != null) {
+                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
+                            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            dest = new File(newFileName);
+                        }
+                        if (dest != null) {
+                            file.transferTo(dest);
+                        }
+                        String url = null;
+                        String url1 = null;
+                        // 生成访问图片的 URL，并将其加入列表中
+                        if (dest != null) {
+                            url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL
+                            imageUrls.add(url);
+                            url1 = dest.getName();
+                            imageUrls1.add(url1);
+                        }
+                        Map<String, String> response = new HashMap<>();
+                        response.put("url", url);
+                        if (dest != null) {
+                            response.put("fileName", dest.getName());
+                        }
+                        responseList.add(response);
+                    }
+                }
+            }
+            // 如果存在不合法的文件，清除已经上传的图片
+            if (!allValid) {
+                for (String imageUrl : imageUrls1) {
+                    try {
+                        File file = new File("/home/img/add/" + imageUrl); // 修改后的文件路径
+                        if (file.exists()) {
+                            boolean deleted = file.delete();
+                            if (!deleted) {
+                                Map<String, String> error = new HashMap<>();
+                                error.put("message", "删除图片 " + imageUrl + " 失败");
+                                responseList.add(error);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Map<String, String> error = new HashMap<>();
+                        error.put("message", "删除图片 " + imageUrl + " 失败，错误信息为 " + e.getMessage());
+                        responseList.add(error);
+                    }
+                }
+                return new ResponseEntity<>(responseList, HttpStatus.BAD_REQUEST);
+            }
+            // 将上传成功的图片信息保存到数据库中
+            List<String> imgUrls = new ArrayList<>(imageUrls);
+            productComments.setImgId(imgUrls.toString());
+            productImgList.add(productComments);
+            productCommentsService.updateBatchById(productImgList);
             return new ResponseEntity<>(responseList, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

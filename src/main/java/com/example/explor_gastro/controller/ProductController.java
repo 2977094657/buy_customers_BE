@@ -96,7 +96,7 @@ public class ProductController extends ApiController {
      * @param category 商品分类，此处应为下拉栏，不允许商家填写，四个分类: 主食、小吃、甜品、饮料
      * @return 返回增加结果
      */
-    @PostMapping("/add")
+    @PostMapping("/{name}/add")
     @Operation(summary = "新增商品")
     @Parameters({
             @Parameter(name = "images", description = "多个图片，以数组存入"),
@@ -109,7 +109,7 @@ public class ProductController extends ApiController {
     public ResponseEntity<Map<String, Object>> addProduct(
             @RequestParam("images") MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
-            @RequestParam(defaultValue = "川之味",name = "name") String name,
+            @PathVariable String name,
             @RequestParam(defaultValue = "小时候的味道",name = "description") String description,
             @RequestParam(defaultValue = "32",name = "price") Integer price,
             @RequestParam(defaultValue = "主食",name = "category") String category
@@ -155,7 +155,7 @@ public class ProductController extends ApiController {
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
     public R update(
-            @RequestParam(name = "productId") @PathVariable Integer productId,
+            @PathVariable Integer productId,
             @RequestParam(name = "productName",defaultValue = "红烧肉") String productName,
             @RequestParam(name = "description",defaultValue = "很好吃") String description,
             @RequestParam(name = "price",defaultValue = "12") Integer price,
@@ -176,12 +176,11 @@ public class ProductController extends ApiController {
      * @return 删除结果
      */
     @Operation(summary = "根据商品id删除商品")
-    @PostMapping("/{id}delete")
+    @DeleteMapping("/{id}/delete")
     @Parameters({
-            @Parameter(name = "idList", description = "商品id，根据商家登陆的账号来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
+            @Parameter(name = "id", description = "商品id，根据商家点击删除的商品id来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
             })
-    @DeleteMapping
-    public R delete(@RequestParam(name = "idList",defaultValue = "1") @PathVariable List<Long> id) {
+    public R delete(@PathVariable List<Long> id) {
         return success(this.productService.removeByIds(id));
     }
 
@@ -208,8 +207,8 @@ public class ProductController extends ApiController {
             @RequestParam(name = "keyword",defaultValue = "肉") String keyword,
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "5") int size,
-            @RequestParam(name = "isAsc", required = false,defaultValue = "") Optional<Boolean> isAsc,
-            @RequestParam(name = "sortField", required = false,defaultValue = "price") Optional<String> sortField) {
+            @RequestParam(name = "isAsc", required = false,defaultValue = "") Boolean isAsc,
+            @RequestParam(name = "sortField", required = false,defaultValue = "price") String sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
     }
 

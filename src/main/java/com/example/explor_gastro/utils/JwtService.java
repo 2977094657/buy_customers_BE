@@ -22,11 +22,8 @@ public class JwtService {
     public  String generateToken(User user) {
         Claims claims = Jwts.claims().setSubject(user.getPhone());
         claims.put("userId", user.getUserId());
-        claims.put("name", user.getName());
         claims.put("phone", user.getPhone());
-        claims.put("signupTime", user.getSignupTime());
-        claims.put("description", user.getDescription());
-        claims.put("address", user.getAddress());
+        claims.put("pwd", user.getPwd());
 
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
@@ -51,15 +48,12 @@ public class JwtService {
                 .getBody();
 
         Integer userId = (Integer) claims.get("userId");
-        String name = (String) claims.get("name");
         String phone = (String) claims.get("phone");
-        Date signupTime = new Date((Long) claims.get("signupTime"));
-        String description = (String) claims.get("description");
-        String address = (String) claims.get("address");
+        String pwd = (String) claims.get("pwd");
         Date iat = claims.getIssuedAt();
         Date exp = claims.getExpiration();
 
-        return new User(userId, name, phone, signupTime, description, address, iat, exp);
+        return new User(userId, phone, pwd, iat, exp);
     }
     public boolean validateToken(String token) {
         try {
@@ -74,11 +68,7 @@ public class JwtService {
         Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         User user = new User();
         user.setUserId((Integer) claims.get("userId"));
-        user.setName((String) claims.get("name"));
         user.setPhone((String) claims.get("phone"));
-        user.setSignupTime(new Date((Long) claims.get("signupTime")));
-        user.setDescription((String) claims.get("description"));
-        user.setAddress((String) claims.get("address"));
 
         return new UsernamePasswordAuthenticationToken(user, null, null);
     }

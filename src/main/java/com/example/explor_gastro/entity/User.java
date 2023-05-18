@@ -1,16 +1,14 @@
 package com.example.explor_gastro.entity;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户表(User)表实体类
@@ -19,6 +17,7 @@ import java.io.Serializable;
  * @since 2023-05-08 11:38:11
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查处为null的字段则不显示，可以单独给某字段加
 @SuppressWarnings("serial")
 public class User extends Model<User> {
     @TableId(type = IdType.AUTO)
@@ -37,19 +36,16 @@ public class User extends Model<User> {
     //下单地址
     private String address;
     // JWT 的签发时间
-    @TableField(value = "iat", exist = false)
+    @TableField(value = "iat", exist = false) // 数据库不会对此字段操作
     private Date iat;
     // JWT 的过期时间
     @TableField(value = "exp", exist = false)
     private Date exp;
 
-    public User(Integer userId, String name, String phone, Date signupTime, String description, String address, Date iat, Date exp) {
+    public User(Integer userId, String phone, String pwd, Date iat, Date exp) {
         this.userId = userId;
-        this.name = name;
         this.phone = phone;
-        this.signupTime = signupTime;
-        this.description = description;
-        this.address = address;
+        this.pwd = pwd;
         this.iat = iat;
         this.exp = exp;
     }
@@ -127,9 +123,5 @@ public class User extends Model<User> {
     public void getUserId(Integer userId) {
 
     }
-
-//    public void setSignupTime(LocalDateTime parse) {
-//
-//    }
 }
 

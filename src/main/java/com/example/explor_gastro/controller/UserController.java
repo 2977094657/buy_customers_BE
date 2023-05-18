@@ -71,13 +71,14 @@ public class UserController extends ApiController {
             @Parameter(name = "pwd", description = "用户密码"),
     })
     public ResponseEntity<?> login(@RequestParam(defaultValue = "12345678955") String phone,
-                                   @RequestParam(defaultValue = "888") String pwd) {
+                                   @RequestParam(defaultValue = "8888") String pwd) {
         try {
             User user = userService.LoginIn(phone, pwd);
             String token = jwtService.generateToken(user);
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
-            response.put("user", user);
+            Integer userId = user.getUserId();
+            response.put("userid", userId);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));

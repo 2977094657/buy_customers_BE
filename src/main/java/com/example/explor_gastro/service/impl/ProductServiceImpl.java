@@ -68,10 +68,19 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
 
         return this.updateById(product);
     }
-    public IPage<Product> searchProduct(String keyword, int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
+    public IPage<Product> searchProduct(String keyword, int current, int size, Boolean isAsc, String sortField) {
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("product_name", keyword)
-                .orderBy(isAsc.orElse(false), sortField.orElse("id").isEmpty());
+        queryWrapper.like("product_name", keyword);
+
+        // 根据提供的字段和排序顺序排序
+        if (sortField != null && !sortField.isEmpty() && isAsc != null) {
+            if (isAsc) {
+                queryWrapper.orderByAsc(sortField);
+            } else {
+                queryWrapper.orderByDesc(sortField);
+            }
+        }
+
         return productDao.selectPage(new Page<>(current, size), queryWrapper);
     }
     @Override

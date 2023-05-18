@@ -27,7 +27,7 @@ public interface ProductService extends IService<Product> {
      * @param sortField 根据传入的此字段来排序，不传或传入空值则不排序
      * @return 返回搜索结果
      */
-    IPage<Product> searchProduct(String keyword, int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
+    IPage<Product> searchProduct(String keyword, int current, int size, Boolean isAsc, String sortField);
 
     boolean updateImgByProductId(Integer productId, String img);
 
