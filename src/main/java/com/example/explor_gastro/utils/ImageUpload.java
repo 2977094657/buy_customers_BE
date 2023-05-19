@@ -350,20 +350,20 @@ public class ImageUpload {
         }
         return ResponseEntity.ok(responseList);
     }
-    @PostMapping ("/update")
+
     @Operation(summary = "根据商品id修改商品图片")
     @Parameters({
             @Parameter(name = "productId", description = "商品id"),
             @Parameter(name = "images", description = "多个图片，以数组存入")
     })
-    public ResponseEntity<List<Map<String, String>>> update(@PathVariable @RequestParam(name = "productId",required = true) Integer id, @RequestParam(name = "images",required = true) MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<Map<String, String>>> update(@RequestParam(name = "productId") Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<Product> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
         boolean allValid = true; // 标记所有文件是否都合法
         List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
         List<String> imageUrls1 = new ArrayList<>();
         try {
-            Product product = productServiceImpl.getById(id); // 根据id获取商品信息
+            Product product = productServiceImpl.getById(productId); // 根据id获取商品信息
             if (product == null) { // 如果商品不存在，返回错误信息
                 Map<String, String> error = new HashMap<>();
                 error.put("message", "商品不存在");
@@ -411,7 +411,7 @@ public class ImageUpload {
                         String url1 = null;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
-                            url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL
+                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
                             imageUrls.add(url);
                             url1 = dest.getName();
                             imageUrls1.add(url1);
@@ -457,6 +457,14 @@ public class ImageUpload {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * 修改评价图片
+     * @param id
+     * @param files
+     * @return
+     * @throws IOException
+     */
     public ResponseEntity<List<Map<String, String>>> updateComments(int id, MultipartFile[] files) throws IOException {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<ProductComments> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表

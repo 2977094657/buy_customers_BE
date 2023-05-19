@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -234,6 +235,12 @@ public class ProductController extends ApiController {
                                                @RequestParam(defaultValue = "10") Integer pageSize,
                                                @RequestParam(defaultValue = "true") Boolean sortByTime) {
         return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
+    }
+
+    @PutMapping("{productId}/updateImages")
+    @Operation(summary = "根据商品id修改商品图片")
+    public ResponseEntity<List<Map<String, String>>> updateImages(@PathVariable Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
+        return imageUpload.update(productId, files);
     }
 }
 
