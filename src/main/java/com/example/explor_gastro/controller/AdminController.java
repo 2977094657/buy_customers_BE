@@ -90,15 +90,17 @@ public class AdminController extends ApiController {
      * cy
      */
     @PutMapping(value = "/{userId}/pwd",produces  =  "text/plain;charset=UTF-8")
-    @Operation(summary  =  "修改用户密码")
+    @Operation(summary  =  "修改用户信息")
     @Parameters({
             @Parameter(name = "userId", description = "用户id ;示例值：2"),
             @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
+            @Parameter(name = "description", description = "修改的简介 ;示例值:暂无"),
     })
-    public String updateUserPwd(@PathVariable Integer userId, @RequestParam String pwd) {
+    public String updateUserPwd(@PathVariable Integer userId, @RequestParam String pwd,@RequestParam String description) {
         User user = new User();
         user.setUserId(userId);
         user.setPwd(pwd);
+        user.setDescription(description);
         userDao.updateById(user);
         return "修改成功";
     }
