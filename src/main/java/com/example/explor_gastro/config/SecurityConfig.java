@@ -17,6 +17,7 @@ import java.util.Collections;
 
 /**
  * Spring Security 配置类
+ * @author 46
  */
 @Configuration
 @EnableWebSecurity

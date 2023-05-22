@@ -68,6 +68,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
 
         return this.updateById(product);
     }
+    @Override
     public IPage<Product> searchProduct(String keyword, int current, int size, Boolean isAsc, String sortField) {
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         queryWrapper.like("product_name", keyword);
@@ -105,6 +106,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
      * @param sortByTime 是否按时间排序
      * @return 商品评价列表
      */
+    @Override
     public List<CommentDto> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime) {
         // 计算起始索引
         int startIndex = (pageNum - 1) * pageSize;

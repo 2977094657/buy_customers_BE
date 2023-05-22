@@ -113,10 +113,10 @@ public class UserController extends ApiController {
             @Parameter(name = "pwd", description = "用户密码", required = true),
             @Parameter(name = "code", description = "验证码", required = true),
     })
-    public String register(@RequestParam(value = "phone", required = true) String phone,
-                           @RequestParam(value = "name", required = true) String name,
-                           @RequestParam(value = "pwd", required = true) String pwd,
-                           @RequestParam(value = "code", required = true) int code) throws NoSuchAlgorithmException {
+    public String register(@RequestParam(value = "phone") String phone,
+                           @RequestParam(value = "name") String name,
+                           @RequestParam(value = "pwd") String pwd,
+                           @RequestParam(value = "code") int code) throws NoSuchAlgorithmException {
         // 校验参数
         if (phone == null) {
             return "手机号不能为空";

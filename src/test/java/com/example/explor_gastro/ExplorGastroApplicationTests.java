@@ -1,16 +1,11 @@
 package com.example.explor_gastro;
 
-import com.example.explor_gastro.controller.UserController;
 import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class ExplorGastroApplicationTests {
@@ -28,7 +23,7 @@ class ExplorGastroApplicationTests {
     }
 
     @Test
-    public void testSelectUserById() throws Exception {
+    public void testSelectUserById() {
 //        userDao.selectList(null);
         User expected = new User();
         expected.setUserId(41);

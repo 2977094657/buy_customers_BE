@@ -1,15 +1,9 @@
 package com.example.explor_gastro.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.explor_gastro.entity.Product;
-import com.example.explor_gastro.entity.Star;
-import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.entity.Vendor;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 /**

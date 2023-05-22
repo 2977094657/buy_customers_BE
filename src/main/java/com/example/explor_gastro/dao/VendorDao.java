@@ -1,7 +1,6 @@
 package com.example.explor_gastro.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.entity.Vendor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

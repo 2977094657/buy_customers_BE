@@ -408,7 +408,7 @@ public class ImageUpload {
                             file.transferTo(dest);
                         }
                         String url = null;
-                        String url1 = null;
+                        String url1;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
                             url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
@@ -517,7 +517,7 @@ public class ImageUpload {
                             file.transferTo(dest);
                         }
                         String url = null;
-                        String url1 = null;
+                        String url1;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
                             url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL

@@ -17,7 +17,7 @@ public class Md5 {
         for (byte b : digest) {
             sb.append(String.format("%02x", b & 0xff));
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
         return sb.toString();
     }
 }

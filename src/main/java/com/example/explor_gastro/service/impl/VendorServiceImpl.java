@@ -4,18 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.dao.VendorDao;
-import com.example.explor_gastro.entity.Product;
-import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.VendorService;
-import com.example.explor_gastro.utils.Md5;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 /**
