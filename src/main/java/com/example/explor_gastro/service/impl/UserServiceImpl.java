@@ -86,6 +86,11 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return false;
     }
 
+    @Override
+    public boolean isUserNameExists(String name) {
+        return false;
+    }
+
 }
 
 
