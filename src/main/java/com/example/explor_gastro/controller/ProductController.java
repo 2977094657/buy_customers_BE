@@ -60,8 +60,8 @@ public class ProductController extends ApiController {
     public IPage<Product> page(
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "10") int size,
-            @RequestParam(name = "isAsc", required = false,defaultValue = "true") Optional<Boolean> isAsc,
-            @RequestParam(name = "sortField", required = false,defaultValue = "price") Optional<String> sortField) {
+            @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
+            @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
         return productService.testSelectPage(current, size, isAsc, sortField);
     }
 

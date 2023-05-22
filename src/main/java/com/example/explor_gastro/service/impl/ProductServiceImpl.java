@@ -43,9 +43,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         if (isAsc.isPresent()) {
             if (isAsc.get()) {
                 wrapper.orderByAsc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 升序排序，否则不排序
-            } else {
+                } else {
                 wrapper.orderByDesc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 降序排序，否则不排序
             }
+        }
+        // 在排序字段为 null 或空字符串时，添加一个随机排序规则
+        if (!sortField.isPresent() || sortField.get().isEmpty()) {
+            wrapper.orderByAsc("rand()");
         }
         // 调用 ProductDao 的 selectPage 方法进行分页查询
         IPage<Product> iPage = productDao.selectPage(page, wrapper);
