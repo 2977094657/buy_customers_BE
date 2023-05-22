@@ -40,5 +40,6 @@ public interface UserService extends IService<User> {
     boolean update(User user);
 
 
+    boolean isUserNameExists(String name);
 }
 
