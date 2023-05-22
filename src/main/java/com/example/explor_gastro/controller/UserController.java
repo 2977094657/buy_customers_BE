@@ -199,68 +199,66 @@ public class UserController extends ApiController {
         return R.ok(user);
     }
 
-
-    @PutMapping(value = "/updateUser",produces = "text/plain;charset=UTF-8")
-    @Operation(summary  =  "个人中心的用户修改")
+    @PutMapping(value = "/updateUser", produces = "text/plain;charset=UTF-8")
+    @Operation(summary = "个人中心的用户修改")
     @Parameters({
-            @Parameter(name  =  "userId",  description  =  "根据用户id修改"),
-            @Parameter(name  =  "name",  description  =  "用户名字"),
-            @Parameter(name  =  "phone",  description  =  "用户手机11位"),
-            @Parameter(name  =  "description",  description  =  "用户简介"),
-            @Parameter(name  =  "address",  description  =  "地址")
+            @Parameter(name = "userId", description = "根据用户id修改"),
+            @Parameter(name = "name", description = "用户名字"),
+            @Parameter(name = "phone", description = "用户手机11位"),
+            @Parameter(name = "description", description = "用户简介"),
+            @Parameter(name = "address", description = "地址")
     })
-    public  ResponseEntity<String>  updateUser(
-            @RequestParam("userId")  int  userId,
-            @RequestParam(value  =  "name",  required  =  false)  String  name,
-            @RequestParam(value  =  "phone",  required  =  false)  String  phone,
-            @RequestParam(value  =  "description",  required  =  false)  String  description,
-            @RequestParam(value  =  "address",  required  =  false)  String  address
-    )  {
-        try  {
-            //  校验用户信息是否为空
-            if  (userId  ==  0)  {
-                return  ResponseEntity.badRequest().body("校验用户信息是否为空");
-            }
-
-            //  从数据库中获取待修改的用户信息
-            User  oldUser  =  userService.getById(userId);
-            if  (oldUser  ==  null)  {
-                //  待修改用户不存在
-                return  ResponseEntity.unprocessableEntity().body("待修改用户不存在");
-            }
-
-            //  检查用户名是否重复
-            if  (name  !=  null  &&  !oldUser.getName().equals(name)  &&  userService.isUserNameExists(name))  {
-
-                return  ResponseEntity.badRequest().body("用户名已存在");  //  用户名已存在
-            }
-
-            //  更新用户信息到数据库
-            if  (name  !=  null  &&  !name.isEmpty())  {
-                oldUser.setName(name);
-            }
-            if  (phone  !=  null  &&  !phone.isEmpty())  {
-                oldUser.setPhone(phone);
-            }
-            if  (description  !=  null  &&  !description.isEmpty())  {
-                oldUser.setDescription(description);
-            }
-            if  (address  !=  null  &&  !address.isEmpty())  {
-                oldUser.setAddress(address);
-            }
-            userService.updateById(oldUser);
-
-            return  ResponseEntity.ok("修改成功");
-
-        }  catch  (Exception  e)  {
-            //  捕获异常并返回错误信息
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("用户名重复");
-
+    public ResponseEntity<String> updateUser(
+            @RequestParam("userId") int userId,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "address", required = false) String address
+    ) {
+        // 校验用户信息是否为空
+        if (userId == 0) {
+            return ResponseEntity.badRequest().body("校验用户信息是否为空");
         }
+
+        // 从数据库中获取待修改的用户信息
+        User oldUser = userService.getById(userId);
+        if (oldUser == null) {
+            // 待修改用户不存在
+            return ResponseEntity.unprocessableEntity().body("待修改用户不存在");
+        }
+
+        // 检查用户名是否重复
+        if (name != null && !name.isEmpty() && !name.equals(oldUser.getName())) {
+            if (userService.isUserNameExists(name)) {
+                return ResponseEntity.badRequest().body("用户名已存在");
+            }
+            oldUser.setName(name);
+        }
+
+        // 检查手机号是否重复
+        if (phone != null && !phone.isEmpty() && !phone.equals(oldUser.getPhone())) {
+            if (userService.isUserPhoneExists(phone)) {
+                return ResponseEntity.badRequest().body("手机号已存在");
+            }
+            oldUser.setPhone(phone);
+        }
+
+        // 更新用户信息到数据库
+        if (description != null) {
+            oldUser.setDescription(description);
+        }
+        if (address != null) {
+            oldUser.setAddress(address);
+        }
+        userService.updateById(oldUser);
+
+        return ResponseEntity.ok("修改成功");
     }
 
 
-        @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
+
+
+    @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
         @Operation(summary  =  "用户修改密码")
         @Parameters({
                 @Parameter(name = "userId", description = "用户id",required = true),

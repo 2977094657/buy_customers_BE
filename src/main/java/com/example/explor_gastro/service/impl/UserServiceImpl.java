@@ -7,6 +7,7 @@ import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.Md5;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -88,8 +89,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
 
     @Override
     public boolean isUserNameExists(String name) {
-        return false;
+        return ResponseEntity.badRequest().body("用户名已存在").hasBody();
     }
+
+    @Override
+    public boolean isUserPhoneExists(String phone) {
+        return ResponseEntity.badRequest().body("手机号已存在").hasBody();
+    }
+
 
 }
 
