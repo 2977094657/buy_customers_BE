@@ -200,124 +200,64 @@ public class UserController extends ApiController {
     }
 
 
-
-    @PutMapping("/updateUser")
-    @Operation(summary = "个人中心的用户修改")
+    @PutMapping(value = "/updateUser",produces = "text/plain;charset=UTF-8")
+    @Operation(summary  =  "个人中心的用户修改")
     @Parameters({
-            @Parameter(name = "userId", description = "根据用户id修改"),
-            @Parameter(name = "name", description = "用户名字"),
-            @Parameter(name = "phone", description = "用户手机11位"),
-            @Parameter(name = "description", description = "用户简介"),
-            @Parameter(name = "address", description = "地址")
+            @Parameter(name  =  "userId",  description  =  "根据用户id修改"),
+            @Parameter(name  =  "name",  description  =  "用户名字"),
+            @Parameter(name  =  "phone",  description  =  "用户手机11位"),
+            @Parameter(name  =  "description",  description  =  "用户简介"),
+            @Parameter(name  =  "address",  description  =  "地址")
     })
-    public ResponseEntity<Boolean> updateUser(
-            @RequestParam("userId") int userId,
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "phone", required = false) String phone,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "address", required = false) String address
-    ) {
-        try {
-            // 校验用户信息是否为空
-            if (userId == 0) {
-                return ResponseEntity.badRequest().body(false);
+    public  ResponseEntity<String>  updateUser(
+            @RequestParam("userId")  int  userId,
+            @RequestParam(value  =  "name",  required  =  false)  String  name,
+            @RequestParam(value  =  "phone",  required  =  false)  String  phone,
+            @RequestParam(value  =  "description",  required  =  false)  String  description,
+            @RequestParam(value  =  "address",  required  =  false)  String  address
+    )  {
+        try  {
+            //  校验用户信息是否为空
+            if  (userId  ==  0)  {
+                return  ResponseEntity.badRequest().body("校验用户信息是否为空");
             }
 
-            // 从数据库中获取待修改的用户信息
-            User oldUser = userService.getById(userId);
-            if (oldUser == null) {
-                // 待修改用户不存在
-                return ResponseEntity.unprocessableEntity().body(false);
+            //  从数据库中获取待修改的用户信息
+            User  oldUser  =  userService.getById(userId);
+            if  (oldUser  ==  null)  {
+                //  待修改用户不存在
+                return  ResponseEntity.unprocessableEntity().body("待修改用户不存在");
             }
 
-            // 更新用户信息到数据库
-            if (name != null) {
+            //  检查用户名是否重复
+            if  (name  !=  null  &&  !oldUser.getName().equals(name)  &&  userService.isUserNameExists(name))  {
+
+                return  ResponseEntity.badRequest().body("用户名已存在");  //  用户名已存在
+            }
+
+            //  更新用户信息到数据库
+            if  (name  !=  null  &&  !name.isEmpty())  {
                 oldUser.setName(name);
             }
-
-            if (phone != null) {
+            if  (phone  !=  null  &&  !phone.isEmpty())  {
                 oldUser.setPhone(phone);
             }
-
-            if (description != null) {
+            if  (description  !=  null  &&  !description.isEmpty())  {
                 oldUser.setDescription(description);
             }
-
-            if (address != null) {
+            if  (address  !=  null  &&  !address.isEmpty())  {
                 oldUser.setAddress(address);
             }
+            userService.updateById(oldUser);
 
-            boolean result = userService.updateById(oldUser);
-            if (result) {
-                // 更新成功
-                return ResponseEntity.ok(true);
-            } else {
-                // 更新失败
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-            }
-        } catch (Exception e) {
-            // 捕获异常并返回错误信息
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            return  ResponseEntity.ok("修改成功");
+
+        }  catch  (Exception  e)  {
+            //  捕获异常并返回错误信息
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("用户名重复");
+
         }
     }
-
-
-//    @PutMapping("/updateUser")
-//    @Operation(summary = "个人中心的用户修改")
-//    @Parameters({
-//            @Parameter(name = "userId", description = "根据用户id修改"),
-//            @Parameter(name = "name", description = "用户名字"),
-//
-//            @Parameter(name = "phone", description = "用户手机11位"),
-//            @Parameter(name = "description", description = "用户简介"),
-//            @Parameter(name = "address", description = "地址")
-//    })
-//    public ResponseEntity<Boolean> updateUser(
-//
-//            @RequestParam("userId") int userId,
-//            @RequestParam("name") String name,
-//
-//            @RequestParam("phone") String phone,
-//            @RequestParam("description") String description,
-//            @RequestParam("address") String address
-//
-//    ) {
-//        try {
-//            // 校验用户信息是否为空
-//            if (userId == 0 || name.isEmpty() || phone.isEmpty() ||
-//                      description.isEmpty() || address.isEmpty()
-//                     ) {
-//                return ResponseEntity.badRequest().body(false);
-//            }
-//
-//            // 从数据库中获取待修改的用户信息
-//            User oldUser = userService.getById(userId);
-//            if (oldUser == null) {
-//                // 待修改用户不存在
-//                return ResponseEntity.unprocessableEntity().body(false);
-//            }
-//
-//            // 更新用户信息到数据库
-//            oldUser.setName(name);
-//
-//            oldUser.setPhone(phone);
-//            oldUser.setDescription(description);
-//            oldUser.setAddress(address);
-//
-//            boolean result = userService.updateById(oldUser);
-//            if (result) {
-//                // 更新成功
-//                return ResponseEntity.ok(true);
-//            } else {
-//                // 更新失败
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-//            }
-//        } catch (Exception e) {
-//            // 捕获异常并返回错误信息
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-//        }
-//    }
-
 
 
         @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
