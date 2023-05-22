@@ -201,32 +201,25 @@ public class UserController extends ApiController {
 
 
 
-
     @PutMapping("/updateUser")
     @Operation(summary = "个人中心的用户修改")
     @Parameters({
             @Parameter(name = "userId", description = "根据用户id修改"),
             @Parameter(name = "name", description = "用户名字"),
-            @Parameter(name = "pwd", description = "用户密码"),
             @Parameter(name = "phone", description = "用户手机11位"),
             @Parameter(name = "description", description = "用户简介"),
             @Parameter(name = "address", description = "地址")
     })
     public ResponseEntity<Boolean> updateUser(
-
             @RequestParam("userId") int userId,
-            @RequestParam("name") String name,
-            @RequestParam("pwd") String password,
-            @RequestParam("phone") String phone,
-            @RequestParam("description") String description,
-            @RequestParam("address") String address
-
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "address", required = false) String address
     ) {
         try {
             // 校验用户信息是否为空
-            if (userId == 0 || name.isEmpty() || password.isEmpty() || phone.isEmpty() ||
-                      description.isEmpty() || address.isEmpty()
-                     ) {
+            if (userId == 0) {
                 return ResponseEntity.badRequest().body(false);
             }
 
@@ -238,11 +231,21 @@ public class UserController extends ApiController {
             }
 
             // 更新用户信息到数据库
-            oldUser.setName(name);
-            oldUser.setPwd(password);
-            oldUser.setPhone(phone);
-            oldUser.setDescription(description);
-            oldUser.setAddress(address);
+            if (name != null) {
+                oldUser.setName(name);
+            }
+
+            if (phone != null) {
+                oldUser.setPhone(phone);
+            }
+
+            if (description != null) {
+                oldUser.setDescription(description);
+            }
+
+            if (address != null) {
+                oldUser.setAddress(address);
+            }
 
             boolean result = userService.updateById(oldUser);
             if (result) {
@@ -257,6 +260,63 @@ public class UserController extends ApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
+
+
+//    @PutMapping("/updateUser")
+//    @Operation(summary = "个人中心的用户修改")
+//    @Parameters({
+//            @Parameter(name = "userId", description = "根据用户id修改"),
+//            @Parameter(name = "name", description = "用户名字"),
+//
+//            @Parameter(name = "phone", description = "用户手机11位"),
+//            @Parameter(name = "description", description = "用户简介"),
+//            @Parameter(name = "address", description = "地址")
+//    })
+//    public ResponseEntity<Boolean> updateUser(
+//
+//            @RequestParam("userId") int userId,
+//            @RequestParam("name") String name,
+//
+//            @RequestParam("phone") String phone,
+//            @RequestParam("description") String description,
+//            @RequestParam("address") String address
+//
+//    ) {
+//        try {
+//            // 校验用户信息是否为空
+//            if (userId == 0 || name.isEmpty() || phone.isEmpty() ||
+//                      description.isEmpty() || address.isEmpty()
+//                     ) {
+//                return ResponseEntity.badRequest().body(false);
+//            }
+//
+//            // 从数据库中获取待修改的用户信息
+//            User oldUser = userService.getById(userId);
+//            if (oldUser == null) {
+//                // 待修改用户不存在
+//                return ResponseEntity.unprocessableEntity().body(false);
+//            }
+//
+//            // 更新用户信息到数据库
+//            oldUser.setName(name);
+//
+//            oldUser.setPhone(phone);
+//            oldUser.setDescription(description);
+//            oldUser.setAddress(address);
+//
+//            boolean result = userService.updateById(oldUser);
+//            if (result) {
+//                // 更新成功
+//                return ResponseEntity.ok(true);
+//            } else {
+//                // 更新失败
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+//            }
+//        } catch (Exception e) {
+//            // 捕获异常并返回错误信息
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+//        }
+//    }
 
 
 
