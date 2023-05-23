@@ -215,46 +215,53 @@ public class UserController extends ApiController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "address", required = false) String address
     ) {
-        // 校验用户信息是否为空
-        if (userId == 0) {
-            return ResponseEntity.badRequest().body("校验用户信息是否为空");
-        }
-
-        // 从数据库中获取待修改的用户信息
-        User oldUser = userService.getById(userId);
-        if (oldUser == null) {
-            // 待修改用户不存在
-            return ResponseEntity.unprocessableEntity().body("待修改用户不存在");
-        }
-
-        // 检查用户名是否重复
-        if (name != null && !name.isEmpty() && !name.equals(oldUser.getName())) {
-            if (userService.isUserNameExists(name)) {
-                return ResponseEntity.badRequest().body("用户名已存在");
+            // 校验用户信息是否为空
+            if (userId == 0) {
+                return ResponseEntity.badRequest().body("校验用户信息是否为空");
             }
-            oldUser.setName(name);
-        }
 
-        // 检查手机号是否重复
-        if (phone != null && !phone.isEmpty() && !phone.equals(oldUser.getPhone())) {
-            if (userService.isUserPhoneExists(phone)) {
-                return ResponseEntity.badRequest().body("手机号已存在");
+            // 从数据库中获取待修改的用户信息
+            User oldUser = userService.getById(userId);
+            if (oldUser == null) {
+                // 待修改用户不存在
+                return ResponseEntity.unprocessableEntity().body("待修改用户不存在");
             }
-            oldUser.setPhone(phone);
-        }
 
-        // 更新用户信息到数据库
-        if (description != null) {
-            oldUser.setDescription(description);
-        }
-        if (address != null) {
-            oldUser.setAddress(address);
-        }
-        userService.updateById(oldUser);
+            if (name != null && !name.equals(oldUser.getName())) {
+                Map<String, Object> columnMap =  new HashMap<>();
+                columnMap.put("name",name);
+                Collection<User> users = userService.listByMap(columnMap);
+                if (!users.isEmpty()) {
+                    return ResponseEntity.badRequest().body("用户名已经存在");
+                }
+            }
 
-        return ResponseEntity.ok("修改成功");
+            if (phone != null && !phone.equals(oldUser.getPhone())) {
+                Map<String, Object> columnMap =  new HashMap<>();
+                columnMap.put("phone",phone);
+                Collection<User> users = userService.listByMap(columnMap);
+                if (!users.isEmpty()) {
+                    return ResponseEntity.badRequest().body("手机号已经存在");
+                }
+            }
+
+            // 更新用户信息到数据库
+            if (name != null) {
+                oldUser.setName(name);
+            }
+            if (phone != null) {
+                oldUser.setPhone(phone);
+            }
+            if (description != null) {
+                oldUser.setDescription(description);
+            }
+            if (address != null) {
+                oldUser.setAddress(address);
+            }
+            userService.updateById(oldUser);
+
+            return ResponseEntity.ok("修改成功");
     }
-
 
 
 

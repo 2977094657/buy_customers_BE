@@ -39,8 +39,10 @@ public interface UserService extends IService<User> {
 
     boolean update(User user);
 
-    boolean isUserNameExists(String name);
+    User findByPhone(String phone);
 
-    boolean isUserPhoneExists(String phone);
+//    boolean isUserNameExists(String name);
+//
+//    boolean isUserPhoneExists(String phone);
 }
 
