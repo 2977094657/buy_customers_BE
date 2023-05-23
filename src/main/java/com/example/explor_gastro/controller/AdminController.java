@@ -8,6 +8,7 @@ import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.Admin;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.AdminService;
+import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.Md5;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,9 @@ import com.example.explor_gastro.utils.Md5;
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * 管理员表(Admin)表控制层
@@ -39,6 +42,10 @@ public class AdminController extends ApiController {
 
     @Resource
     private UserDao userDao;
+
+    @Resource
+    private UserService userService;
+
 
     /**
      * 搜索功能
@@ -113,6 +120,7 @@ public class AdminController extends ApiController {
      */
     @DeleteMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
+    @CrossOrigin(origins = "*", maxAge = 3600)
     public String deleteUserPwd(@PathVariable Integer userId) {
         if (userDao.selectById(userId) == null) {
             return "删除失败，该用户不存在";
@@ -144,6 +152,41 @@ public class AdminController extends ApiController {
             return "登录成功";
         } else {
             return "登录失败";
+        }
+    }
+
+
+    @PostMapping(value = "/register", produces = "text/plain;charset=UTF-8")
+    @Operation(summary = "管理员注册用户")
+    @Parameters({
+            @Parameter(name = "phone", description = "手机号", required = true),
+            @Parameter(name = "name", description = "用户名", required = true),
+            @Parameter(name = "pwd", description = "用户密码", required = true),
+    })
+    public String register(@RequestParam(value = "phone") String phone,
+                           @RequestParam(value = "name") String name,
+                           @RequestParam(value = "pwd") String pwd
+                           ) throws NoSuchAlgorithmException {
+        // 校验参数
+        if (phone == null) {
+            return "手机号不能为空";
+        }
+        // 手机号正则校验，可自行定义
+        if (!Pattern.matches("^1[3-9]\\d{9}$", phone)) {
+            return "手机号格式不正确";
+        }
+
+        User user = new User();
+        user.setPhone(phone);
+        user.setName(name);
+        user.setPwd(pwd);
+
+        // 注册用户
+        boolean success = userService.register(user);
+        if (success) {
+            return "注册成功";
+        } else {
+            return "注册失败，用户名或手机号已存在";
         }
     }
 
