@@ -8,13 +8,16 @@ import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.Admin;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.AdminService;
+import com.example.explor_gastro.utils.Md5;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import com.example.explor_gastro.utils.Md5;
 
 import javax.annotation.Resource;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +39,6 @@ public class AdminController extends ApiController {
 
     @Resource
     private UserDao userDao;
-
 
     /**
      * 搜索功能
@@ -89,11 +91,12 @@ public class AdminController extends ApiController {
             @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
             @Parameter(name = "description", description = "修改的简介 ;示例值:暂无"),
     })
-    public String updateUserPwd(@PathVariable Integer userId, @RequestParam(required = false) String pwd, @RequestParam(required = false) String description) {
+    public String updateUserPwd(@PathVariable Integer userId, @RequestParam(required = false) String pwd, @RequestParam(required = false) String description) throws NoSuchAlgorithmException, NoSuchAlgorithmException {
         User user = new User();
         user.setUserId(userId);
         if (pwd != null && !pwd.isEmpty()) {
-            user.setPwd(pwd);
+            String encryptedPwd = Md5.MD5Encryption(pwd); // MD5Encryption方法
+            user.setPwd(encryptedPwd);
         }
         if (description != null && !description.isEmpty()) {
             user.setDescription(description);
