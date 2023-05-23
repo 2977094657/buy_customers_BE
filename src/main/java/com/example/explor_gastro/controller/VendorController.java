@@ -93,7 +93,7 @@ public class VendorController extends ApiController {
                 @RequestParam(defaultValue = "12222222222") String phone,
                 @RequestParam(defaultValue = "5555") String password){
             Vendor vendor=vendorService.LoginIn(phone, password);
-            if (vendor==null){
+            if (vendor == null){
                 return "登录失败";
             }
             return "登录成功";
@@ -137,12 +137,11 @@ public class VendorController extends ApiController {
     @PutMapping("update")
     @Operation(summary = "修改商家信息")
     public R updateVendor(@RequestParam("vendorId") Integer vendorId,
-                          @RequestParam("phone") String phone,
-                          @RequestParam("name") String name,
-                          @RequestParam("pwd") String pwd,
+                          @RequestParam(value = "phone", required = false) String phone,
+                          @RequestParam(value = "name", required = false) String name,
+                          @RequestParam(value = "pwd", required = false) String pwd,
                           @RequestParam(value = "description", required = false) String description,
                           @RequestParam(value = "openingTime", required = false) String openingTime) {
-
         Vendor vendor = new Vendor();
         vendor.setVendorId(vendorId);
         vendor.setPhone(phone);
@@ -150,7 +149,8 @@ public class VendorController extends ApiController {
         vendor.setPwd(pwd);
         vendor.setDescription(description);
         vendor.setOpeningTime(openingTime);
-        return success(vendorService.updateById(vendor));
+        success(vendorService.updateById(vendor));
+        return success("商家信息修改成功！");
     }
 
 
