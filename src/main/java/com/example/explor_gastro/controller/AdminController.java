@@ -113,6 +113,7 @@ public class AdminController extends ApiController {
      */
     @DeleteMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
+    @CrossOrigin(origins = "*", maxAge = 3600)
     public String deleteUserPwd(@PathVariable Integer userId) {
         if (userDao.selectById(userId) == null) {
             return "删除失败，该用户不存在";
