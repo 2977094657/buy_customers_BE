@@ -79,7 +79,8 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
 
     @Override
     public boolean updateUser(Integer userId, String name, String description, String address, String phone) {
-        return false;
+
+        return Boolean.parseBoolean("用户名或者手机号错误");
     }
 
     @Override
@@ -87,15 +88,21 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return false;
     }
 
-    @Override
-    public boolean isUserNameExists(String name) {
-        return ResponseEntity.badRequest().body("用户名已存在").hasBody();
-    }
 
     @Override
-    public boolean isUserPhoneExists(String phone) {
-        return ResponseEntity.badRequest().body("手机号已存在").hasBody();
+    public User findByPhone(String phone) {
+        return null;
     }
+
+//    @Override
+//    public boolean isUserNameExists(String name) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isUserPhoneExists(String phone) {
+//        return false;
+//    }
 
 
 }
