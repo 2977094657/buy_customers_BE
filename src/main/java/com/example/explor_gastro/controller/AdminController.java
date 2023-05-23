@@ -89,11 +89,15 @@ public class AdminController extends ApiController {
             @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
             @Parameter(name = "description", description = "修改的简介 ;示例值:暂无"),
     })
-    public String updateUserPwd(@PathVariable Integer userId, @RequestParam String pwd,@RequestParam String description) {
+    public String updateUserPwd(@PathVariable Integer userId, @RequestParam(required = false) String pwd, @RequestParam(required = false) String description) {
         User user = new User();
         user.setUserId(userId);
-        user.setPwd(pwd);
-        user.setDescription(description);
+        if (pwd != null && !pwd.isEmpty()) {
+            user.setPwd(pwd);
+        }
+        if (description != null && !description.isEmpty()) {
+            user.setDescription(description);
+        }
         userDao.updateById(user);
         return "修改成功";
     }
