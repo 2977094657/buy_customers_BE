@@ -1,0 +1,46 @@
+2023-05-24 19:25:49,150 INFO org.springframework.boot.StartupInfoLogger [main] Starting ExplorGastroApplication using Java 1.8.0_352 on DESKTOP-9C3UFM0 with PID 5552 (D:\Java\springcloud\explor_gastro.git\target\classes started by asus in D:\Java\springcloud\explor_gastro.git)
+2023-05-24 19:25:49,155 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to 1 default profile: "default"
+2023-05-24 19:25:49,690 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Multiple Spring Data modules found, entering strict repository configuration mode
+2023-05-24 19:25:49,692 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2023-05-24 19:25:49,713 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.
+2023-05-24 19:25:50,226 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat initialized with port(s): 8081 (http)
+2023-05-24 19:25:50,232 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing ProtocolHandler ["http-nio-8081"]
+2023-05-24 19:25:50,232 INFO org.apache.juli.logging.DirectJDKLog [main] Starting service [Tomcat]
+2023-05-24 19:25:50,233 INFO org.apache.juli.logging.DirectJDKLog [main] Starting Servlet engine: [Apache Tomcat/9.0.74]
+2023-05-24 19:25:50,314 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing Spring embedded WebApplicationContext
+2023-05-24 19:25:50,315 INFO org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext [main] Root WebApplicationContext: initialization completed in 1128 ms
+2023-05-24 19:25:50,502 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Starting...
+2023-05-24 19:25:51,452 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Start completed.
+2023-05-24 19:25:52,239 INFO org.springframework.security.web.DefaultSecurityFilterChain [main] Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2bec068b, org.springframework.web.filter.CorsFilter@76332405, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7d59e968, org.springframework.security.web.context.SecurityContextPersistenceFilter@afde064, org.springframework.security.web.header.HeaderWriterFilter@42c12b3e, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@252ec02e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@8641b7d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@55361f03, org.springframework.security.web.session.SessionManagementFilter@46f73ffa, org.springframework.security.web.access.ExceptionTranslationFilter@33d28f0a, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@55877274]
+2023-05-24 19:25:52,751 INFO org.apache.juli.logging.DirectJDKLog [main] Starting ProtocolHandler ["http-nio-8081"]
+2023-05-24 19:25:52,770 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat started on port(s): 8081 (http) with context path ''
+2023-05-24 19:25:52,781 INFO org.springframework.boot.StartupInfoLogger [main] Started ExplorGastroApplication in 3.951 seconds (JVM running for 5.34)
+2023-05-24 19:25:52,784 INFO com.example.explor_gastro.ExplorGastroApplication [main] http://localhost:8081/doc.html
+2023-05-24 19:25:55,178 INFO org.apache.juli.logging.DirectJDKLog [http-nio-8081-exec-2] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-24 19:25:55,179 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-2] Initializing Servlet 'dispatcherServlet'
+2023-05-24 19:25:55,181 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-2] Completed initialization in 2 ms
+2023-05-24 19:25:56,691 INFO org.springdoc.api.AbstractOpenApiResource [http-nio-8081-exec-5] Init duration for springdoc-openapi is: 566 ms
+2023-05-24 19:28:50,581 INFO com.zaxxer.hikari.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown initiated...
+2023-05-24 19:28:50,590 INFO com.zaxxer.hikari.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown completed.
+2023-05-24 19:28:59,132 INFO org.springframework.boot.StartupInfoLogger [main] Starting ExplorGastroApplication using Java 1.8.0_352 on DESKTOP-9C3UFM0 with PID 31184 (D:\Java\springcloud\explor_gastro.git\target\classes started by asus in D:\Java\springcloud\explor_gastro.git)
+2023-05-24 19:28:59,140 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to 1 default profile: "default"
+2023-05-24 19:28:59,857 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Multiple Spring Data modules found, entering strict repository configuration mode
+2023-05-24 19:28:59,859 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2023-05-24 19:28:59,884 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Finished Spring Data repository scanning in 12 ms. Found 0 Redis repository interfaces.
+2023-05-24 19:29:00,442 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat initialized with port(s): 8081 (http)
+2023-05-24 19:29:00,448 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing ProtocolHandler ["http-nio-8081"]
+2023-05-24 19:29:00,449 INFO org.apache.juli.logging.DirectJDKLog [main] Starting service [Tomcat]
+2023-05-24 19:29:00,449 INFO org.apache.juli.logging.DirectJDKLog [main] Starting Servlet engine: [Apache Tomcat/9.0.74]
+2023-05-24 19:29:00,535 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing Spring embedded WebApplicationContext
+2023-05-24 19:29:00,535 INFO org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext [main] Root WebApplicationContext: initialization completed in 1356 ms
+2023-05-24 19:29:00,709 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Starting...
+2023-05-24 19:29:01,711 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Start completed.
+2023-05-24 19:29:02,482 INFO org.springframework.security.web.DefaultSecurityFilterChain [main] Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2eb0cefe, org.springframework.web.filter.CorsFilter@16a9eb2e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5a2ae1ab, org.springframework.security.web.context.SecurityContextPersistenceFilter@46f73ffa, org.springframework.security.web.header.HeaderWriterFilter@51e7589f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@afde064, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@34279b8a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2bec068b, org.springframework.security.web.session.SessionManagementFilter@42c12b3e, org.springframework.security.web.access.ExceptionTranslationFilter@cdb3c85, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7da1e005]
+2023-05-24 19:29:02,989 INFO org.apache.juli.logging.DirectJDKLog [main] Starting ProtocolHandler ["http-nio-8081"]
+2023-05-24 19:29:03,008 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat started on port(s): 8081 (http) with context path ''
+2023-05-24 19:29:03,019 INFO org.springframework.boot.StartupInfoLogger [main] Started ExplorGastroApplication in 4.296 seconds (JVM running for 5.606)
+2023-05-24 19:29:03,022 INFO com.example.explor_gastro.ExplorGastroApplication [main] http://localhost:8081/doc.html
+2023-05-24 19:29:05,236 INFO org.apache.juli.logging.DirectJDKLog [http-nio-8081-exec-1] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-24 19:29:05,236 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-1] Initializing Servlet 'dispatcherServlet'
+2023-05-24 19:29:05,238 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-1] Completed initialization in 1 ms
+2023-05-24 19:29:06,546 INFO org.springdoc.api.AbstractOpenApiResource [http-nio-8081-exec-9] Init duration for springdoc-openapi is: 542 ms
