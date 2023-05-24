@@ -1,20 +1,21 @@
 package com.example.explor_gastro.utils;
 
-import com.example.explor_gastro.dao.UserImgDao;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.ProductComments;
-import com.example.explor_gastro.entity.UserImg;
+import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.ProductCommentsService;
 import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.service.impl.ProductServiceImpl;
+import com.example.explor_gastro.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -24,19 +25,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@RequestMapping("/Image")
 @Tag(name = "图片上传")
 public class ImageUpload {
     @Resource
-    private UserImgDao userImgDao;
+    private UserServiceImpl userServiceImpl;
     @Resource
     private ProductServiceImpl productServiceImpl;
     @Resource
     private ProductService productService;
-    // 创建一个新的ProductImg实体并设置其属性
-    @Autowired(required = false)
-    private UserImg userImg;
-
     @Resource
     private ProductCommentsService productCommentsService;
     @PostMapping("/upload")
@@ -83,11 +79,12 @@ public class ImageUpload {
         if (dest != null) {
             response.put("fileName", dest.getName());
         }
-        userImg.setImg(url);
-        userImg.setUserId(userid);
+        User user = new User();
+        user.setUserAvatar(url);
+        user.setUserId(userid);
 
         // 保存ProductImg实体
-        userImgDao.insert(userImg);
+        userServiceImpl.updateById(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -42,6 +42,8 @@ public class User extends Model<User> {
     @TableField(value = "exp", exist = false)
     private Date exp;
 
+    private String userAvatar;
+
     public User(Integer userId, String phone, String pwd, Date iat, Date exp) {
         this.userId = userId;
         this.phone = phone;

@@ -8,6 +8,7 @@ import com.example.explor_gastro.dao.VendorDao;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.UserService;
+import com.example.explor_gastro.utils.ImageUpload;
 import com.example.explor_gastro.utils.JwtService;
 import com.example.explor_gastro.utils.TXSendSms;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -17,11 +18,12 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -57,6 +59,8 @@ public class UserController extends ApiController {
 
     @Resource
     private JwtService jwtService;
+    @Resource
+    private ImageUpload imageUpload;
 
     /**
      * 登录功能
@@ -294,6 +298,13 @@ public class UserController extends ApiController {
             userDao.updateById(user);
 
             return ResponseEntity.ok("密码更新成功");
+        }
+        @PutMapping("{userid}/updateAvatar")
+        @Operation(summary = "用户修改头像")
+        public ResponseEntity<Map<String, String>> updateAvatar(
+                @RequestParam(name = "image") MultipartFile file,
+                @PathVariable(name = "userid") Integer userid) throws IOException {
+        return imageUpload.upload(file,userid);
         }
 }
 
