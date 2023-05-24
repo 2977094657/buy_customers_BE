@@ -14,9 +14,5 @@ public interface OrderService extends IService<Orders> {
 
     boolean createOrder(Orders orders);
 
-    boolean updateOrder(Orders orders);
-
-    boolean deleteOrder(Integer orderId);
-
 }
 

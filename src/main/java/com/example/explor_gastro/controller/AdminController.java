@@ -15,12 +15,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-import com.example.explor_gastro.utils.Md5;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -31,6 +29,7 @@ import java.util.regex.Pattern;
  * @since 2023-05-06 19:46:24
  */
 @RestController
+@CrossOrigin
 @RequestMapping("admin")
 @Tag(name = "管理员")
 public class AdminController extends ApiController {

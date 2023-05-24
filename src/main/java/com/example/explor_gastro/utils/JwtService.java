@@ -10,6 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 
+/**
+ * @author 46
+ */
 @Service
 public class JwtService {
 

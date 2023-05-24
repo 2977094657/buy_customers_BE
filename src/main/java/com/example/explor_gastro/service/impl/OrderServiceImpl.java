@@ -24,15 +24,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Orders> implements O
         return save(orders);
     }
 
-    @Override
-    public boolean updateOrder(Orders orders) {
-        return updateById(orders);
-    }
-
-    @Override
-    public boolean deleteOrder(Integer orderId) {
-        return removeById(orderId);
-    }
 
 }
 
