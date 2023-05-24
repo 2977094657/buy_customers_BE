@@ -39,7 +39,7 @@ public class OrderController {
     public Orders createOrder(
             //商家ID(vendorId)
             @PathVariable Integer vendorId,
-            //用户ID(userId)
+            //用户ID(userId).
             @PathVariable Integer userId,
             //下单地址(address)
             @RequestParam String address,

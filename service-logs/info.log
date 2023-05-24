@@ -44,3 +44,5 @@
 2023-05-24 19:29:05,236 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-1] Initializing Servlet 'dispatcherServlet'
 2023-05-24 19:29:05,238 INFO org.springframework.web.servlet.FrameworkServlet [http-nio-8081-exec-1] Completed initialization in 1 ms
 2023-05-24 19:29:06,546 INFO org.springdoc.api.AbstractOpenApiResource [http-nio-8081-exec-9] Init duration for springdoc-openapi is: 542 ms
+2023-05-24 19:34:02,964 INFO com.zaxxer.hikari.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown initiated...
+2023-05-24 19:34:02,973 INFO com.zaxxer.hikari.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown completed.
