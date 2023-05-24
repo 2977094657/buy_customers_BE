@@ -1,18 +1,26 @@
-package com.example.explor_gastro.service;
+package  com.example.explor_gastro.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.explor_gastro.entity.Orders;
+import  com.baomidou.mybatisplus.extension.service.IService;
+import  com.example.explor_gastro.entity.Orders;
 
 /**
- * 订单表(Order)表服务接口
- *
- * @author makejava
- * @since 2023-05-09 08:53:40
+ *  订单表(Order)表服务接口
  */
-public interface OrderService extends IService<Orders> {
-    Orders getOrderById(Integer orderId);
+public  interface  OrderService  extends  IService<Orders>  {
 
-    boolean createOrder(Orders orders);
+    /**
+     *  创建订单
+     *
+     *  @param  orders  订单对象
+     *  @return  是否创建成功
+     */
+    public  boolean  createOrder(Orders  orders);
 
+    /***
+     *  根据订单号获取订单对象
+     *
+     *  @param  orderLong  订单号
+     *  @return  订单对象
+     */
+    public  Orders  getOrderByOrderLong(String  orderLong);
 }
-

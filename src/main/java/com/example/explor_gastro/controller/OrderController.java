@@ -5,31 +5,36 @@ import com.example.explor_gastro.dao.OrderDao;
 import com.example.explor_gastro.entity.Orders;
 import com.example.explor_gastro.service.OrderService;
 import com.example.explor_gastro.utils.SnowflakeIdGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-
 @RestController
 @RequestMapping("/order")
+@Tag(name = "订单管理")
 public class OrderController {
 
-    @Autowired
+    @Resource
     private OrderService orderService;
 
     @Resource
     private OrderDao orderDao;
 
-    @GetMapping("/{orderId}")
-    public Orders getOrderById(@PathVariable Integer orderId) {
-        return orderService.getOrderById(orderId);
+
+    @GetMapping("/orders/{orderLong}")
+    @Operation(summary = "查询订单")
+    public Orders getOrderbyorderLong(@PathVariable String orderLong) {
+        return orderService.getOrderByOrderLong(orderLong);
     }
 
+
     @PostMapping("/{userId},{vendorId},{productId}/orders")
+    @Operation(summary = "创建订单")
     public Orders createOrder(
             //商家ID(vendorId)
             @PathVariable Integer vendorId,
-            //用户ID(userId)
+            //用户ID(userId).
             @PathVariable Integer userId,
             //下单地址(address)
             @RequestParam String address,

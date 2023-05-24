@@ -36,6 +36,7 @@ public class AdminController extends ApiController {
     /**
      * 服务对象
      */
+//    哎·
     @Resource
     private AdminService adminService;
 
