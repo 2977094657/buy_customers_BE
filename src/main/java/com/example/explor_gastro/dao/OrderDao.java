@@ -32,19 +32,3 @@ public interface OrderDao extends BaseMapper<Orders> {
 
 
 }
-//public interface OrderDao {
-//    // 通过订单号查询订单
-//    Orders findByOrderLong(Long orderLong);
-//}
-//@Repository
-//public class OrderDaoImpl implements OrderDao {
-//    @Autowired
-//    private JdbcTemplate jdbcTemplate;
-//
-//    @Override
-//    public Orders findByOrderLong(Long orderLong) {
-//        String sql = "SELECT * FROM orders WHERE order_long = ?";
-//        Orders order = jdbcTemplate.queryForObject(sql, new Object[]{orderLong}, new BeanPropertyRowMapper<>(Orders.class));
-//        return order;
-//    }
-//}

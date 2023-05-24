@@ -16,7 +16,7 @@ public  interface  OrderService  extends  IService<Orders>  {
      */
     public  boolean  createOrder(Orders  orders);
 
-    /**
+    /***
      *  根据订单号获取订单对象
      *
      *  @param  orderLong  订单号

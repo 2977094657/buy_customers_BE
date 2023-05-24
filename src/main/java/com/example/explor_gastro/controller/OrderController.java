@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-
 @RestController
 @RequestMapping("/order")
 @Tag(name = "订单管理")
@@ -22,11 +21,7 @@ public class OrderController {
     @Resource
     private OrderDao orderDao;
 
-    //    @GetMapping("/{orderLong}")
-//    @Operation(summary = "查询订单")
-//    public Orders getOrderById(@PathVariable Integer orderLong) {
-//        return orderService.getOrderById(orderLong);
-//    }
+
     @GetMapping("/orders/{orderLong}")
     @Operation(summary = "查询订单")
     public Orders getOrderbyorderLong(@PathVariable String orderLong) {
