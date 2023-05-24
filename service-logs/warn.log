@@ -1,0 +1,19 @@
+2023-05-24 19:25:49,817 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'adminDao' and 'com.example.explor_gastro.dao.AdminDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,818 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'orderDao' and 'com.example.explor_gastro.dao.OrderDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,818 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'productCommentsDao' and 'com.example.explor_gastro.dao.ProductCommentsDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,818 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'productDao' and 'com.example.explor_gastro.dao.ProductDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,820 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'scoreDao' and 'com.example.explor_gastro.dao.ScoreDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,820 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'starDao' and 'com.example.explor_gastro.dao.StarDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,820 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'userDao' and 'com.example.explor_gastro.dao.UserDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,820 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'vendorDao' and 'com.example.explor_gastro.dao.VendorDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:25:49,820 WARN org.mybatis.logging.Logger [main] No MyBatis mapper was found in '[com.example.explor_gastro.dao]' package. Please check your configuration.
+2023-05-24 19:25:55,991 WARN org.springframework.web.servlet.DispatcherServlet [http-nio-8081-exec-1] No mapping for GET /favicon.ico
+2023-05-24 19:29:00,004 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'adminDao' and 'com.example.explor_gastro.dao.AdminDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,005 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'orderDao' and 'com.example.explor_gastro.dao.OrderDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,005 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'productCommentsDao' and 'com.example.explor_gastro.dao.ProductCommentsDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,005 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'productDao' and 'com.example.explor_gastro.dao.ProductDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,005 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'scoreDao' and 'com.example.explor_gastro.dao.ScoreDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,006 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'starDao' and 'com.example.explor_gastro.dao.StarDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,006 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'userDao' and 'com.example.explor_gastro.dao.UserDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,007 WARN org.mybatis.logging.Logger [main] Skipping MapperFactoryBean with name 'vendorDao' and 'com.example.explor_gastro.dao.VendorDao' mapperInterface. Bean already defined with the same name!
+2023-05-24 19:29:00,007 WARN org.mybatis.logging.Logger [main] No MyBatis mapper was found in '[com.example.explor_gastro.dao]' package. Please check your configuration.
