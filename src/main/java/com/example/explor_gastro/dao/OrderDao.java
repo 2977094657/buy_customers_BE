@@ -17,7 +17,7 @@ public interface OrderDao extends BaseMapper<Orders> {
      * @return 查询到的订单，若不存在该订单则返回null
      */
     @Select("SELECT * FROM orders WHERE order_long = #{orderLong}")
-    Orders findByOrderLong(String orderLong);
+    Orders  getOrderByOrderLong(String orderLong);
 
     /**
      * 根据商家id、用户id和订单类型查询订单列表
