@@ -269,7 +269,7 @@ public class UserController extends ApiController {
 
 
 
-    @PostMapping(value = "/{userId}/password",produces = "text/plain;charset=UTF-8")
+    @PostMapping(value = "/password",produces = "text/plain;charset=UTF-8")
         @Operation(summary  =  "用户修改密码")
         @Parameters({
                 @Parameter(name = "userId", description = "用户id",required = true),
@@ -277,7 +277,7 @@ public class UserController extends ApiController {
                 @Parameter(name = "newPassword", description = "新密码",required = true),
                 @Parameter(name = "confirmPassword", description = "确认密码",required = true),
         })
-        public ResponseEntity<String> updatePassword(@PathVariable("userId") Integer userId,
+        public ResponseEntity<String> updatePassword(@RequestParam("userId") Integer userId,
                 @RequestParam("oldPassword") String oldPassword,
                 @RequestParam("newPassword") String newPassword,
                 @RequestParam("confirmPassword") String confirmPassword) {
@@ -299,6 +299,7 @@ public class UserController extends ApiController {
 
             return ResponseEntity.ok("密码更新成功");
         }
+
         @PutMapping("{userid}/updateAvatar")
         @Operation(summary = "用户修改头像")
         public ResponseEntity<Map<String, String>> updateAvatar(
