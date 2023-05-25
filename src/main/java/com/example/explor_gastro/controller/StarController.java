@@ -51,9 +51,9 @@ public class StarController extends ApiController {
 //    }
 
 
-    @GetMapping("/stars/{userid}")  //  GET请求，请求路径为/stars/{userid}，其中{userid}是用户id的占位符，表示动态获取用户id
+    @GetMapping("/stars/all")  //  GET请求，请求路径为/stars/{userid}，其中{userid}是用户id的占位符，表示动态获取用户id
     @Operation(summary  =  "用户查看收藏")  //  接口的简要描述为“用户查看收藏”
-    public  R  selectByUserId(@PathVariable  Long  userid,  //  接收url路径中的{userid}，并将其作为方法参数
+    public  R  selectByUserId(@RequestParam  Long  userid,  //  接收url路径中的{userid}，并将其作为方法参数
                               @RequestParam(defaultValue  =  "1")  Integer  pageNum,  //  分页查询参数，获取页码，默认为1
                               @RequestParam(defaultValue  =  "10")  Integer  pageSize)  {  //  分页查询参数，获取每页数据量，默认为10
         Page<Star>  page  =  new  Page<>(pageNum,  pageSize);  //  创建分页对象，指定页码和每页数据量
@@ -85,7 +85,7 @@ public class StarController extends ApiController {
 //    }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("star/del")
     @Operation(summary    =    "取消用户收藏")
     public  R  delete(@PathVariable("id")  Long  id)  {
         return  success(this.starService.removeById(id));

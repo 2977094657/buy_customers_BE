@@ -192,18 +192,17 @@ public class UserController extends ApiController {
      * @return
      */
     //  通过  Get  请求访问URL中的  {userId}，并返回相应的用户信息
-    @GetMapping("/{userId}")
+    @GetMapping("all")
     //  自定义接口描述信息
     @Operation(summary = "个人中心的获取用户")
-    //  定义一个通用的返回结果类型，封装操作结果以及数据
-    public R<User> selectUserById( Integer userId) {
+    public R<User> selectUserById(@RequestParam Integer userId) {
         //  根据传入的  userId  查询对应的用户信息
         User user = userService.selectUserById(userId);
         //  将查询结果封装到通用返回结果类型中，并返回
         return R.ok(user);
     }
 
-    @PutMapping(value = "/updateUser", produces = "text/plain;charset=UTF-8")
+    @PutMapping(value = "updateUser", produces = "text/plain;charset=UTF-8")
     @Operation(summary = "个人中心的用户修改")
     @Parameters({
             @Parameter(name = "userId", description = "根据用户id修改"),
