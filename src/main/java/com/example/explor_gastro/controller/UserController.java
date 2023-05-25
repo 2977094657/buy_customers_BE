@@ -196,7 +196,7 @@ public class UserController extends ApiController {
     //  自定义接口描述信息
     @Operation(summary = "个人中心的获取用户")
     //  定义一个通用的返回结果类型，封装操作结果以及数据
-    public R<User> selectUserById(@PathVariable Integer userId) {
+    public R<User> selectUserById( Integer userId) {
         //  根据传入的  userId  查询对应的用户信息
         User user = userService.selectUserById(userId);
         //  将查询结果封装到通用返回结果类型中，并返回
@@ -212,12 +212,18 @@ public class UserController extends ApiController {
             @Parameter(name = "description", description = "用户简介"),
             @Parameter(name = "address", description = "地址")
     })
-    public ResponseEntity<String> updateUser(
-            @RequestParam("userId") int userId,
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "phone", required = false) String phone,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "address", required = false) String address
+    //  定义了一个公共方法，返回类型为ResponseEntity<String>
+    public  ResponseEntity<String>  updateUser(
+            //  指定要接收的参数userId，类型为int
+            @RequestParam("userId")  int  userId,
+            //  指定要接收的参数name，类型为String，可选参数
+            @RequestParam(value  =  "name",  required  =  false)  String  name,
+            //  指定要接收的参数phone，类型为String，可选参数
+            @RequestParam(value  =  "phone",  required  =  false)  String  phone,
+            //  指定要接收的参数description，类型为String，可选参数
+            @RequestParam(value  =  "description",  required  =  false)  String  description,
+            //  指定要接收的参数address，类型为String，可选参数
+            @RequestParam(value  =  "address",  required  =  false)  String  address
     ) {
             // 校验用户信息是否为空
             if (userId == 0) {
@@ -231,40 +237,55 @@ public class UserController extends ApiController {
                 return ResponseEntity.unprocessableEntity().body("待修改用户不存在");
             }
 
-            if (name != null && !name.equals(oldUser.getName())) {
-                Map<String, Object> columnMap =  new HashMap<>();
-                columnMap.put("name",name);
-                Collection<User> users = userService.listByMap(columnMap);
-                if (!users.isEmpty()) {
-                    return ResponseEntity.badRequest().body("用户名已经存在");
-                }
+        //  判断name不为空且与oldUser的名字不相同
+        if  (name  !=  null  &&  !name.equals(oldUser.getName()))  {
+            //  创建名为columnMap的HashMap
+            Map<String,  Object>  columnMap  =    new  HashMap<>();
+            //  向columnMap中添加name和它的值
+            columnMap.put("name",name);
+            //  通过列名等于name的条件查询User对象，并储存在名为users的集合中
+            Collection<User>  users  =  userService.listByMap(columnMap);
+            //  如果users集合不为空，返回一个状态码为400的响应以及一个字符串："用户名已经存在"
+            if  (!users.isEmpty())  {
+                return  ResponseEntity.badRequest().body("用户名已经存在");
             }
+        }
 
-            if (phone != null && !phone.equals(oldUser.getPhone())) {
-                Map<String, Object> columnMap =  new HashMap<>();
-                columnMap.put("phone",phone);
-                Collection<User> users = userService.listByMap(columnMap);
-                if (!users.isEmpty()) {
-                    return ResponseEntity.badRequest().body("手机号已经存在");
-                }
+        //  判断电话号码不为空且不等于旧用户的电话号码
+        if  (phone  !=  null  &&  !phone.equals(oldUser.getPhone()))  {
+            //  创建键值对集合
+            Map<String,  Object>  columnMap  =  new  HashMap<>();
+            //  将电话号码放入键值对集合中
+            columnMap.put("phone",phone);
+            //  通过键值对查询用户列表
+            Collection<User>  users  =  userService.listByMap(columnMap);
+            //  如果用户列表不为空，则手机号已经存在，返回请求错误信息
+            if  (!users.isEmpty())  {
+                return  ResponseEntity.badRequest().body("手机号已经存在");
             }
-
+        }
             // 更新用户信息到数据库
-            if (name != null) {
-                oldUser.setName(name);
-            }
-            if (phone != null) {
-                oldUser.setPhone(phone);
-            }
-            if (description != null) {
-                oldUser.setDescription(description);
-            }
-            if (address != null) {
-                oldUser.setAddress(address);
-            }
-            userService.updateById(oldUser);
+        //  如果name不为null，则将name设置为oldUser的name
+        if  (name  !=  null)  {
+            oldUser.setName(name);
+        }
+//  如果phone不为null，则将phone设置为oldUser的phone
+        if  (phone  !=  null)  {
+            oldUser.setPhone(phone);
+        }
+//  如果description不为null，则将description设置为oldUser的description
+        if  (description  !=  null)  {
+            oldUser.setDescription(description);
+        }
+//  如果address不为null，则将address设置为oldUser的address
+        if  (address  !=  null)  {
+            oldUser.setAddress(address);
+        }
+//  通过userService更新oldUser
+        userService.updateById(oldUser);
 
-            return ResponseEntity.ok("修改成功");
+//  返回一个响应实体，表明修改成功
+        return  ResponseEntity.ok("修改成功");
     }
 
 
@@ -306,5 +327,9 @@ public class UserController extends ApiController {
                 @PathVariable(name = "userid") Integer userid) throws IOException {
         return imageUpload.upload(file,userid);
         }
+
+
+
+
 }
 
