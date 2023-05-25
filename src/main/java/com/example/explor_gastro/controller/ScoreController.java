@@ -42,9 +42,9 @@ public class ScoreController extends ApiController {
      * @param productId 商品ID
      * @param score 分数
      */
-    @PostMapping(value = "{userId},{productId}/add",produces = "application/json")
+    @PostMapping(value = "add",produces = "application/json")
     @Operation(summary = "商品评分")
-    public ResponseEntity<String> calculateAndUpdateScore(@PathVariable Integer userId,@PathVariable Integer productId, Integer score) {
+    public ResponseEntity<String> calculateAndUpdateScore(@RequestParam Integer userId,@RequestParam Integer productId, Integer score) {
         try {
             // 检查该用户是否已对该商品评分
             Score existingScore = scoreDao.getScoreByUserIdAndProductId(userId, productId);
@@ -106,9 +106,9 @@ public class ScoreController extends ApiController {
      * @param score 分数
      * @return ResponseEntity<String>
      */
-    @PostMapping(value = "{userId},{productId}/update", produces = "application/json")
+    @PutMapping(value = "update", produces = "application/json")
     @Operation(summary = "修改评分")
-    public ResponseEntity<String> updateScore(@PathVariable Integer userId,@PathVariable Integer productId, Integer score) {
+    public ResponseEntity<String> updateScore(@RequestParam Integer userId,@RequestParam Integer productId, Integer score) {
         try {
             // 检查该用户是否已对该商品评分
             Score existingScore = scoreDao.getScoreByUserIdAndProductId(userId, productId);
@@ -155,9 +155,9 @@ public class ScoreController extends ApiController {
      * @param productId 商品ID
      * @return ResponseEntity<String>
      */
-    @PostMapping(value = "{userId},{productId}/delete", produces = "application/json")
+    @DeleteMapping(value = "delete", produces = "application/json")
     @Operation(summary = "删除评分")
-    public ResponseEntity<String> deleteScore(@PathVariable Integer userId,@PathVariable Integer productId) {
+    public ResponseEntity<String> deleteScore(@RequestParam Integer userId,@RequestParam Integer productId) {
         try {
             // 检查该用户是否已对该商品评分
             Score existingScore = scoreDao.getScoreByUserIdAndProductId(userId, productId);
@@ -202,9 +202,9 @@ public class ScoreController extends ApiController {
      * @param userId 用户ID
      * @return ResponseEntity<List<Score>>
      */
-    @GetMapping(value = "{userId}/myScore", produces = "application/json")
+    @GetMapping(value = "myScore", produces = "application/json")
     @Operation(summary = "查看自己的所有评分")
-    public ResponseEntity<List<Score>> getMyScore(@PathVariable Integer userId) {
+    public ResponseEntity<List<Score>> getMyScore(@RequestParam Integer userId) {
         try {
             // 获取该用户对所有商品的评分
             Map<String, Object> columnMap = new HashMap<>();

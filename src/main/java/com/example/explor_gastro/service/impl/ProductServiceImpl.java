@@ -133,7 +133,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
             commentDto.setImgId(comment.getImgId());
             commentDto.setTime(comment.getTime());
             User user = userDao.selectById(comment.getUserId());
-            commentDto.setUserName(user.getName());
+            if (user==null){
+                commentDto.setUserName("账号已注销");
+                commentDto.setUserAvatar("http://1.14.126.98:5000/OIP.jpg");
+            }
+            if (user != null) {
+                commentDto.setUserName(user.getName());
+                commentDto.setUserAvatar(user.getUserAvatar());
+            }
             commentDtos.add(commentDto);
         }
 

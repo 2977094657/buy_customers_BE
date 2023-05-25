@@ -97,7 +97,7 @@ public class ProductController extends ApiController {
      * @param category 商品分类，此处应为下拉栏，不允许商家填写，四个分类: 主食、小吃、甜品、饮料
      * @return 返回增加结果
      */
-    @PostMapping("/{name}/add")
+    @PostMapping("add")
     @Operation(summary = "新增商品")
     @Parameters({
             @Parameter(name = "images", description = "多个图片，以数组存入"),
@@ -108,13 +108,18 @@ public class ProductController extends ApiController {
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
     public ResponseEntity<Map<String, Object>> addProduct(
-            @RequestParam("images") MultipartFile[] files,
+            @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
-            @PathVariable String name,
+            @RequestParam String name,
             @RequestParam(defaultValue = "小时候的味道",name = "description") String description,
             @RequestParam(defaultValue = "32",name = "price") Integer price,
             @RequestParam(defaultValue = "主食",name = "category") String category
     ) {
+        Map<String, Object> responseBody = new HashMap<>();
+        if (files==null){
+            responseBody.put("message", "请上传商品图片！");
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+        }
         List<Map<String, String>> responseList = imageUpload.add(files, productName, name, description, price, category).getBody();
         boolean isSuccess = true;
         if (responseList != null) {
@@ -125,7 +130,6 @@ public class ProductController extends ApiController {
                 }
             }
         }
-        Map<String, Object> responseBody = new HashMap<>();
         if (isSuccess) {
             responseBody.put("message", "商品添加成功");
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
@@ -147,7 +151,7 @@ public class ProductController extends ApiController {
      * @return 返回修改结果
      */
     @Operation(summary = "根据商品id修改商品")
-    @PutMapping("{productId}/update")
+    @PutMapping("update")
     @Parameters({
             @Parameter(name = "productId", description = "商品id,根据此字段修改"),
             @Parameter(name = "productName", description = "商品名字"),
@@ -156,7 +160,7 @@ public class ProductController extends ApiController {
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
     public R update(
-            @PathVariable Integer productId,
+            @RequestParam Integer productId,
             @RequestParam(name = "productName",defaultValue = "红烧肉") String productName,
             @RequestParam(name = "description",defaultValue = "很好吃") String description,
             @RequestParam(name = "price",defaultValue = "12") Integer price,
@@ -177,11 +181,11 @@ public class ProductController extends ApiController {
      * @return 删除结果
      */
     @Operation(summary = "根据商品id删除商品")
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("delete")
     @Parameters({
             @Parameter(name = "id", description = "商品id，根据商家点击删除的商品id来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
             })
-    public R delete(@PathVariable List<Long> id) {
+    public R delete(@RequestParam List<Long> id) {
         return success(this.productService.removeByIds(id));
     }
 
@@ -222,7 +226,7 @@ public class ProductController extends ApiController {
      * @param sortByTime 是否按照时间排序，默认为true
      * @return 评论列表
      */
-    @GetMapping("{productId}/comments")
+    @GetMapping("comments")
     @Operation(summary = "商品评价")
     @Parameters({
             @Parameter(name = "productId", description = "商品id"),
@@ -230,16 +234,16 @@ public class ProductController extends ApiController {
             @Parameter(name = "pageSize", description = "每页显示数量", example = "10"),
             @Parameter(name = "sortByTime", description = "是否按照时间排序", example = "true")
     })
-    public List<CommentDto> getProductComments(@PathVariable Integer productId,
+    public List<CommentDto> getProductComments(@RequestParam Integer productId,
                                                @RequestParam(defaultValue = "1") Integer pageNum,
                                                @RequestParam(defaultValue = "10") Integer pageSize,
                                                @RequestParam(defaultValue = "true") Boolean sortByTime) {
         return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
     }
 
-    @PutMapping("{productId}/updateImages")
+    @PutMapping("updateImages")
     @Operation(summary = "根据商品id修改商品图片")
-    public ResponseEntity<List<Map<String, String>>> updateImages(@PathVariable Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         return imageUpload.update(productId, files);
     }
 }

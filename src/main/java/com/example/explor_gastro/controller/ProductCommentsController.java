@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +37,9 @@ public class ProductCommentsController extends ApiController {
     @Resource
     private ImageUpload imageUpload;
 
-    @PostMapping("add/{userId}")
+    @PostMapping("add")
     @Operation(summary = "增加评价")
-    public R insert(@PathVariable int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId) {
+    public R insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId) {
         ProductComments productComments = new ProductComments();
         productComments.setUserId(userId);
         productComments.setComments(comments);
@@ -52,40 +51,24 @@ public class ProductCommentsController extends ApiController {
         return success(this.productCommentsService.save(productComments));
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("update")
     @Operation(summary = "修改评价")
-    public R update(@PathVariable int id, @RequestParam(required = false) String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files) {
-        ProductComments productComments = this.productCommentsService.getById(id);
-        if (comments != null && !comments.isEmpty()) {
-            productComments.setComments(comments);
-        }
-        if (files != null && files.length>0) {
-            try {
-                imageUpload.updateComments(id,files);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if ((comments!=null&&!comments.isEmpty())||files!=null){
-            productComments.setTime(new Date());
-            productCommentsService.updateById(productComments);
-            return success("修改成功");
-        }
-        return success("尚未修改");
+    public ResponseEntity<List<Map<String, String>>> update(@RequestParam int id, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files) throws IOException {
+        return imageUpload.updateComments(id,comments,files);
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("delete")
     @Operation(summary = "删除评价")
-    public R delete(@PathVariable int id) {
+    public R delete(@RequestParam int id) {
         if (productCommentsService.getById(id)==null){
             return success("暂无此评论");
         }
         productCommentsService.removeByIds(Collections.singleton(id));
         return success("删除成功");
     }
-    @GetMapping("{userId}")
+    @GetMapping("myComments")
     @Operation(summary = "显示用户所有评价")
-    public List<ProductComments> userComments(@PathVariable int userId) {
+    public List<ProductComments> userComments(@RequestParam int userId) {
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
         //查询user_id等于userId的数据
         queryWrapper.eq("user_id", userId);
