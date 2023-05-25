@@ -68,9 +68,23 @@ public class StarController extends ApiController {
      * @return 新增结果
      */
     @PostMapping("staradd")
-    @Operation(summary    =    "新增用户的收藏")
-    public R insert(@RequestBody   Star star) {
-        return success(this.starService.save(star));
+    @Operation(summary  =  "新增用户的收藏")
+    public  R  insert(
+            @RequestParam("userId")  Integer  userId,
+            @RequestParam("productId")  Integer  productId
+    )  {
+        //  创建Star对象并设置其属性
+        Star  star  =  new  Star();
+        star.setUserId(userId);
+        star.setProductId(productId);
+
+        //  将Star对象保存到数据库中
+        boolean  success  =  this.starService.save(star);
+        if  (success)  {
+            return  success("用户收藏成功");
+        }  else  {
+            return  failed("用户收藏失败");
+        }
     }
 
 //    /**
