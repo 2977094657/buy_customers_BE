@@ -64,14 +64,14 @@ public class VendorController extends ApiController {
      * @param id 商家id
      * @return 单条数据
      */
-    @PostMapping("/{id}/vendorid")
+    @PostMapping("vendoradd")
     @Operation(summary = "查看商家信息")
     @Parameters({
             @Parameter(name = "id", description = "商家id"),
     })
     public R selectOne(
             @RequestParam(name = "id",defaultValue = "1") int id1,
-            @PathVariable Serializable id) {
+            @RequestParam Serializable id) {
         return success(this.vendorService.getById(id));
     }
 
@@ -107,7 +107,7 @@ public class VendorController extends ApiController {
          * password 商家密码
          *
          */
-        @PostMapping(value = "/register",produces  =  "text/plain;charset=UTF-8")
+        @PostMapping(value = "register",produces  =  "text/plain;charset=UTF-8")
         @Operation(summary = "商家注册")
         @Parameters({
                 @Parameter(name = "username", description = "商家名"),
