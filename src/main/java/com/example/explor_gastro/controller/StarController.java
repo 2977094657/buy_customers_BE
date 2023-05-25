@@ -67,9 +67,9 @@ public class StarController extends ApiController {
      * @param star 实体对象
      * @return 新增结果
      */
-    @PostMapping("stars/star")
+    @PostMapping("staradd")
     @Operation(summary    =    "新增用户的收藏")
-    public R insert(@RequestBody Star star) {
+    public R insert(@RequestBody   Star star) {
         return success(this.starService.save(star));
     }
 
@@ -85,9 +85,12 @@ public class StarController extends ApiController {
 //    }
 
 
-    @DeleteMapping("star/del")
-    @Operation(summary    =    "取消用户收藏")
-    public  R  delete(@PathVariable("id")  Long  id)  {
+    //  删除映射，请求方式为DELETE，路径为"del"
+    @DeleteMapping("del")
+//  操作摘要，用于描述此接口功能
+    @Operation(summary  =  "取消用户收藏")
+    public  R  delete(@RequestParam("id")  Long  id)  {
+        //  调用starService的removeById方法，删除id对应的记录，并返回删除结果
         return  success(this.starService.removeById(id));
     }
 }
