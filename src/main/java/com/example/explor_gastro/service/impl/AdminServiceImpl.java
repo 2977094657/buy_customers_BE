@@ -9,6 +9,7 @@ import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.Admin;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.AdminService;
+import com.example.explor_gastro.utils.Md5;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,6 +26,8 @@ public class AdminServiceImpl extends ServiceImpl<AdminDao, Admin> implements Ad
 
     @Resource
     private UserDao userDao;
+
+
     @Override
     public IPage<User> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
         // 创建一个 Page 对象，指定当前页码和每页记录数

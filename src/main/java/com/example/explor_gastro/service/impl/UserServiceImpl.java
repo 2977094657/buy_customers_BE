@@ -1,8 +1,11 @@
 package com.example.explor_gastro.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.explor_gastro.dao.UserDao;
+import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.Md5;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 /**
  * 用户表(User)表服务实现类
@@ -62,6 +66,8 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         //将md5加密后的存入
         newUser.setPwd(pwd1);
         newUser.setPhone(user.getPhone());
+        newUser.setAddress(user.getAddress());
+        newUser.setDescription(user.getDescription());
         userDao.insert(newUser);
         return true;
     }

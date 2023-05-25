@@ -91,22 +91,40 @@ public class AdminController extends ApiController {
      * @return
      * cy
      */
-    @PutMapping(value = "/{userId}/pwd",produces  =  "text/plain;charset=UTF-8")
+    @PutMapping(value = "/pwd",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "修改用户信息")
     @Parameters({
             @Parameter(name = "userId", description = "用户id ;示例值：2"),
             @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
             @Parameter(name = "description", description = "修改的简介 ;示例值:暂无"),
     })
-    public String updateUserPwd(@PathVariable Integer userId, @RequestParam(required = false) String pwd, @RequestParam(required = false) String description) throws NoSuchAlgorithmException, NoSuchAlgorithmException {
-        User user = new User();
-        user.setUserId(userId);
+    public String updateUserPwd(@RequestParam Integer userId,
+                                @RequestParam(required = false) String pwd,
+                                @RequestParam(required = false) String description,
+                                @RequestParam(required = false) String phone,
+                                @RequestParam(required = false) String name,
+                                @RequestParam(required = false) String address) throws NoSuchAlgorithmException {
+        User user = userDao.selectById(userId); // 查询数据库中的记录
+        if (user == null) {
+            return "用户不存在";
+        }
+        // 如果 pwd 不为空，则更新密码
         if (pwd != null && !pwd.isEmpty()) {
             String encryptedPwd = Md5.MD5Encryption(pwd); // MD5Encryption方法
             user.setPwd(encryptedPwd);
         }
+        // 如果 description 不为空，则更新描述
         if (description != null && !description.isEmpty()) {
             user.setDescription(description);
+        }
+        if (phone != null && !phone.isEmpty()) {
+            user.setPhone(phone);
+        }
+        if (name != null && !name.isEmpty()) {
+            user.setName(name);
+        }
+        if (address != null && !address.isEmpty()) {
+            user.setAddress(address);
         }
         userDao.updateById(user);
         return "修改成功";
@@ -118,10 +136,10 @@ public class AdminController extends ApiController {
      * @return
      * cy
      */
-    @DeleteMapping(value = "/{userId}/deleteuser",produces  =  "text/plain;charset=UTF-8")
+    @DeleteMapping(value = "/deleteuser",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "删除用户")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public String deleteUserPwd(@PathVariable Integer userId) {
+    public String deleteUserPwd(@RequestParam Integer userId) {
         if (userDao.selectById(userId) == null) {
             return "删除失败，该用户不存在";
         } else {
@@ -165,7 +183,9 @@ public class AdminController extends ApiController {
     })
     public String register(@RequestParam(value = "phone") String phone,
                            @RequestParam(value = "name") String name,
-                           @RequestParam(value = "pwd") String pwd
+                           @RequestParam(value = "pwd") String pwd,
+                           @RequestParam(value = "address") String address,
+                           @RequestParam(value = "description") String description
                            ) throws NoSuchAlgorithmException {
         // 校验参数
         if (phone == null) {
@@ -180,7 +200,8 @@ public class AdminController extends ApiController {
         user.setPhone(phone);
         user.setName(name);
         user.setPwd(pwd);
-
+        user.setAddress(address);
+        user.setDescription(description);
         // 注册用户
         boolean success = userService.register(user);
         if (success) {
