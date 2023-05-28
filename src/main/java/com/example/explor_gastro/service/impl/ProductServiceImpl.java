@@ -65,11 +65,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
     public boolean updateProduct(Integer productId, String productName, String description, Integer price, String category) {
         Product product = new Product();
         product.setProductId(productId);
-        product.setProductName(productName);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setCategory(category);
-
+        if (productName!=null&& !"".equals(productName)){
+            product.setProductName(productName);
+        }
+        if (description!=null&&!"".equals(description)){
+            product.setDescription(description);
+        }
+        if (price!=null&&price!=0){
+            product.setPrice(price);
+        }
+        if (category!=null&& !"".equals(category)){
+            product.setCategory(category);
+        }
         return this.updateById(product);
     }
     @Override
