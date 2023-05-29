@@ -121,6 +121,7 @@ public class TXSendSms {
         int s = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(PhoneNumber)));
         Boolean hasKey = stringRedisTemplate.hasKey(PhoneNumber);
         if (code == s) {
+            stringRedisTemplate.delete(PhoneNumber);  // 验证码正确，删除当前验证后的Redis key
             return ResponseEntity.ok("注册成功");
         } else if (Boolean.FALSE.equals(hasKey)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("验证码已过期，请重新发送");
