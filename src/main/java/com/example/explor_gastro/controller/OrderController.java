@@ -29,19 +29,19 @@ public class OrderController {
     }
 
 
-    @PostMapping("/{userId},{vendorId},{productId}/orders")
+    @PostMapping("add")
     @Operation(summary = "创建订单")
     public Orders createOrder(
             //商家ID(vendorId)
-            @PathVariable Integer vendorId,
+            @RequestParam Integer vendorId,
             //用户ID(userId).
-            @PathVariable Integer userId,
+            @RequestParam Integer userId,
             //下单地址(address)
             @RequestParam String address,
             //订单总计价格(price)
             @RequestParam Integer price,
             //商品ID(productId)
-            @PathVariable Integer productId,
+            @RequestParam Integer productId,
             //订单备注(notes)
             @RequestParam String notes,
             //订单类型(type)

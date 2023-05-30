@@ -3,6 +3,8 @@ package com.example.explor_gastro.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,7 +14,9 @@ import java.io.Serializable;
  * @author makejava
  * @since 2023-05-08 11:38:10
  */
+@Data
 @SuppressWarnings("serial")
+@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查处为null的字段则不显示，可以单独给某字段加
 public class Star extends Model<Star> {
     @TableId(type = IdType.AUTO)
     //收藏id，主键自增
@@ -21,31 +25,6 @@ public class Star extends Model<Star> {
     private Integer userId;
     //商品id
     private Integer productId;
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
 
     /**
      * 获取主键值
