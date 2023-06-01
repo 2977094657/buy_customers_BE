@@ -301,13 +301,13 @@ public class UserController extends ApiController {
         public ResponseEntity<String> updatePassword(@RequestParam("userId") Integer userId,
                 @RequestParam("oldPassword") String oldPassword,
                 @RequestParam("newPassword") String newPassword,
-                @RequestParam("confirmPassword") String confirmPassword) {
+                @RequestParam("confirmPassword") String confirmPassword) throws NoSuchAlgorithmException {
             User user = userDao.selectByUserId1(userId);
             if (user == null) {
                 return ResponseEntity.badRequest().body("未找到用户");
             }
 
-            if (!user.getPwd().equals(oldPassword)) {
+            if (!user.getPwd().equals(Md5.MD5Encryption(oldPassword))) {
                 return ResponseEntity.badRequest().body("旧密码不匹配");
             }
 
@@ -315,11 +315,12 @@ public class UserController extends ApiController {
                 return ResponseEntity.badRequest().body("新密码和确认密码不匹配");
             }
 
-            user.setPwd(newPassword);
+            user.setPwd(Md5.MD5Encryption(newPassword));
             userDao.updateById(user);
 
             return ResponseEntity.ok("密码更新成功");
         }
+
 
         @PutMapping("{userid}/updateAvatar")
         @Operation(summary = "用户修改头像")
@@ -328,9 +329,6 @@ public class UserController extends ApiController {
                 @PathVariable(name = "userid") Integer userid) throws IOException {
         return imageUpload.upload(file,userid);
         }
-
-
-
 
 }
 
