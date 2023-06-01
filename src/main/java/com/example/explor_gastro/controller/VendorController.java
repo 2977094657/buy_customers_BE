@@ -142,15 +142,43 @@ public class VendorController extends ApiController {
                           @RequestParam(value = "pwd", required = false) String pwd,
                           @RequestParam(value = "description", required = false) String description,
                           @RequestParam(value = "openingTime", required = false) String openingTime) {
-        Vendor vendor = new Vendor();
-        vendor.setVendorId(vendorId);
-        vendor.setPhone(phone);
-        vendor.setName(name);
-        vendor.setPwd(pwd);
-        vendor.setDescription(description);
-        vendor.setOpeningTime(openingTime);
-        success(vendorService.updateById(vendor));
-        return success("商家信息修改成功！");
+
+        Vendor vendor = vendorService.getById(vendorId);
+        if (vendor == null) {
+            return failed("商家不存在");
+        }
+
+        // 判断手机号是否为空，为空则不进行set操作
+        if (phone != null && !"".equals(phone)) {
+            vendor.setPhone(phone);
+        }
+
+        // 判断商家名是否为空，为空则不进行set操作
+        if (name != null && !"".equals(name)) {
+            vendor.setName(name);
+        }
+
+        // 判断商家密码是否为空，为空则不进行set操作
+        if (pwd != null && !"".equals(pwd)) {
+            vendor.setPwd(pwd);
+        }
+
+        // 判断商家简介是否为空，为空则不进行set操作
+        if (description != null && !"".equals(description)) {
+            vendor.setDescription(description);
+        }
+
+        // 判断营业时间是否为空，为空则不进行set操作
+        if (openingTime != null && !"".equals(openingTime)) {
+            vendor.setOpeningTime(openingTime);
+        }
+
+        boolean result = vendorService.updateById(vendor);
+        if (result) {
+            return success("商家信息修改成功！");
+        } else {
+            return failed("商家信息修改失败！");
+        }
     }
 
 

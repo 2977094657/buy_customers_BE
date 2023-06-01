@@ -152,20 +152,21 @@ public class ProductController extends ApiController {
      */
     @Operation(summary = "根据商品id修改商品")
     @PutMapping("update")
-    @Parameters({
-            @Parameter(name = "productId", description = "商品id,根据此字段修改"),
-            @Parameter(name = "productName", description = "商品名字"),
-            @Parameter(name = "description", description = "商品介绍"),
-            @Parameter(name = "price", description = "价格"),
-            @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
-    })
     public R update(
             @RequestParam Integer productId,
-            @RequestParam(name = "productName",defaultValue = "红烧肉") String productName,
-            @RequestParam(name = "description",defaultValue = "很好吃") String description,
-            @RequestParam(name = "price",defaultValue = "12") Integer price,
-            @RequestParam(name = "category",defaultValue = "主食") String category
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) Integer price,
+            @RequestParam(required = false) String category
     ) {
+        // 检查每个参数是否为null值或空字符串
+        if ((productName == null || productName.isEmpty())
+                && (description == null || description.isEmpty())
+                && (price == null || price.toString().isEmpty())
+                && (category == null || category.isEmpty())) {
+            return failed("没有提供要更新的值");
+        }
+
         boolean result = this.productService.updateProduct(productId, productName, description, price, category);
         if (result) {
             return success("商品修改成功");
