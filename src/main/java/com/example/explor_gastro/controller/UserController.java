@@ -10,6 +10,7 @@ import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.UserService;
 import com.example.explor_gastro.utils.ImageUpload;
 import com.example.explor_gastro.utils.JwtService;
+import com.example.explor_gastro.utils.Md5;
 import com.example.explor_gastro.utils.TXSendSms;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,7 +65,7 @@ public class UserController extends ApiController {
 
     /**
      * 登录功能
-     * @param phone 手机号
+     * @param phone 手机号1
      * @param pwd 密码
      * @return 响应内容
      */
@@ -75,9 +76,9 @@ public class UserController extends ApiController {
             @Parameter(name = "pwd", description = "用户密码"),
     })
     public ResponseEntity<?> login(@RequestParam(defaultValue = "12345678955") String phone,
-                                   @RequestParam(defaultValue = "8888") String pwd) {
+                                   @RequestParam(defaultValue = "8888") String pwd) throws NoSuchAlgorithmException {
         try {
-            User user = userService.LoginIn(phone, pwd);
+            User user = userService.LoginIn(phone, Md5.MD5Encryption(pwd));
             String token = jwtService.generateToken(user);
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
