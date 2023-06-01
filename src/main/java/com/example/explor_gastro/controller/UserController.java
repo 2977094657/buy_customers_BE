@@ -65,7 +65,7 @@ public class UserController extends ApiController {
 
     /**
      * 登录功能
-     * @param phone 手机号
+     * @param phone 手机号1
      * @param pwd 密码
      * @return 响应内容
      */
