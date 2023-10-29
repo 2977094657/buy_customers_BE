@@ -14,7 +14,6 @@ import java.io.Serializable;
  * @since 2023-05-06 20:16:11
  */
 @Data
-@SuppressWarnings("serial")
 public class Product extends Model<Product> {
     @TableId(type = IdType.AUTO)
     //商品id，主键自增
@@ -27,8 +26,6 @@ public class Product extends Model<Product> {
     private Double score;
     //商品收藏数
     private Integer star;
-    //商品介绍
-    private String description;
     //商家名
     private String name;
     //商品价格
@@ -48,13 +45,6 @@ public class Product extends Model<Product> {
     @Override
     protected Serializable pkVal() {
         return this.productId;
-    }
-    public Product(String productName, String description, Integer price, String category, String name) {
-        this.productName = productName;
-        this.description = description;
-        this.price = price;
-        this.category = category;
-        this.name = name;
     }
     public Product() {}
 }

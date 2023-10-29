@@ -7,14 +7,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.explor_gastro.dao.ProductCommentsDao;
 import com.example.explor_gastro.dao.ProductDao;
 import com.example.explor_gastro.dao.UserDao;
-import com.example.explor_gastro.dto.CommentDto;
+import com.example.explor_gastro.dto.CommentDTO;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.ProductComments;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -25,16 +25,15 @@ import java.util.*;
  */
 @Service("productService")
 public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> implements ProductService {
-    @Autowired
+    @Resource
     private ProductDao productDao;
-    //    current – 当前页 size – 每页显示条数
-    @Autowired
+    @Resource
     private ProductCommentsDao productCommentsDao;
-    @Autowired
+    @Resource
     private UserDao userDao;
 
     @Override
-    public IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField) {
+    public IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField, Long randomSeed) {
         // 创建一个 Page 对象，指定当前页码和每页记录数
         Page<Product> page = new Page<>(current, size);
         // 创建一个 QueryWrapper 对象
@@ -43,13 +42,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         if (isAsc.isPresent()) {
             if (isAsc.get()) {
                 wrapper.orderByAsc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 升序排序，否则不排序
-                } else {
+            } else {
                 wrapper.orderByDesc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 降序排序，否则不排序
             }
         }
         // 在排序字段为 null 或空字符串时，添加一个随机排序规则
         if (!sortField.isPresent() || sortField.get().isEmpty()) {
-            wrapper.orderByAsc("rand()");
+            wrapper.orderByAsc(String.format("RAND(%d)", randomSeed)); // 使用当前时间戳作为随机种子
         }
         // 调用 ProductDao 的 selectPage 方法进行分页查询
         IPage<Product> iPage = productDao.selectPage(page, wrapper);
@@ -62,19 +61,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         return iPage;
     }
     @Override
-    public boolean updateProduct(Integer productId, String productName, String description, Integer price, String category) {
+    public boolean updateProduct(Integer productId, String productName, Integer price, String category) {
         Product product = new Product();
         product.setProductId(productId);
-        if (productName!=null&& !"".equals(productName)){
+        if (productName!=null&& !productName.isEmpty()){
             product.setProductName(productName);
-        }
-        if (description!=null&&!"".equals(description)){
-            product.setDescription(description);
         }
         if (price!=null&&price!=0){
             product.setPrice(price);
         }
-        if (category!=null&& !"".equals(category)){
+        if (category!=null&& !category.isEmpty()){
             product.setCategory(category);
         }
         return this.updateById(product);
@@ -95,11 +91,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
 
         return productDao.selectPage(new Page<>(current, size), queryWrapper);
     }
-    @Override
-    public boolean updateImgByProductId(Integer productId, String img) {
-        int result = productDao.updateImgByProductId(productId, img);
-        return result > 0;
-    }
+
     @Override
     public List<Product> selectByCategory(int current, int size, String category) {
         Map<String, Object> params = new HashMap<>();
@@ -111,14 +103,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
     /**
      * 根据商品ID获取商品评价列表
      *
-     * @param productId 商品ID
-     * @param pageNum   当前页数
-     * @param pageSize  每页显示数量
+     * @param productId  商品ID
+     * @param pageNum    当前页数
+     * @param pageSize   每页显示数量
      * @param sortByTime 是否按时间排序
      * @return 商品评价列表
      */
     @Override
-    public List<CommentDto> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime) {
+    public List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime) {
         // 计算起始索引
         int startIndex = (pageNum - 1) * pageSize;
 
@@ -132,26 +124,46 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         // 调用DAO层获取商品评价列表
         List<ProductComments> comments = productCommentsDao.selectList(orderByTime);
 
+        // 调用 DAO 层获取总的评论数量
+        QueryWrapper<ProductComments> countWrapper = new QueryWrapper<>();
+        countWrapper.eq("product_id", productId);
+        int total = productCommentsDao.selectCount(countWrapper);
+
+        // 计算总的页数
+        int totalPageNum = (total + pageSize - 1) / pageSize;
+
         // 将ProductComments转换为CommentDto
-        List<CommentDto> commentDtos = new ArrayList<>();
+        List<CommentDTO> commentDTOS = new ArrayList<>();
         for (ProductComments comment : comments) {
-            CommentDto commentDto = new CommentDto();
+            CommentDTO commentDto = new CommentDTO();
+            commentDto.setId(comment.getId());
             commentDto.setComments(comment.getComments());
             commentDto.setImgId(comment.getImgId());
             commentDto.setTime(comment.getTime());
             User user = userDao.selectById(comment.getUserId());
             if (user==null){
                 commentDto.setUserName("账号已注销");
-                commentDto.setUserAvatar("http://1.14.126.98:5000/OIP.jpg");
+                commentDto.setUserAvatar("http://124.221.7.201:5000/OIP.jpg");
             }
             if (user != null) {
                 commentDto.setUserName(user.getName());
                 commentDto.setUserAvatar(user.getUserAvatar());
             }
-            commentDtos.add(commentDto);
+            commentDTOS.add(commentDto);
         }
+        Map<String, Object> pageInfo = new HashMap<>();
+        pageInfo.put("pageNum", pageNum);
+        pageInfo.put("pageSize", pageSize);
+        pageInfo.put("sortByTime", sortByTime);
+        pageInfo.put("pages", totalPageNum);  // 添加总的页数
+        pageInfo.put("total", total);  // 添加总的评论数量
 
-        return commentDtos;
+        // 创建一个 List 用于返回结果
+        List<Object> result = new ArrayList<>();
+        result.add(commentDTOS); // 第一个元素是评论列表
+        result.add(pageInfo);    // 第二个元素是包含 pageNum，pageSize 和 sortByTime 参数的 Map
+
+        return result;
     }
 }
 

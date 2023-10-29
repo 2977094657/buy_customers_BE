@@ -4,16 +4,21 @@ package com.example.explor_gastro.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
+import com.example.explor_gastro.common.utils.Md5;
+import com.example.explor_gastro.common.utils.Response;
 import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.Admin;
+import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.AdminService;
+import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.service.UserService;
-import com.example.explor_gastro.utils.Md5;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -46,11 +51,12 @@ public class AdminController extends ApiController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private ProductService productService;
+
 
     /**
      * 搜索功能
-     * @param keyword
-     * @return
      */
     @GetMapping("/search")
     @Operation(summary = "搜索用户")
@@ -86,8 +92,6 @@ public class AdminController extends ApiController {
     }
     /**
      * 修改用户密码
-     * @param userId
-     * @param pwd
      * @return
      * cy
      */
@@ -132,8 +136,6 @@ public class AdminController extends ApiController {
 
     /**
      * 删除用户
-     * @param userId
-     * @return
      * cy
      */
     @DeleteMapping(value = "/deleteuser",produces  =  "text/plain;charset=UTF-8")
@@ -150,8 +152,6 @@ public class AdminController extends ApiController {
 
     /**
      * 管理员登录
-     * @param admin
-     * @return
      */
     @PostMapping(value = "login",produces  =  "text/plain;charset=UTF-8")
     @Operation(summary  =  "管理员登录")
@@ -210,6 +210,79 @@ public class AdminController extends ApiController {
             return "注册失败，用户名或手机号已存在";
         }
     }
+
+    @GetMapping("updateIp")
+    @Operation(summary = "修改图片数据库图片ip")
+    @Parameters({
+            @Parameter(name = "old", description = "旧ip", required = true),
+            @Parameter(name = "newIp", description = "新ip", required = true)
+    })
+    public ResponseEntity<Response<?>> updateIp(@RequestParam String old,@RequestParam String newIp) {
+        Response <String> response = new Response<>();
+        try {
+            List<Product> products = productService.list();
+
+            for (Product product : products) {
+                // 获取原始的img字段值
+                String originalImg = product.getImg();
+
+                // 进行替换操作
+                String newImg = originalImg.replace(old, newIp);
+
+                // 创建新的产品对象，将其他字段设置为原始对象的值，只修改img字段
+                Product updatedProduct = new Product();
+                updatedProduct.setProductId(product.getProductId());  // 设置原始对象的ID或其他标识符
+                updatedProduct.setImg(newImg);  // 设置修改后的img字段的值
+
+                // 保存更新后的对象到数据库
+                productService.updateById(updatedProduct);
+            }
+            response.setCode(200);
+            response.setMsg("修改成功");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        } catch (Exception e) {
+            response.setCode(400);
+            response.setMsg(e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("updateAvatarIp")
+    @Operation(summary = "修改用户数据库图片ip")
+    @Parameters({
+            @Parameter(name = "old", description = "旧ip", required = true),
+            @Parameter(name = "newIp", description = "新ip", required = true)
+    })
+    public ResponseEntity<Response<?>> updateAvatarIp(@RequestParam String old,@RequestParam String newIp) {
+        Response <String> response = new Response<>();
+        try {
+            List<User> avatar = userService.list();
+
+            for (User user : avatar) {
+                // 获取原始的img字段值
+                String originalImg = user.getUserAvatar();
+
+                // 进行替换操作
+                String newImg = originalImg.replace(old, newIp);
+
+                // 创建新的产品对象，将其他字段设置为原始对象的值，只修改img字段
+                User userAvatar = new User();
+                userAvatar.setUserId(user.getUserId());  // 设置原始对象的ID或其他标识符
+                userAvatar.setUserAvatar(newImg);  // 设置修改后的img字段的值
+
+                // 保存更新后的对象到数据库
+                userService.updateById(userAvatar);
+            }
+            response.setCode(200);
+            response.setMsg("修改成功");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        } catch (Exception e) {
+            response.setCode(400);
+            response.setMsg(e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+    }
+
 
 }
 

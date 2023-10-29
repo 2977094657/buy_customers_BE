@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

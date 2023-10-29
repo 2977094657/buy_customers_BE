@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.User;

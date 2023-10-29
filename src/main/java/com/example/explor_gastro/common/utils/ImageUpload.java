@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.ProductComments;
@@ -35,6 +35,7 @@ public class ImageUpload {
     private ProductService productService;
     @Resource
     private ProductCommentsService productCommentsService;
+
     @PostMapping("/upload")
     @Operation(summary = "单图上传,最大1MB")
     @Parameters({
@@ -72,7 +73,7 @@ public class ImageUpload {
         }
         String url = null;
         if (dest != null) {
-            url = "http://1.14.126.98:5000/add/" + dest.getName();
+            url = "http://124.221.7.201:5000/add/" + dest.getName();
         }
         Map<String, String> response = new HashMap<>();
         response.put("url", url);
@@ -83,7 +84,6 @@ public class ImageUpload {
         user.setUserAvatar(url);
         user.setUserId(userid);
 
-        // 保存ProductImg实体
         userServiceImpl.updateById(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -93,20 +93,29 @@ public class ImageUpload {
             @RequestParam String comments,
             @RequestParam(name = "imgId") MultipartFile[] files,
             @RequestParam int productId
-    ){
+    ) {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<String> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
         boolean allValid = true; // 标记所有文件是否都合法
         List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
         List<String> imageUrls1 = new ArrayList<>();
+
+        // 判断图片数量是否超过5张
+        if (files.length > 5) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "上传的图片数量超过了5张，请控制在5张以内");
+            responseList.add(error);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseList);
+        }
+
         try {
             // 遍历上传的文件数组
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
                 // 判断文件大小是否超过限制
-                if (file.getSize() > 10 * 1024 * 1024) {
+                if (file.getSize() > 1024 * 1024) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了10MB，请将其控制在10MB以内");
+                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了1MB，请将其控制在1MB以内");
                     responseList.add(error);
                     allValid = false;
                     break; // 如果有不合法的文件，立即退出循环
@@ -141,7 +150,7 @@ public class ImageUpload {
                         String url1;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
-                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
+                            url = "http://124.221.7.201:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
                             imageUrls.add(url);
                             url1 = dest.getName();
                             imageUrls1.add(url1);
@@ -212,20 +221,17 @@ public class ImageUpload {
     }
 
     /**
-     *
-     * @param files 商品多个图片，以数组存入
+     * @param files       商品多个图片，以数组存入
      * @param productName 商品名字
-     * @param name 商家名字，根据商家登陆的账号来传入此参数，不允许商家填入
-     * @param description 商品介绍
-     * @param price 价格
-     * @param category 商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料
+     * @param name        商家名字，根据商家登陆的账号来传入此参数，不允许商家填入
+     * @param price       价格
+     * @param category    商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料
      * @return 返回图片名字和访问链接
      */
     public ResponseEntity<List<Map<String, String>>> add(
             @RequestParam("images") MultipartFile[] files,
             @RequestParam("productName") String productName,
             @RequestParam("name") String name,
-            @RequestParam("description") String description,
             @RequestParam("price") Integer price,
             @RequestParam("category") String category
     ) {
@@ -239,9 +245,9 @@ public class ImageUpload {
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
                 // 判断文件大小是否超过限制
-                if (file.getSize() > 10 * 1024 * 1024) {
+                if (file.getSize() > 5 * 1024 * 1024) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了10MB，请将其控制在10MB以内");
+                    error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了5MB，请将其控制在5MB以内");
                     responseList.add(error);
                     allValid = false;
                     break; // 如果有不合法的文件，立即退出循环
@@ -255,31 +261,25 @@ public class ImageUpload {
                         responseList.add(error);
                         allValid = false;
                         break; // 如果有不合法的文件，立即退出循环
-                    } else if (fileName != null && fileName.length() > 20) {
-                        Map<String, String> error = new HashMap<>();
-                        error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
-                        responseList.add(error);
-                        allValid = false;
-                        break; // 如果有不合法的文件，立即退出循环
                     } else {
                         File dest = null;
                         // 生成新的文件名并保存文件
+                        String newFileName = null;
                         if (fileName != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-                            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            String extension = fileName.substring(fileName.lastIndexOf(".")); // 获取源文件的扩展名
+                            newFileName = timeStamp + "_" + (i + 1) + extension; // 在时间戳后加上索引
                             dest = new File(newFileName);
                         }
                         if (dest != null) {
                             file.transferTo(dest);
                         }
                         String url = null;
-                        String url1;
                         // 生成访问图片的 URL，并将其加入列表中
-                        if (dest != null) {
-                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
+                        if (newFileName != null) {
+                            url = "http://124.221.7.201:5000/add/" + newFileName;
                             imageUrls.add(url);
-                            url1 = dest.getName();
-                            imageUrls1.add(url1);
+                            imageUrls1.add(newFileName);
                         }
                         Map<String, String> response = new HashMap<>();
                         response.put("url", url);
@@ -316,7 +316,6 @@ public class ImageUpload {
             Product product = new Product();
             product.setProductName(productName);
             product.setCategory(category);
-            product.setDescription(description);
             product.setPrice(price);
             product.setImg(productImgList.toString());
             product.setName(name);
@@ -408,7 +407,7 @@ public class ImageUpload {
                         String url1;
                         // 生成访问图片的 URL，并将其加入列表中
                         if (dest != null) {
-                            url = "http://1.14.126.98:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
+                            url = "http://124.221.7.201:5000/add/" + dest.getName(); // 修改为包含前缀的 URL
                             imageUrls.add(url);
                             url1 = dest.getName();
                             imageUrls1.add(url1);
@@ -457,16 +456,12 @@ public class ImageUpload {
 
     /**
      * 修改评价图片
-     * @param id
-     * @param files
-     * @return
-     * @throws IOException
      */
-    public ResponseEntity<List<Map<String, String>>> updateComments(int id, @RequestParam String comments,MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<Map<String, String>>> updateComments(int id, @RequestParam String comments, MultipartFile[] files) {
         List<ProductComments> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
         ProductComments productComments = productCommentsService.getById(id); // 根据id获取评论信息
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
-        if (files!=null){
+        if (files != null) {
             boolean allValid = true; // 标记所有文件是否都合法
             List<String> imageUrls = new ArrayList<>(); // 用于存储上传成功的图片的 URL
             List<String> imageUrls1 = new ArrayList<>();
@@ -518,7 +513,7 @@ public class ImageUpload {
                             String url1;
                             // 生成访问图片的 URL，并将其加入列表中
                             if (dest != null) {
-                                url = "http://1.14.126.98:5000/" + dest.getName(); // 修改为包含前缀的 URL
+                                url = "http://124.221.7.201:5000/" + dest.getName(); // 修改为包含前缀的 URL
                                 imageUrls.add(url);
                                 url1 = dest.getName();
                                 imageUrls1.add(url1);
@@ -573,6 +568,6 @@ public class ImageUpload {
         Map<String, String> msg = new HashMap<>();
         msg.put("msg", "修改成功");
         responseList.add(msg);
-        return new ResponseEntity<>(responseList,HttpStatus.OK);
+        return new ResponseEntity<>(responseList, HttpStatus.OK);
     }
 }

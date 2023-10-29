@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 public class SnowflakeIdGenerator {
     // 开始时间戳，一般取当前时间的起始时间戳

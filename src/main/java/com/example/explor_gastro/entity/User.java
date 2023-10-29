@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,9 +17,9 @@ import java.util.Date;
  * @author makejava
  * @since 2023-05-08 11:38:11
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查处为null的字段则不显示，可以单独给某字段加
-@SuppressWarnings("serial")
+@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查出为null的字段则不显示，可以单独给某字段加
 public class User extends Model<User> {
     @TableId(type = IdType.AUTO)
     //用户id，主键自增
@@ -35,6 +36,8 @@ public class User extends Model<User> {
     private String description;
     //下单地址
     private String address;
+    //性别
+    private String gender;
     // JWT 的签发时间
     @TableField(value = "iat", exist = false) // 数据库不会对此字段操作
     private Date iat;
@@ -66,8 +69,5 @@ public class User extends Model<User> {
         return this.userId;
     }
 
-    public void getUserId(Integer userId) {
-
-    }
 }
 

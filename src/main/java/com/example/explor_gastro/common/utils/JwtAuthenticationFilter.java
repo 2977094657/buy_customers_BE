@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;

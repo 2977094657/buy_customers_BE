@@ -1,17 +1,25 @@
 package com.example.explor_gastro.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.common.utils.Response;
 import com.example.explor_gastro.dto.ProductStarDTO;
+import com.example.explor_gastro.entity.Address;
+import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.Star;
+import com.example.explor_gastro.service.ProductService;
 import com.example.explor_gastro.service.StarService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 收藏表(Star)表控制层
@@ -28,6 +36,9 @@ public class StarController extends ApiController {
      */
     @Resource
     private StarService starService;
+
+    @Resource
+    private ProductService productService;
 
     /**
      * 新增数据
@@ -49,6 +60,13 @@ public class StarController extends ApiController {
             //  将Star对象保存到数据库中
             boolean  success  =  this.starService.save(star);
             if  (success)  {
+                Integer star1 = productService.getById(productId).getStar();
+                star1++;
+                Product product = new Product();
+                product.setStar(star1);
+                QueryWrapper<Product> wrapper = new QueryWrapper<>();
+                wrapper.eq("product_id",productId);
+                productService.update(product,wrapper);
                 return  success("用户收藏成功");
             }  else  {
                 return  failed("用户收藏失败");
@@ -58,19 +76,55 @@ public class StarController extends ApiController {
         }
     }
 
-
-    //  删除映射，请求方式为DELETE，路径为"del"
-    @DeleteMapping("del")
-//  操作摘要，用于描述此接口功能
-    @Operation(summary  =  "取消用户收藏")
-    public  R  delete(@RequestParam("id")  Long  id)  {
-        //  调用starService的removeById方法，删除id对应的记录，并返回删除结果
-        return  success(this.starService.removeById(id));
-    }
-
     @GetMapping("all")
     public List<ProductStarDTO> getProductStarDTOsByUserId(@RequestParam Integer userId) {
         return starService.getProductStarDTOsByUserId(userId);
+    }
+
+    @GetMapping("select")
+    public List<Star> select(@RequestParam Integer userId) {
+        return starService.list(new QueryWrapper<Star>().eq("user_id", userId));
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除单个收藏")
+    public ResponseEntity<Response<?>> deleteCartItem(@RequestParam Integer id) {
+        Response<List<Address>> response = new Response<>();
+        try {
+            Integer productId = starService.getById(id).getProductId();
+            Integer star1 = productService.getById(productId).getStar();
+            System.out.println(star1);
+            star1--;
+            Product product = new Product();
+            product.setStar(star1);
+            QueryWrapper<Product> wrapper = new QueryWrapper<>();
+            wrapper.eq("product_id",productId);
+            productService.update(product,wrapper);
+            starService.deleteCartItem(id);
+
+            response.setCode(200);
+            response.setMsg("删除成功");
+        } catch (Exception e) {
+            response.setCode(400);
+            response.setMsg("收藏不存在");
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteAll")
+    @Operation(summary = "批量删除")
+    public Map<String,Object> deleteAllCartItem(@RequestParam List<Integer> id){
+        for (Integer ids : id) {
+            Integer productId = starService.getById(ids).getProductId();
+            Integer star1 = productService.getById(productId).getStar();
+            star1--;
+            Product product = new Product();
+            product.setStar(star1);
+            QueryWrapper<Product> wrapper = new QueryWrapper<>();
+            wrapper.eq("product_id",productId);
+            productService.update(product,wrapper);
+        }
+        return starService.deleteCartItemByIds(id);
     }
 }
 

@@ -1,20 +1,15 @@
 package com.example.explor_gastro.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.explor_gastro.common.utils.Md5;
 import com.example.explor_gastro.dao.UserDao;
-import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.UserService;
-import com.example.explor_gastro.utils.Md5;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 
 /**
  * 用户表(User)表服务实现类
@@ -25,7 +20,7 @@ import java.util.Optional;
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService {
 
-    @Autowired
+    @Resource
     UserDao userDao;
 
     //登录
@@ -79,36 +74,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     }
 
     @Override
-    public boolean updateById(Integer userId, String name, String pwd, String phone, String description, String address) {
-        return false;
-    }
-
-    @Override
-    public boolean updateUser(Integer userId, String name, String description, String address, String phone) {
-
-        return Boolean.parseBoolean("用户名或者手机号错误");
-    }
-
-    @Override
     public boolean update(User user) {
         return false;
     }
-
-
-    @Override
-    public User findByPhone(String phone) {
-        return null;
-    }
-
-//    @Override
-//    public boolean isUserNameExists(String name) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isUserPhoneExists(String phone) {
-//        return false;
-//    }
 
 
 }

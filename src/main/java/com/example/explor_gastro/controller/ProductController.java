@@ -1,13 +1,15 @@
 package com.example.explor_gastro.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
-import com.example.explor_gastro.dto.CommentDto;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.explor_gastro.common.httpstatus.CustomStatusCode;
+import com.example.explor_gastro.common.utils.ImageUpload;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.service.ProductService;
-import com.example.explor_gastro.utils.ImageUpload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -61,8 +63,10 @@ public class ProductController extends ApiController {
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "10") int size,
             @RequestParam(name = "isAsc", required = false) Optional<Boolean> isAsc,
-            @RequestParam(name = "sortField", required = false) Optional<String> sortField) {
-        return productService.testSelectPage(current, size, isAsc, sortField);
+            @RequestParam(name = "sortField", required = false) Optional<String> sortField,
+            @RequestParam(name = "randomSeed",required = false) Long randomSeed
+    ) {
+        return productService.testSelectPage(current, size, isAsc, sortField,randomSeed);
     }
 
     /**
@@ -92,7 +96,6 @@ public class ProductController extends ApiController {
      * @param files 多个图片，以数组存入
      * @param productName 商品名字
      * @param name 商家名字，根据商家登陆的账号来传入此参数，不允许商家填入
-     * @param description 商品介绍
      * @param price 商品价格
      * @param category 商品分类，此处应为下拉栏，不允许商家填写，四个分类: 主食、小吃、甜品、饮料
      * @return 返回增加结果
@@ -103,7 +106,6 @@ public class ProductController extends ApiController {
             @Parameter(name = "images", description = "多个图片，以数组存入"),
             @Parameter(name = "productName", description = "商品名字"),
             @Parameter(name = "name", description = "商家名字，根据商家登陆的账号来传入此参数，不允许商家填入"),
-            @Parameter(name = "description", description = "商品介绍"),
             @Parameter(name = "price", description = "价格"),
             @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
     })
@@ -111,7 +113,6 @@ public class ProductController extends ApiController {
             @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
             @RequestParam String name,
-            @RequestParam(defaultValue = "小时候的味道",name = "description") String description,
             @RequestParam(defaultValue = "32",name = "price") Integer price,
             @RequestParam(defaultValue = "主食",name = "category") String category
     ) {
@@ -120,7 +121,7 @@ public class ProductController extends ApiController {
             responseBody.put("message", "请上传商品图片！");
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         }
-        List<Map<String, String>> responseList = imageUpload.add(files, productName, name, description, price, category).getBody();
+        List<Map<String, String>> responseList = imageUpload.add(files, productName, name, price, category).getBody();
         boolean isSuccess = true;
         if (responseList != null) {
             for (Map<String, String> response : responseList) {
@@ -167,7 +168,7 @@ public class ProductController extends ApiController {
             return failed("没有提供要更新的值");
         }
 
-        boolean result = this.productService.updateProduct(productId, productName, description, price, category);
+        boolean result = this.productService.updateProduct(productId, productName, price, category);
         if (result) {
             return success("商品修改成功");
         } else {
@@ -210,11 +211,11 @@ public class ProductController extends ApiController {
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
     public IPage<Product> search(
-            @RequestParam(name = "keyword",defaultValue = "肉") String keyword,
+            @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "current",defaultValue = "1") int current,
-            @RequestParam(name = "size",defaultValue = "5") int size,
-            @RequestParam(name = "isAsc", required = false,defaultValue = "") Boolean isAsc,
-            @RequestParam(name = "sortField", required = false,defaultValue = "price") String sortField) {
+            @RequestParam(name = "size",defaultValue = "60") int size,
+            @RequestParam(name = "isAsc", required = false) Boolean isAsc,
+            @RequestParam(name = "sortField", required = false) String sortField) {
         return productService.searchProduct(keyword, current, size, isAsc, sortField);
     }
 
@@ -235,10 +236,10 @@ public class ProductController extends ApiController {
             @Parameter(name = "pageSize", description = "每页显示数量", example = "10"),
             @Parameter(name = "sortByTime", description = "是否按照时间排序", example = "true")
     })
-    public List<CommentDto> getProductComments(@RequestParam Integer productId,
-                                               @RequestParam(defaultValue = "1") Integer pageNum,
-                                               @RequestParam(defaultValue = "10") Integer pageSize,
-                                               @RequestParam(defaultValue = "true") Boolean sortByTime) {
+    public List<Object> getProductComments(@RequestParam Integer productId,
+                                           @RequestParam(defaultValue = "1") Integer pageNum,
+                                           @RequestParam(defaultValue = "10") Integer pageSize,
+                                           @RequestParam(defaultValue = "true") Boolean sortByTime) {
         return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
     }
 
@@ -247,5 +248,45 @@ public class ProductController extends ApiController {
     public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         return imageUpload.update(productId, files);
     }
-}
+    @GetMapping("/example")
+    @Operation(summary = "自定义状态码测试")
+    public ResponseEntity<Map<String, Object>> example() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", CustomStatusCode.SUCCESS.getCode());
+        response.put("message", CustomStatusCode.SUCCESS.getMessage());
+        return ResponseEntity.status(CustomStatusCode.SUCCESS.getCode()).body(response);
+    }
 
+    @GetMapping(value = "selectById",produces = "application/json")
+    @Operation(summary = "根据id查询商品")
+    @Parameters({
+            @Parameter(name = "productId", description = "商品id"),
+    })
+    public ResponseEntity<Object> selectById(@RequestParam Integer productId){
+        Product product = productService.getById(productId);
+
+        if (product == null) {
+            return new ResponseEntity<>("商品不存在", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
+    @GetMapping("vendor")
+    @Operation(summary = "查询商家所有商品")
+    @Parameters({
+            @Parameter(name = "name", description = "商品名称"),
+            @Parameter(name = "pageNum", description = "页码"),
+            @Parameter(name = "pageSize", description = "每页显示数量")
+    })
+    public ResponseEntity<IPage<Product>> vendor(@RequestParam String name,
+                                                 @RequestParam(defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(defaultValue = "30") Integer pageSize){
+        QueryWrapper<Product> wrapper = new QueryWrapper<>();
+        wrapper.eq("name", name);
+        Page<Product> page = new Page<>(pageNum, pageSize);
+        IPage<Product> pageResult = productService.page(page, wrapper);
+        return ResponseEntity.ok(pageResult);
+    }
+
+}

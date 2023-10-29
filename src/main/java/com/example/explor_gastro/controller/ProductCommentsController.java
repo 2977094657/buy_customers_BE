@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.explor_gastro.entity.ProductComments;
 import com.example.explor_gastro.service.ProductCommentsService;
-import com.example.explor_gastro.utils.ImageUpload;
+import com.example.explor_gastro.common.utils.ImageUpload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;

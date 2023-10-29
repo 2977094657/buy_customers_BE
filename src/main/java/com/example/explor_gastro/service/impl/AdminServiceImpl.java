@@ -9,7 +9,6 @@ import com.example.explor_gastro.dao.UserDao;
 import com.example.explor_gastro.entity.Admin;
 import com.example.explor_gastro.entity.User;
 import com.example.explor_gastro.service.AdminService;
-import com.example.explor_gastro.utils.Md5;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

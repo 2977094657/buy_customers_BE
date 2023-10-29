@@ -1,9 +1,12 @@
 package com.example.explor_gastro.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.example.explor_gastro.common.utils.ErnieBotTurbo;
+import com.example.explor_gastro.common.utils.PromptImg;
 import com.example.explor_gastro.entity.Vendor;
 import com.example.explor_gastro.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Optional;
 
 /**
  * 商家表(Vendor)表控制层
@@ -32,8 +36,6 @@ public class VendorController extends ApiController {
      */
     @Resource
     private VendorService vendorService;
-
-
 
     /**
      * 分页查询所有商家
@@ -70,7 +72,6 @@ public class VendorController extends ApiController {
             @Parameter(name = "id", description = "商家id"),
     })
     public R selectOne(
-            @RequestParam(name = "id",defaultValue = "1") int id1,
             @RequestParam Serializable id) {
         return success(this.vendorService.getById(id));
     }
@@ -79,7 +80,6 @@ public class VendorController extends ApiController {
 
         /**
          * 商家登录接口
-         *
          * phone 手机号
          * password 商家密码
          */
@@ -101,7 +101,6 @@ public class VendorController extends ApiController {
 
         /**
          * 商家注册接口
-         *
          * username 商家名
          * phone 手机号
          * password 商家密码
@@ -131,7 +130,6 @@ public class VendorController extends ApiController {
      * @param pwd   商家密码
      * @param description 商家简介
      * @param openingTime 营业时间
-     * @return
      */
 
     @PutMapping("update")
@@ -149,27 +147,27 @@ public class VendorController extends ApiController {
         }
 
         // 判断手机号是否为空，为空则不进行set操作
-        if (phone != null && !"".equals(phone)) {
+        if (phone != null && !phone.isEmpty()) {
             vendor.setPhone(phone);
         }
 
         // 判断商家名是否为空，为空则不进行set操作
-        if (name != null && !"".equals(name)) {
+        if (name != null && !name.isEmpty()) {
             vendor.setName(name);
         }
 
         // 判断商家密码是否为空，为空则不进行set操作
-        if (pwd != null && !"".equals(pwd)) {
+        if (pwd != null && !pwd.isEmpty()) {
             vendor.setPwd(pwd);
         }
 
         // 判断商家简介是否为空，为空则不进行set操作
-        if (description != null && !"".equals(description)) {
+        if (description != null && !description.isEmpty()) {
             vendor.setDescription(description);
         }
 
         // 判断营业时间是否为空，为空则不进行set操作
-        if (openingTime != null && !"".equals(openingTime)) {
+        if (openingTime != null && !openingTime.isEmpty()) {
             vendor.setOpeningTime(openingTime);
         }
 
@@ -181,33 +179,22 @@ public class VendorController extends ApiController {
         }
     }
 
+    @GetMapping("vendorPrompt")
+    @Operation(summary = "根据提示生成产品标题")
+    public JSON vendorPrompt(String prompt) throws IOException {
+        return ErnieBotTurbo.vendorPrompt(prompt);
+    }
 
-//    /**
-//     * 新增数据
-//     *
-//     * @param vendor 实体对象
-//     * @return 新增结果
-//     */
-//    @PostMapping("add")
-//    @Operation(summary = "新增数据")
-//    @Parameters({
-//            @Parameter(name = "vendor", description = "实体对象"),
-//    })
-//    public R insert(@RequestBody Vendor vendor) {
-//        return success(this.vendorService.save(vendor));
-//    }
-//    /**
-//     * 删除数据
-//     *
-//     * @param idList 主键结合
-//     * @return 删除结果
-//     */
-//    @DeleteMapping("delete")
-//    @Operation(summary = "删除数据")
-//    @Parameters({
-//            @Parameter(name = "idList", description = "主键结合"),
-//    })
-//    public R delete(@RequestParam("idList") List<Long> idList) {
-//        return success(this.vendorService.removeByIds(idList));
-//    }
+    @GetMapping("promptImg")
+    @Operation(summary = "根据提示生成产品图片的task_id")
+    public String promptImg(@RequestParam String prompt) throws IOException {
+        return PromptImg.promptImg(prompt);
+    }
+
+    @GetMapping("getImg")
+    @Operation(summary = "根据task_id返回图片的地址")
+    public JSON getImg(@RequestParam String task_id) throws IOException {
+        String jsonString = PromptImg.getImg(task_id); // 这是你的函数返回的JSON字符串
+        return JSON.parseObject(jsonString);
+    }
 }

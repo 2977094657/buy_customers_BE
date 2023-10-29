@@ -1,133 +1,53 @@
 package com.example.explor_gastro.entity;
 
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
-import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 订单表(Order)表实体类
+ * 订单表(Orders)表实体类
  *
  * @author makejava
- * @since 2023-05-09 08:53:40
+ * @since 2023-10-29 15:31:07
  */
-@SuppressWarnings("serial")
+@Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // 如果查出为null的字段则不显示，可以单独给某字段加
 public class Orders extends Model<Orders> {
-
-    //订单id，主键自增
     @TableId(type = IdType.AUTO)
+    // 订单id，主键自增
     private Integer orderId;
-    //商家id，主键自增
-    private Integer vendorId;
-    //订单号
-    private String orderLong;
-    //用户id
+    // 商家名
+    private String vendorName;
+    // 订单号
+    private Long orderLong;
+    // 用户id
     private Integer userId;
-    //下单时间
-    private Date data;
-    //下单地址
+    // 收货地址
     private String address;
-    //订单总计价格
-    private Integer price;
-    //商品id
-    private Integer productId;
-    //订单备注
+    // 创建时间
+    private Date createDate;
+    // 付款时间
+    private Date payDate;
+    // 发货时间
+    private Date sendDate;
+    // 收货时间
+    private Date receiveDate;
+    // 订单总计价格
+    private BigDecimal price;
+    // 商品id
+    private String productId;
+    // 商品数量
+    private String productNumber;
+    // 订单备注
     private String notes;
-    //订单类型
-    private String type;
-
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
-    }
-
-    public Integer getVendorId() {
-        return vendorId;
-    }
-
-    public void setVendorId(Integer vendorId) {
-        this.vendorId = vendorId;
-    }
-
-    public String getOrderLong() {
-        return orderLong;
-    }
-
-    public void setOrderLong(String orderLong) {
-        this.orderLong = orderLong;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Date getData() {
-        return data;
-    }
-
-    public void setData(Date data) {
-        this.data = data;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * 获取主键值
-     *
-     * @return 主键值
-     */
-    @Override
-    protected Serializable pkVal() {
-        return this.orderId;
-    }
+    // 付款方式,默认未支付
+    private String payMethod;
+    // 订单状态,默认待付款
+    private String state;
 }
 

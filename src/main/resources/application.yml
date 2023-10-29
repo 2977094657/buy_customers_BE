@@ -1,33 +1,49 @@
 jwt:
   secret: mysecretkey
+#  毫秒为单位，注意1秒等于1000毫秒，而不是60进制，设置为1天
   expiration: 86400000
 server:
   port: 8081
 spring:
+  mail:
+    # 下面这个是QQ邮箱host ， 企业邮箱 : smtp.exmail.qq.com
+    host: smtp.qq.com
+    # tencent mail port  这个是固定的
+    port: 465
+    # 你的QQ邮箱
+    username: 3434549571@qq.com
+    # 进入邮箱配置后得到的授权码,更改密码后会失效，请注意
+    password: gsqcjdjnhoincjei
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
   http:
     encoding:
       force: true
       charset: UTF-8
     messages:
       encoding: UTF-8
+
   redis:
     database: 0
-    host: 1.14.126.98
+    host: 124.221.7.201
     port: 6379
     timeout: 5000
     password: 17628887613Hyw.
-  #    host: 1.15.97.154
-  #    password: qwer123
+
   servlet:
     multipart:
       location: /home/img/add
       enabled: true
-      max-file-size: 10MB  #设置上传文件最大不超过5mb
+      max-file-size: 5MB  #设置上传文件最大不超过5mb
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://1.14.126.98:3306/explor_gastro?serverTimezone=GMT%2B8
-    username: explor_gastro
-    password: 2bNiEXb3SBFkHnHk
+    url: jdbc:mysql://124.221.7.201:3306/explor_gastro?serverTimezone=GMT%2B8
+    username: aroot
+    password: aKwRhwEEKY4PJ28N
   mvc:
     static-path-pattern: /static/**
   thymeleaf:

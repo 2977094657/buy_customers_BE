@@ -1,4 +1,4 @@
-package com.example.explor_gastro.utils;
+package com.example.explor_gastro.common.utils;
 
 import com.example.explor_gastro.entity.User;
 import io.jsonwebtoken.Claims;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 
 /**
@@ -60,8 +61,8 @@ public class JwtService {
     }
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+            return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
         }
@@ -72,7 +73,6 @@ public class JwtService {
         User user = new User();
         user.setUserId((Integer) claims.get("userId"));
         user.setPhone((String) claims.get("phone"));
-
         return new UsernamePasswordAuthenticationToken(user, null, null);
     }
 }

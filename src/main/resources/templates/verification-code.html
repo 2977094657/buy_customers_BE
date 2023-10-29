@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="email code">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+<style>
+    .title {
+        margin: 5px 0;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .smallTitle {
+        margin: 5px 0;
+        font-size: 12px;
+        font-weight: bold;
+        color: #4d4d4d;
+    }
+
+    .text {
+        font-size: 16px;
+        font-weight: bold;
+        color: #4d4d4d;
+    }
+
+    .smallText {
+        font-size: 12px;
+        font-weight: bold;
+        color: #4d4d4d;
+    }
+
+    .code {
+        margin: 30px 15px 30px;
+        color: #ff8c00;
+        text-align: center;
+        line-height: 2.5em;
+        background-color: #f2f2f2;
+        min-width: 200px;
+        font-size: 28px;
+        border-radius: 5px;
+        border: 1px solid #d9d9d9;
+        font-weight: bold;
+    }
+</style>
+<!--邮箱验证码模板-->
+<body>
+<div style="background-color:#ECECEC; padding: 35px;">
+    <table
+            style="width: 800px;height: 100%; margin: 0 auto; text-align: left; position: relative; border-radius: 5px;font-size: 14px; font-family:微软雅黑, 黑体,serif; line-height: 1.5; box-shadow: rgb(153, 153, 153) 0 0 5px; border-collapse: collapse;">
+        <tbody>
+        <tr>
+            <th
+                    style="height: 25px; line-height: 25px; padding: 15px 35px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: RGB(148,0,211); background-color: #f56624; border-radius: 5px 5px 0 0;">
+                <span style="color: rgb(255, 255, 255);  font-family: 微软雅黑,serif; font-size: large; ">欢迎使用<span
+                        style="margin: 0 10px">淘多多</span></span>
+            </th>
+        </tr>
+        <tr>
+            <td style="word-break:break-all">
+                <div style="padding:25px 35px 40px; background-color:#fff;opacity:0.8;">
+                    <p class="title">尊敬的用户：</p>
+                    <p class="smallTitle">Dear user:</p>
+                    <p class="text">您好！感谢您使用<span style="margin: 0 10px; color: #fd5102; "><b>淘多多</b></span>您的账号正在进行邮箱验证，验证码为：
+                    </p>
+                    <p class="smallText">Hello! Thanks for using<span style="margin: 0 10px; color: #fd5102; "><b>TaoDuoDuo</b></span>your
+                        account is being authenticated by email, the verification code is:</p>
+                    <div class="code">
+                        <span th:text="${verificationCode}"></span>
+                    </div>
+                    <p class="text">有效期为<span style="text-decoration:underline; color: #0b82fb; "> 5 分钟 </span>，请尽快填写验证码完成验证！
+                    </p>
+                    <p class="smallText">valid for <span
+                            style="text-decoration:underline; color: #0b82fb; ">5 minutes</span>. Please fill in the
+                        verification code as soon as possible!</p>
+                    <br>
+                    <p class="text" style="text-align: center;">
+                        这是一封重要邮件，请不要回复或转发它，以免带来不必要的信息泄露风险。</p>
+                    <p class="smallText" style="text-align: center;">This is an important email, please do not reply or
+                        forward it to avoid unnecessary risk of information leakage.</p>
+                    <br>
+                    <div style="width:100%;margin:0 auto;">
+                        <div style="padding:10px 10px 0;border-top:1px solid #ccc;color:#747474;margin-bottom:20px;line-height:1.3em;font-size:12px;">
+                            <p>此为系统邮件，请勿回复<br>
+                                Please do not reply to this system email
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

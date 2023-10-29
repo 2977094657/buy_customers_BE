@@ -2,7 +2,6 @@ package com.example.explor_gastro.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.explor_gastro.dto.CommentDto;
 import com.example.explor_gastro.entity.Product;
 
 import java.util.List;
@@ -15,8 +14,8 @@ import java.util.Optional;
  * @since 2023-05-06 20:16:11
  */
 public interface ProductService extends IService<Product> {
-    IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
-    public boolean updateProduct(Integer productId, String productName, String description, Integer price, String category);
+    IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField, Long randomSeed);
+    boolean updateProduct(Integer productId, String productName, Integer price, String category);
     /**
      * 模糊搜索商品
      *
@@ -29,9 +28,7 @@ public interface ProductService extends IService<Product> {
      */
     IPage<Product> searchProduct(String keyword, int current, int size, Boolean isAsc, String sortField);
 
-    boolean updateImgByProductId(Integer productId, String img);
-
     List<Product> selectByCategory(int current, int size, String category);
-    List<CommentDto> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime);
+    List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime);
 }
 

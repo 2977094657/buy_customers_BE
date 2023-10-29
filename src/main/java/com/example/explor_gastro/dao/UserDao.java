@@ -37,7 +37,7 @@ public interface UserDao extends BaseMapper<User> {
      * @param userId 用户ID
      * @return 用户信息
      */
-    @Select("SELECT name, description, address, signup_time AS signupTime, phone FROM user WHERE user_id = #{userId}")
+    @Select("SELECT name, description, address, signup_time,phone,user_avatar,gender FROM user WHERE user_id = #{userId}")
     User selectUserById(Integer userId);
 
     /**
