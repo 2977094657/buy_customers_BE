@@ -19,7 +19,7 @@ public interface VendorService extends IService<Vendor> {
 
     Vendor register(String name, String password,String phone);
 
-    public IPage<Vendor> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
+    IPage<Vendor> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
 }
 
 
