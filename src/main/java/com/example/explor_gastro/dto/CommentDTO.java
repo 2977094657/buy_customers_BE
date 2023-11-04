@@ -14,4 +14,5 @@ public class CommentDTO {
     private String userName;
     private String userAvatar;
     private Integer id;
+    private Integer score;
 }

@@ -47,8 +47,8 @@ public class JwtService {
      */
     public User parseToken(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
+                .setSigningKey(secretKey) //获取密钥
+                .parseClaimsJws(token) //解析验证token
                 .getBody();
 
         Integer userId = (Integer) claims.get("userId");

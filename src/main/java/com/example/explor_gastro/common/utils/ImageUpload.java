@@ -1,5 +1,7 @@
 package com.example.explor_gastro.common.utils;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.explor_gastro.entity.Product;
 import com.example.explor_gastro.entity.ProductComments;
 import com.example.explor_gastro.entity.User;
@@ -92,7 +94,8 @@ public class ImageUpload {
             @RequestParam int userId,
             @RequestParam String comments,
             @RequestParam(name = "imgId") MultipartFile[] files,
-            @RequestParam int productId
+            @RequestParam int productId,
+            @RequestParam int score
     ) {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<String> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
@@ -192,7 +195,43 @@ public class ImageUpload {
             productComments.setComments(comments);
             productComments.setProductId(productId);
             productComments.setImgId(productImgList.toString());
+            productComments.setScore(score);
             productCommentsService.save(productComments);
+
+            QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("product_id", productId);
+            // 获取该商品的所有评分
+            List<ProductComments> scores = productCommentsService.list(queryWrapper);
+
+            // 计算平均分数
+            Double averageScore = calculateAverageScore(scores);
+
+            // 更新商品实体的分数和总评分人数
+            Product product = productService.getById(productId);  // 从数据库中获取当前的商品实体
+            UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("product_id", productId);  // 设置要更新的商品ID
+            updateWrapper.set("score", averageScore);  // 设置要更新的字段
+            updateWrapper.set("total_comments", scores.size());
+
+            // 根据用户评分更新对应的星级数量字段
+            switch (score) {
+                case 5:
+                    updateWrapper.set("five", product.getFive() + 1);
+                    break;
+                case 4:
+                    updateWrapper.set("four", product.getFour() + 1);
+                    break;
+                case 3:
+                    updateWrapper.set("three", product.getThree() + 1);
+                    break;
+                case 2:
+                    updateWrapper.set("two", product.getTwo() + 1);
+                    break;
+                case 1:
+                    updateWrapper.set("one", product.getOne() + 1);
+                    break;
+            }
+            productService.update(updateWrapper);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", "上传文件失败，错误信息为 " + e.getMessage());
@@ -218,6 +257,25 @@ public class ImageUpload {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseList);
         }
         return ResponseEntity.ok(responseList);
+    }
+
+    /**
+     * 计算平均分数。
+     *
+     * @param scores 评分实体列表
+     * @return 平均分数
+     */
+    private Double calculateAverageScore(List<ProductComments> scores) {
+        if (scores == null || scores.isEmpty()) {
+            return 0.0;
+        }
+
+        Double sum = 0.0;
+        for (ProductComments score : scores) {
+            sum += score.getScore();
+        }
+
+        return sum / scores.size();
     }
 
     /**

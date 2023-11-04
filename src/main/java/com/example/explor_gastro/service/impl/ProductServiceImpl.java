@@ -136,8 +136,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         List<CommentDTO> commentDTOS = new ArrayList<>();
         for (ProductComments comment : comments) {
             CommentDTO commentDto = new CommentDTO();
-            commentDto.setId(comment.getId());
+            commentDto.setId(comment.getCommentsId());
             commentDto.setComments(comment.getComments());
+            commentDto.setScore(comment.getScore());
             commentDto.setImgId(comment.getImgId());
             commentDto.setTime(comment.getTime());
             User user = userDao.selectById(comment.getUserId());

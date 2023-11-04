@@ -19,7 +19,7 @@ import java.util.Date;
 public class ProductComments extends Model<ProductComments> {
     @TableId(type = IdType.AUTO)
     //评论id，主键自增
-    private Integer id;
+    private Integer commentsId;
     //用户id
     private Integer userId;
     //评论内容
@@ -30,5 +30,7 @@ public class ProductComments extends Model<ProductComments> {
     private Date time;
     //商品id
     private Integer productId;
+    //商品评分1-5
+    private Integer score;
 }
 

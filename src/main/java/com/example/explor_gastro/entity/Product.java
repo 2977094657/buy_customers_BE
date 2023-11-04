@@ -36,6 +36,12 @@ public class Product extends Model<Product> {
     private String img;
     //评分总人数
     private long totalComments;
+    // 5星数量
+    private long five;
+    private long four;
+    private long three;
+    private long two;
+    private long one;
 
     /**
      * 获取主键值
