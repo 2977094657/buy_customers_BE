@@ -104,7 +104,8 @@ public class UserController extends ApiController {
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String authHeader) {
         try {
             // 提取 token，移除 "Bearer " 前缀
-            User user = jwtService.parseToken(authHeader);
+            String token = authHeader.substring(7);
+            User user = jwtService.parseToken(token);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));

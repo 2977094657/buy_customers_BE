@@ -14,17 +14,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 订单表(Orders)表控制层
@@ -45,6 +46,39 @@ public class OrdersController extends ApiController {
     private UserService userService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+
+    @GetMapping("getOrder")
+    @Operation(summary = "通过订单号查询订单")
+    public ResponseEntity<Response<?>> getOrder(@RequestParam String orderNumber) {
+        // 从Redis中查找订单
+        String key = "order:" + orderNumber + ":*";
+        RedisConnection connection = Objects.requireNonNull(stringRedisTemplate.getConnectionFactory()).getConnection();
+        ScanOptions options = ScanOptions.scanOptions().match(key).count(1).build();
+        Cursor<byte[]> cursor = connection.scan(options);
+        Response<Orders> response = new Response<>();
+        while (cursor.hasNext()) {
+            byte[] keyByte = cursor.next();
+            String orderString = stringRedisTemplate.opsForValue().get(new String(keyByte));
+            if (orderString != null) {
+                Orders order;
+                try {
+                    order = new ObjectMapper().readValue(orderString, Orders.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                response.setCode(200);
+                response.setMsg("查询成功");
+                response.setData(order);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        }
+        response.setCode(404);
+        response.setMsg("订单不存在");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 
 
     /**
@@ -117,10 +151,10 @@ public class OrdersController extends ApiController {
     /**
      * 通过雪花算法生产订单号
      */
-    public long SnowflakeIdGenerator() {
+    public String SnowflakeIdGenerator() {
         // 创建SnowflakeIdGenerator对象,设置工作机器ID为1,数据中心ID为1
         SnowflakeIdGenerator generator = new SnowflakeIdGenerator(1, 1);
-        return generator.nextId();
+        return String.valueOf(generator.nextId());
     }
 
     /**
@@ -142,6 +176,15 @@ public class OrdersController extends ApiController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
+        // 验证手机号是否合法
+        Pattern pattern = Pattern.compile("^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}$");
+        if (!pattern.matcher(request.getPhone()).matches()) {
+            Response<String> response = new Response<>();
+            response.setCode(400);
+            response.setMsg("手机号不合法");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         // 创建新订单
         Orders orders = new Orders();
         orders.setOrderLong(SnowflakeIdGenerator()); // 使用雪花算法生成订单号
@@ -159,6 +202,9 @@ public class OrdersController extends ApiController {
         orders.setProductNumber(request.getProductNumber()); // 添加订单中的所有商品
         orders.setNotes(request.getNotes());
         orders.setPrice(request.getPrice());
+        orders.setConsignee(request.getConsignee());
+        orders.setPhone(request.getPhone());
+        orders.setPayMethod(request.getPayMethod());
         orders.setCreateDate(new Date()); // 设置创建时间为当前时间
 
         // 保存订单到Redis

@@ -24,7 +24,7 @@ public class Orders extends Model<Orders> {
     // 商家名
     private String vendorName;
     // 订单号
-    private Long orderLong;
+    private String orderLong;
     // 用户id
     private Integer userId;
     // 收货地址
@@ -49,5 +49,9 @@ public class Orders extends Model<Orders> {
     private String payMethod;
     // 订单状态,默认待付款
     private String state;
+    // 收货人
+    private String consignee;
+    // 收货人手机号
+    private String phone;
 }
 
