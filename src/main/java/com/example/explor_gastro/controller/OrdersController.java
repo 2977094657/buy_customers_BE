@@ -1,6 +1,7 @@
 package com.example.explor_gastro.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.example.explor_gastro.common.utils.Response;
@@ -226,7 +227,7 @@ public class OrdersController extends ApiController {
 
 
     /**
-     * 修改数据
+     * 删除数据
      */
     @DeleteMapping("deleteUnpaidOrder")
     @Operation(summary = "根据订单编号删除未付款订单")
@@ -252,11 +253,36 @@ public class OrdersController extends ApiController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("updateOrder")
-    @Operation(summary = "修改未付款的订单")
-    public ResponseEntity<Response<?>> updateOrder(@RequestBody Orders request) throws JsonProcessingException {
-        // 获取订单
-        String key = "order:" + request.getOrderLong() + ":user:" + request.getUserId();
+    @DeleteMapping("deleteOrder")
+    @Operation(summary = "根据订单ID删除订单")
+    public ResponseEntity<Response<String>> deleteOrder(@RequestParam Integer id) {
+        Response<String> response = new Response<>();
+
+        Orders byId = ordersService.getById(id);
+
+        if(byId == null) {
+            response.setCode(404);
+            response.setMsg("订单不存在");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        ordersService.removeById(id);
+        response.setCode(200);
+        response.setMsg("订单删除成功");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @PostMapping("confirmOrder")
+    @Operation(summary = "确认订单并存储到数据库")
+    public ResponseEntity<Response<?>> confirmOrder(@RequestBody Map<String, String> params) throws JsonProcessingException {
+        String orderLong = params.get("orderLong");
+        String userId = params.get("userId");
+
+        // 构造键
+        String key = "order:" + orderLong + ":user:" + userId;
+
+        // 从Redis中获取订单数据
         String value = stringRedisTemplate.opsForValue().get(key);
         if (value == null) {
             Response<String> response = new Response<>();
@@ -265,34 +291,44 @@ public class OrdersController extends ApiController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
-        // 解析订单
+        // 将JSON字符串转换为Orders对象
         ObjectMapper objectMapper = new ObjectMapper();
         Orders orders = objectMapper.readValue(value, Orders.class);
 
-        // 验证输入
-        ResponseEntity<Response<?>> validateResult = validateInputs(request.getVendorName(), request.getProductId(), request.getProductNumber());
-        if (validateResult != null) {
-            return validateResult;
-        }
+        // 将订单数据保存到MySQL数据库
+        ordersService.save(orders);
 
-        // 更新商品对象
-        orders.setVendorName(orders.getVendorName());
-        orders.setAddress(request.getAddress());
-        orders.setProductId(request.getProductId());
-        orders.setProductNumber(request.getProductNumber());
-        orders.setPrice(request.getPrice());
-        orders.setNotes(request.getNotes());
-
-        // 更新订单到Redis
-        value = objectMapper.writeValueAsString(orders);
-        stringRedisTemplate.opsForValue().set(key, value, 60 * 24, TimeUnit.MINUTES);
+        // 从Redis中删除订单数据
+        stringRedisTemplate.delete(key);
 
         // 构建响应
         Response<Orders> response = new Response<>();
         response.setCode(200);
-        response.setMsg("订单更新成功");
+        response.setMsg("订单已确认并保存到数据库");
         response.setData(orders);
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("getOrdersByUserId")
+    @Operation(summary = "根据用户ID查询所有已经付款的订单")
+    public ResponseEntity<Response<List<Orders>>> getOrdersByUserId(@RequestBody Map<String, Integer> body) {
+        Response<List<Orders>> response = new Response<>();
+        Integer userId = body.get("userId");
+
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Orders::getUserId, userId);
+        List<Orders> ordersList = ordersService.list(queryWrapper);
+
+        if (!ordersList.isEmpty()) {
+            response.setCode(200);
+            response.setMsg("查询成功");
+            response.setData(ordersList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        response.setCode(404);
+        response.setMsg("没有找到订单");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
