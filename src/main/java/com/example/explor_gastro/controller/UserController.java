@@ -70,8 +70,6 @@ public class UserController extends ApiController {
     /**
      * 登录功能
      *
-     * @param phone 手机号1
-     * @param pwd   密码
      * @return 响应内容
      */
     @PostMapping(value = "/login", produces = "application/json")
@@ -79,12 +77,22 @@ public class UserController extends ApiController {
     @Parameters({
             @Parameter(name = "phone", description = "手机号"),
             @Parameter(name = "pwd", description = "用户密码"),
+            @Parameter(name = "expirationTimeOption", description = "Token过期时间选项"),
     })
-    public ResponseEntity<?> login(@RequestParam String phone,
-                                   @RequestParam String pwd) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
         try {
+            String phone = params.get("phone");
+            String pwd = params.get("pwd");
+            Integer expirationTimeOption = null;
+            if (params.containsKey("expirationTimeOption") && !params.get("expirationTimeOption").isEmpty()) {
+                try {
+                    expirationTimeOption = Integer.parseInt(params.get("expirationTimeOption"));
+                } catch (NumberFormatException e) {
+                    // 如果需要，请处理异常
+                }
+            }
             User user = userService.LoginIn(phone, Md5.MD5Encryption(pwd));
-            String token = jwtService.generateToken(user);
+            String token = jwtService.generateToken(user, expirationTimeOption);
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             Integer userId = user.getUserId();
@@ -94,6 +102,7 @@ public class UserController extends ApiController {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
+
 
 
     @GetMapping(value = "/token", produces = "application/json")

@@ -43,38 +43,35 @@ public class StarController extends ApiController {
     /**
      * 新增数据
      *
-     * @param productId 实体对象
      * @return 新增结果
      */
     @PostMapping("staradd")
     @Operation(summary  =  "新增用户的收藏")
-    public  R  insert(
-            @RequestParam("userId")  Integer  userId,
-            @RequestParam("productId")  Integer  productId
-    )  {
+    public R insert(@RequestBody Map<String, Integer> params) {
         try {
             //  创建Star对象并设置其属性
-            Star  star  =  new  Star();
-            star.setUserId(userId);
-            star.setProductId(productId);
+            Star star = new Star();
+            star.setUserId(params.get("userId"));
+            star.setProductId(params.get("productId"));
             //  将Star对象保存到数据库中
-            boolean  success  =  this.starService.save(star);
-            if  (success)  {
-                Integer star1 = productService.getById(productId).getStar();
+            boolean success = this.starService.save(star);
+            if (success) {
+                Integer star1 = productService.getById(params.get("productId")).getStar();
                 star1++;
                 Product product = new Product();
                 product.setStar(star1);
                 QueryWrapper<Product> wrapper = new QueryWrapper<>();
-                wrapper.eq("product_id",productId);
+                wrapper.eq("product_id",params.get("productId"));
                 productService.update(product,wrapper);
-                return  success("用户收藏成功");
-            }  else  {
-                return  failed("用户收藏失败");
+                return success("用户收藏成功");
+            } else {
+                return failed("用户收藏失败");
             }
         } catch (Exception e) {
             return failed("用户已收藏此商品");
         }
     }
+
 
     @GetMapping("all")
     public List<ProductStarDTO> getProductStarDTOsByUserId(@RequestParam Integer userId) {

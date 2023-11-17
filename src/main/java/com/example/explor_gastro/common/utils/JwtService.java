@@ -23,14 +23,20 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public  String generateToken(User user) {
+    public String generateToken(User user, Integer expirationTimeOption) {
         Claims claims = Jwts.claims().setSubject(user.getPhone());
         claims.put("userId", user.getUserId());
         claims.put("phone", user.getPhone());
         claims.put("pwd", user.getPwd());
 
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + expirationTime);
+        long expiryTime;
+        if (expirationTimeOption != null && expirationTimeOption == 1) {
+            expiryTime = 604800000L;  // 7 days
+        } else {
+            expiryTime = 86400000L;  // 1 day
+        }
+        Date expiration = new Date(now.getTime() + expiryTime);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -39,6 +45,7 @@ public class JwtService {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
+
 
     /**
      * 解密token
