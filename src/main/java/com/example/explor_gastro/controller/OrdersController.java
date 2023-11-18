@@ -3,7 +3,9 @@ package com.example.explor_gastro.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.explor_gastro.common.utils.Response;
 import com.example.explor_gastro.common.utils.SnowflakeIdGenerator;
 import com.example.explor_gastro.entity.Orders;
@@ -15,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
@@ -80,6 +83,53 @@ public class OrdersController extends ApiController {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("all")
+    @Operation(summary = "查询所有订单,管理员使用")
+    public ResponseEntity<Response<IPage<Orders>>> getAllOrders(
+            @RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "state", required = false) String state) {
+
+        Response<IPage<Orders>> response = new Response<>();
+
+        // 创建分页对象
+        Page<Orders> page = new Page<>(pageNo, pageSize);
+
+        // 创建查询条件
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        if (state != null) {
+            // 如果用户提供了状态参数，添加到查询条件中
+            queryWrapper.eq(Orders::getState, state);
+        }
+
+        // 执行分页查询
+        IPage<Orders> ordersList = ordersService.page(page, queryWrapper);
+
+        if (ordersList != null && !ordersList.getRecords().isEmpty()) {
+            response.setCode(200);
+            response.setMsg("查询成功");
+            response.setData(ordersList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.setCode(404);
+            response.setMsg("没有找到订单");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @NotNull
+    private ResponseEntity<Response<List<Orders>>> getResponseResponseEntity(Response<List<Orders>> response, List<Orders> ordersList) {
+        if (!ordersList.isEmpty()) {
+            response.setCode(200);
+            response.setMsg("查询成功");
+            response.setData(ordersList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        response.setCode(404);
+        response.setMsg("没有找到订单");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
     /**
@@ -206,6 +256,7 @@ public class OrdersController extends ApiController {
         orders.setConsignee(request.getConsignee());
         orders.setPhone(request.getPhone());
         orders.setPayMethod(request.getPayMethod());
+        orders.setState("待付款");
         orders.setCreateDate(new Date()); // 设置创建时间为当前时间
 
         // 保存订单到Redis
@@ -294,6 +345,7 @@ public class OrdersController extends ApiController {
         // 将JSON字符串转换为Orders对象
         ObjectMapper objectMapper = new ObjectMapper();
         Orders orders = objectMapper.readValue(value, Orders.class);
+        orders.setState("待发货");
 
         // 将订单数据保存到MySQL数据库
         ordersService.save(orders);
@@ -311,8 +363,8 @@ public class OrdersController extends ApiController {
     }
 
     @PostMapping("getOrdersByUserId")
-    @Operation(summary = "根据用户ID查询所有已经付款的订单")
-    public ResponseEntity<Response<List<Orders>>> getOrdersByUserId(@RequestBody Map<String, Integer> body) {
+    @Operation(summary = "根据用户ID查询所有订单，包括未付款的订单")
+    public ResponseEntity<Response<List<Orders>>> getOrdersByUserId(@RequestBody Map<String, Integer> body) throws JsonProcessingException {
         Response<List<Orders>> response = new Response<>();
         Integer userId = body.get("userId");
 
@@ -320,16 +372,56 @@ public class OrdersController extends ApiController {
         queryWrapper.eq(Orders::getUserId, userId);
         List<Orders> ordersList = ordersService.list(queryWrapper);
 
-        if (!ordersList.isEmpty()) {
-            response.setCode(200);
-            response.setMsg("查询成功");
-            response.setData(ordersList);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        // 获取未付款订单的返回数据
+        ResponseEntity<Response<List<Orders>>> unpaidOrdersResponse = getUnpaidOrders(userId.toString());
+        // 如果未付款订单的返回数据不为空，则将其添加到 ordersList 中
+        if (unpaidOrdersResponse.getBody() != null && unpaidOrdersResponse.getBody().getData() != null) {
+            ordersList.addAll(unpaidOrdersResponse.getBody().getData());
         }
 
-        response.setCode(404);
-        response.setMsg("没有找到订单");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return getResponseResponseEntity(response, ordersList);
+    }
+
+    @PostMapping("shipOrder")
+    @Operation(summary = "发货订单")
+    public ResponseEntity<Response<String>> shipOrder(@RequestBody Map<String, Integer> body) {
+        Response<String> response = new Response<>();
+        Integer orderId = body.get("orderId");
+
+        Orders order = ordersService.getById(orderId);
+        if (order != null) {
+            order.setState("已发货");
+            order.setSendDate(new Date());
+
+            if (ordersService.updateById(order)) {
+                response.setCode(200);
+                response.setMsg("发货成功");
+            } else {
+                response.setCode(500);
+                response.setMsg("更新订单失败");
+            }
+        } else {
+            response.setCode(404);
+            response.setMsg("没有找到订单");
+        }
+
+        HttpStatus status = response.getCode() == 200 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(response, status);
+    }
+
+
+    @PostMapping("getOrdersByUserIdAndState")
+    @Operation(summary = "根据用户ID和订单状态查询订单")
+    public ResponseEntity<Response<List<Orders>>> getOrdersByUserIdAndState(@RequestBody Map<String, Object> body) {
+        Response<List<Orders>> response = new Response<>();
+        Integer userId = (Integer) body.get("userId");
+        String state = (String) body.get("state");
+
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Orders::getUserId, userId).eq(Orders::getState, state);
+        List<Orders> ordersList = ordersService.list(queryWrapper);
+
+        return getResponseResponseEntity(response, ordersList);
     }
 
 
