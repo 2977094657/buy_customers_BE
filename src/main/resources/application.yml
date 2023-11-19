@@ -50,7 +50,7 @@ spring:
     prefix: classpath:/templates/
 mybatis-plus:
   mapper-locations: classpath*:mapper/*Mapper.xml
-  type-aliases-package: com.example.demo.model
+  type-aliases-package: com.buy_customers.demo.model
   #  加入日志功能
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -78,7 +78,7 @@ springdoc:
       # 匹配所有路径
       paths-to-match: '/**'
       # 扫描控制器包
-      packages-to-scan: com.example.explor_gastro.controller
+      packages-to-scan: com.buy_customers.controller
 knife4j:
   enable: true
 logging:

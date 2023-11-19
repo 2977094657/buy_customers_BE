@@ -8,11 +8,11 @@
         <version>2.7.11</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>explor_gastro</artifactId>
+    <groupId>com.buy_customers</groupId>
+    <artifactId>buy_customers</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>explor_gastro</name>
-    <description>explor_gastro</description>
+    <name>buy_customers</name>
+    <description>buy_customers</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
