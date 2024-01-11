@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.buy_customers.common.utils.Response;
 import com.buy_customers.common.utils.SnowflakeIdGenerator;
 import com.buy_customers.entity.Orders;
+import com.buy_customers.entity.Product;
 import com.buy_customers.entity.User;
 import com.buy_customers.service.OrdersService;
+import com.buy_customers.service.ProductService;
 import com.buy_customers.service.UserService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,6 +52,8 @@ public class OrdersController extends ApiController {
     private UserService userService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private ProductService productService;
 
     @GetMapping("getOrder")
     @Operation(summary = "通过订单号查询订单")
@@ -357,11 +361,14 @@ public class OrdersController extends ApiController {
         // 将JSON字符串转换为Orders对象
         ObjectMapper objectMapper = new ObjectMapper();
         Orders orders = objectMapper.readValue(value, Orders.class);
+        Product product = productService.getById(orders.getProductId());
+        Integer buys = product.getBuys();
+        product.setBuys(++buys);
         orders.setState("待发货");
 
         // 将订单数据保存到MySQL数据库
         ordersService.save(orders);
-
+        productService.updateById(product);
         // 从Redis中删除订单数据
         stringRedisTemplate.delete(key);
 

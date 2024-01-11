@@ -4,26 +4,31 @@ package com.buy_customers.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.buy_customers.common.utils.Md5;
+import com.buy_customers.common.utils.RSAKeyPairGenerator;
 import com.buy_customers.common.utils.Response;
 import com.buy_customers.dao.UserDao;
 import com.buy_customers.entity.Admin;
 import com.buy_customers.entity.Product;
 import com.buy_customers.entity.User;
 import com.buy_customers.service.AdminService;
-import com.buy_customers.service.UserService;
 import com.buy_customers.service.ProductService;
+import com.buy_customers.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -53,6 +58,10 @@ public class AdminController extends ApiController {
 
     @Resource
     private ProductService productService;
+    @Resource
+    private RSAKeyPairGenerator keyPairGenerator;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 
     /**
@@ -282,6 +291,34 @@ public class AdminController extends ApiController {
             return new ResponseEntity<>(response,HttpStatus.OK);
         }
     }
+
+    @GetMapping("publicKey")
+    @Operation(summary = "获取RSA公钥")
+    public R<Map<String, Object>> publicKey() {
+        String publicKey = keyPairGenerator.getPublicKey();
+        // 创建一个 Map 来存储用户信息和公钥
+        Map<String, Object> response = new HashMap<>();
+        response.put("publicKey", publicKey);
+        // 将查询结果封装到通用返回结果类型中，并返回
+        return R.ok(response);
+    }
+
+    @PostMapping("privateKey")
+    @Operation(summary = "获取RSA私钥")
+    public R<Map<String, Object>> privateKey(@RequestBody Map<String, String> body) {
+        String publicKey = body.get("publicKey");
+        // 使用公钥从Redis中获取私钥
+        String privateKey = stringRedisTemplate.opsForValue().get(publicKey);
+        if (privateKey == null) {
+            throw new IllegalStateException("Private key not found for the provided public key.");
+        }
+        // 创建一个 Map 来存储私钥
+        Map<String, Object> response = new HashMap<>();
+        response.put("privateKey", privateKey);
+        // 将查询结果封装到通用返回结果类型中，并返回
+        return R.ok(response);
+    }
+
 
 
 }

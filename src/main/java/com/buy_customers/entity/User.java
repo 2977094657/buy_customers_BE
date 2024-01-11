@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,6 +30,7 @@ public class User extends Model<User> {
     //用户密码
     private String pwd;
     //手机号
+    @JsonIgnore //将User对象转换为JSON时，此字段就会被忽略
     private String phone;
     //注册时间
     private Date signupTime;
@@ -47,7 +49,7 @@ public class User extends Model<User> {
 
     private String userAvatar;
 
-    public User(Integer userId, String phone, String pwd, Date iat, Date exp) {
+    public User(Integer userId, Date iat, Date exp) {
         this.userId = userId;
         this.phone = phone;
         this.pwd = pwd;

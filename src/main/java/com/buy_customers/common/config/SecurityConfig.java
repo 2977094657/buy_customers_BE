@@ -51,6 +51,7 @@ public class SecurityConfig {
         config.addAllowedOrigin("*");  // 允许任意来源
         config.addAllowedHeader("*");  // 允许任意请求头
         config.addAllowedMethod("*");  // 允许任意 HTTP 方法
+        config.addExposedHeader("X-Encrypted");  // 添加自定义的响应头
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

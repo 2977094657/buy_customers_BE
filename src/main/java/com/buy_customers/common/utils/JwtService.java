@@ -24,14 +24,12 @@ public class JwtService {
     private long expirationTime;
 
     public String generateToken(User user, Integer expirationTimeOption) {
-        Claims claims = Jwts.claims().setSubject(user.getPhone());
+        Claims claims = Jwts.claims().setSubject(String.valueOf(user.getUserId()));
         claims.put("userId", user.getUserId());
-        claims.put("phone", user.getPhone());
-        claims.put("pwd", user.getPwd());
 
         Date now = new Date();
         long expiryTime;
-        if (expirationTimeOption != null && expirationTimeOption == 1) {
+        if (expirationTimeOption != null && expirationTimeOption == '1') {
             expiryTime = 604800000L;  // 7 days
         } else {
             expiryTime = 86400000L;  // 1 day
@@ -59,12 +57,10 @@ public class JwtService {
                 .getBody();
 
         Integer userId = (Integer) claims.get("userId");
-        String phone = (String) claims.get("phone");
-        String pwd = (String) claims.get("pwd");
         Date iat = claims.getIssuedAt();
         Date exp = claims.getExpiration();
 
-        return new User(userId, phone, pwd, iat, exp);
+        return new User(userId, iat, exp);
     }
     public boolean validateToken(String token) {
         try {
@@ -79,7 +75,6 @@ public class JwtService {
         Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         User user = new User();
         user.setUserId((Integer) claims.get("userId"));
-        user.setPhone((String) claims.get("phone"));
         return new UsernamePasswordAuthenticationToken(user, null, null);
     }
 }

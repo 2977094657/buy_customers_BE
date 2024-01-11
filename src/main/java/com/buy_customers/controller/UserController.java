@@ -4,13 +4,13 @@ package com.buy_customers.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.buy_customers.common.config.EncryptResponse;
 import com.buy_customers.common.utils.*;
 import com.buy_customers.dao.UserDao;
 import com.buy_customers.dao.VendorDao;
 import com.buy_customers.entity.User;
 import com.buy_customers.entity.Vendor;
 import com.buy_customers.service.UserService;
-import com.buy_customers.common.utils.*;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,41 +48,33 @@ public class UserController extends ApiController {
      */
     @Resource
     private UserService userService;
-
     @Resource
     private UserDao userDao;
     @Resource
     private VendorDao vendorDao;
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     @Resource
     private TXSendSms txSendSms;
-
     @Resource
     private MailUtil mailUtil;
-
     @Resource
     private JwtService jwtService;
     @Resource
     private ImageUpload imageUpload;
+    @Resource
+    private RSAKeyPairGenerator rsaKeyPairGenerator;
 
     /**
      * 登录功能
      *
      * @return 响应内容
      */
-    @PostMapping(value = "/login", produces = "application/json")
+    @PostMapping(value = "/login")
     @Operation(summary = "用户登录")
-    @Parameters({
-            @Parameter(name = "phone", description = "手机号"),
-            @Parameter(name = "pwd", description = "用户密码"),
-            @Parameter(name = "expirationTimeOption", description = "Token过期时间选项"),
-    })
     public ResponseEntity<?> login(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
         try {
-            String phone = params.get("phone");
+            String usernameOrPhone = params.get("usernameOrPhone");
             String pwd = params.get("pwd");
             Integer expirationTimeOption = null;
             if (params.containsKey("expirationTimeOption") && !params.get("expirationTimeOption").isEmpty()) {
@@ -92,7 +84,12 @@ public class UserController extends ApiController {
                     // 如果需要，请处理异常
                 }
             }
-            User user = userService.LoginIn(phone, Md5.MD5Encryption(pwd));
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("phone", usernameOrPhone).or().eq("name", usernameOrPhone);
+            User user = userService.getOne(queryWrapper);
+            if (user == null || !user.getPwd().equals(Md5.MD5Encryption(pwd))) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "用户名或手机号不存在或密码错误"));
+            }
             String token = jwtService.generateToken(user, expirationTimeOption);
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
@@ -103,6 +100,41 @@ public class UserController extends ApiController {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
+
+
+    @PostMapping(value = "/forgotPassword")
+    @Operation(summary = "用户忘记密码")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
+        try {
+            String phoneNumber = params.get("phoneNumber");
+            String newPassword = params.get("newPassword");
+            String code = params.get("code");
+
+            // 从 Redis 中获取验证码
+            String redisCode = stringRedisTemplate.opsForValue().get(phoneNumber);
+
+            // 比对验证码
+            if (!code.equals(redisCode)) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "验证码错误"));
+            }
+
+            // 通过手机号查找用户
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("phone", phoneNumber);
+            User user = userService.getOne(queryWrapper);
+
+            // 修改密码
+            user.setPwd(Md5.MD5Encryption(newPassword));
+            userService.updateById(user);
+
+            return ResponseEntity.ok(Collections.singletonMap("success", "密码已成功修改"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
+
+
 
 
 
@@ -211,13 +243,19 @@ public class UserController extends ApiController {
      *
      */
     @GetMapping("all")
+    @EncryptResponse
     @Operation(summary = "个人中心的获取用户")
-    public R<User> selectUserById(@RequestParam Integer userId) {
-        //  根据传入的  userId  查询对应的用户信息
+    public R<Map<String, Object>> selectUserById(@RequestParam Integer userId) throws NoSuchAlgorithmException {
+        // 根据传入的 userId 查询对应的用户信息
         User user = userService.selectUserById(userId);
-        //  将查询结果封装到通用返回结果类型中，并返回
-        return R.ok(user);
+        // 创建一个 Map 来存储用户信息和公钥
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+
+        // 将查询结果封装到通用返回结果类型中，并返回
+        return R.ok(response);
     }
+
 
     @PutMapping("updateUser")
     @Operation(summary = "个人中心的用户修改")

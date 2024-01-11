@@ -52,43 +52,32 @@ public class ImageUpload {
             error.put("message", "请将图片控制在1MB内");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
-        String fileName = file.getOriginalFilename();
         String contentType = file.getContentType();
         if (contentType != null && !contentType.startsWith("image/")) {
             Map<String, String> error = new HashMap<>();
             error.put("message", "请上传图片");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
-        if (fileName != null && fileName.length() > 20) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "文件名过长，请控制在20位以内");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
-        File dest = null;
+        String fileName = file.getOriginalFilename();
+        String suffix = null;
         if (fileName != null) {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
-            dest = new File(newFileName);
+            suffix = fileName.substring(fileName.lastIndexOf("."));
         }
-        if (dest != null) {
-            file.transferTo(dest);
-        }
-        String url = null;
-        if (dest != null) {
-            url = "http://124.221.7.201:5000/add/" + dest.getName();
-        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
+        String newFileName = timeStamp + suffix;
+        File dest = new File(newFileName);
+        file.transferTo(dest);
+        String url = "http://124.221.7.201:5000/add/" + dest.getName();
         Map<String, String> response = new HashMap<>();
         response.put("url", url);
-        if (dest != null) {
-            response.put("fileName", dest.getName());
-        }
+        response.put("fileName", dest.getName());
         User user = new User();
         user.setUserAvatar(url);
         user.setUserId(userid);
-
         userServiceImpl.updateById(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     public ResponseEntity<List<Map<String, String>>> comments(
             @RequestParam int userId,
@@ -132,18 +121,12 @@ public class ImageUpload {
                         responseList.add(error);
                         allValid = false;
                         break; // 如果有不合法的文件，立即退出循环
-                    } else if (fileName != null && fileName.length() > 20) {
-                        Map<String, String> error = new HashMap<>();
-                        error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
-                        responseList.add(error);
-                        allValid = false;
-                        break; // 如果有不合法的文件，立即退出循环
                     } else {
                         File dest = null;
                         // 生成新的文件名并保存文件
                         if (fileName != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-                            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            String newFileName = timeStamp + fileName.substring(fileName.lastIndexOf("."));
                             dest = new File(newFileName);
                         }
                         if (dest != null) {
@@ -290,7 +273,7 @@ public class ImageUpload {
             @RequestParam("images") MultipartFile[] files,
             @RequestParam("productName") String productName,
             @RequestParam("name") String name,
-            @RequestParam("price") Integer price,
+            @RequestParam("price") Double price,
             @RequestParam("category") String category
     ) {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
@@ -444,18 +427,12 @@ public class ImageUpload {
                         responseList.add(error);
                         allValid = false;
                         break; // 如果有不合法的文件，立即退出循环
-                    } else if (fileName != null && fileName.length() > 20) {
-                        Map<String, String> error = new HashMap<>();
-                        error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
-                        responseList.add(error);
-                        allValid = false;
-                        break; // 如果有不合法的文件，立即退出循环
                     } else {
                         File dest = null;
                         // 生成新的文件名并保存文件
                         if (fileName != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-                            String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            String newFileName = timeStamp + fileName.substring(fileName.lastIndexOf("."));
                             dest = new File(newFileName);
                         }
                         if (dest != null) {
@@ -534,9 +511,9 @@ public class ImageUpload {
                 for (int i = 0; i < files.length; i++) {
                     MultipartFile file = files[i];
                     // 判断文件大小是否超过限制
-                    if (file.getSize() > 10 * 1024 * 1024) {
+                    if (file.getSize() > 1024 * 1024) {
                         Map<String, String> error = new HashMap<>();
-                        error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了10MB，请将其控制在10MB以内");
+                        error.put("message", "第 " + (i + 1) + " 张图片的文件大小超过了1MB，请将其控制在1MB以内");
                         responseList.add(error);
                         allValid = false;
                         break; // 如果有不合法的文件，立即退出循环
@@ -550,18 +527,12 @@ public class ImageUpload {
                             responseList.add(error);
                             allValid = false;
                             break; // 如果有不合法的文件，立即退出循环
-                        } else if (fileName != null && fileName.length() > 20) {
-                            Map<String, String> error = new HashMap<>();
-                            error.put("message", "第 " + (i + 1) + " 张图片的文件名过长，请控制在20位以内");
-                            responseList.add(error);
-                            allValid = false;
-                            break; // 如果有不合法的文件，立即退出循环
                         } else {
                             File dest = null;
                             // 生成新的文件名并保存文件
                             if (fileName != null) {
                                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-                                String newFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                                String newFileName = timeStamp + fileName.substring(fileName.lastIndexOf("."));
                                 dest = new File(newFileName);
                             }
                             if (dest != null) {

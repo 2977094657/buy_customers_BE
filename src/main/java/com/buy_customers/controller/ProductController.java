@@ -6,14 +6,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.buy_customers.common.config.EncryptResponse;
 import com.buy_customers.common.httpstatus.CustomStatusCode;
 import com.buy_customers.common.utils.ImageUpload;
+import com.buy_customers.common.utils.Response;
 import com.buy_customers.entity.Product;
 import com.buy_customers.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
 
 /**
  * 商品表(Product)表控制层
@@ -59,6 +63,7 @@ public class ProductController extends ApiController {
             @Parameter(name = "isAsc", description = "是否升序排列"),
             @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
     })
+    @EncryptResponse
     public IPage<Product> page(
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "10") int size,
@@ -113,7 +118,7 @@ public class ProductController extends ApiController {
             @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
             @RequestParam String name,
-            @RequestParam(defaultValue = "32",name = "price") Integer price,
+            @RequestParam(defaultValue = "32",name = "price") Double price,
             @RequestParam(defaultValue = "主食",name = "category") String category
     ) {
         Map<String, Object> responseBody = new HashMap<>();
@@ -157,7 +162,7 @@ public class ProductController extends ApiController {
             @RequestParam Integer productId,
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) Integer price,
+            @RequestParam(required = false) Double price,
             @RequestParam(required = false) String category
     ) {
         // 检查每个参数是否为null值或空字符串
@@ -248,6 +253,15 @@ public class ProductController extends ApiController {
     public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         return imageUpload.update(productId, files);
     }
+
+    @GetMapping("/download")
+    public ResponseEntity<InputStreamSource> download(@RequestParam String url) throws IOException {
+        InputStream in = new URL(url).openStream();
+        InputStreamSource resource = new InputStreamResource(in);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=image.webp");
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
     @GetMapping("/example")
     @Operation(summary = "自定义状态码测试")
     public ResponseEntity<Map<String, Object>> example() {
@@ -270,6 +284,37 @@ public class ProductController extends ApiController {
         }
 
         return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
+    @GetMapping("selectByIds")
+    @Operation(summary = "根据id查询多个商品")
+    @Parameters({
+            @Parameter(name = "productIds", description = "商品id列表"),
+    })
+    public ResponseEntity<Response<?>> selectByIds(@RequestParam List<Integer> productIds){
+        // 构建响应
+        Response<List<Product>> response = new Response<>();
+        List<Product> products = new ArrayList<>();
+
+        for (Integer productId : productIds) {
+            Product product = productService.getById(productId);
+            if (product != null) {
+                products.add(product);
+            }
+        }
+
+        if (products.isEmpty()) {
+            response.setCode(404);
+            response.setMsg("商品不存在");
+            response.setData(null);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        response.setCode(200);
+        response.setMsg("查询成功");
+        response.setData(products);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("vendor")

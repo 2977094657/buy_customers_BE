@@ -29,7 +29,7 @@ public class Product extends Model<Product> {
     //商家名
     private String name;
     //商品价格
-    private Integer price;
+    private Double price;
     //商品类别,默认主食
     private String category;
     //商品图片
@@ -42,6 +42,8 @@ public class Product extends Model<Product> {
     private long three;
     private long two;
     private long one;
+    // 销量
+    private Integer buys;
 
     /**
      * 获取主键值
