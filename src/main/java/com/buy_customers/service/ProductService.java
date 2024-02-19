@@ -29,6 +29,6 @@ public interface ProductService extends IService<Product> {
     IPage<Product> searchProduct(String keyword, int current, int size, Boolean isAsc, String sortField);
 
     List<Product> selectByCategory(int current, int size, String category);
-    List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime);
+    List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime, boolean sortByLikes);
 }
 

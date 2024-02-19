@@ -84,7 +84,8 @@ public class ImageUpload {
             @RequestParam String comments,
             @RequestParam(name = "imgId") MultipartFile[] files,
             @RequestParam int productId,
-            @RequestParam int score
+            @RequestParam int score,
+            @RequestParam String ip
     ) {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<String> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
@@ -126,7 +127,8 @@ public class ImageUpload {
                         // 生成新的文件名并保存文件
                         if (fileName != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-                            String newFileName = timeStamp + fileName.substring(fileName.lastIndexOf("."));
+                            // 在生成新的文件名时添加随机数
+                            String newFileName = timeStamp + "_" + new Random().nextInt(1000000) + fileName.substring(fileName.lastIndexOf("."));
                             dest = new File(newFileName);
                         }
                         if (dest != null) {
@@ -179,6 +181,7 @@ public class ImageUpload {
             productComments.setProductId(productId);
             productComments.setImgId(productImgList.toString());
             productComments.setScore(score);
+            productComments.setIp(ip);
             productCommentsService.save(productComments);
 
             QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();

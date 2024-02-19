@@ -244,8 +244,10 @@ public class ProductController extends ApiController {
     public List<Object> getProductComments(@RequestParam Integer productId,
                                            @RequestParam(defaultValue = "1") Integer pageNum,
                                            @RequestParam(defaultValue = "10") Integer pageSize,
-                                           @RequestParam(defaultValue = "true") Boolean sortByTime) {
-        return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime);
+                                           @RequestParam(defaultValue = "true") Boolean sortByTime,
+                                           @RequestParam(defaultValue = "true") Boolean sortByLikes
+    ) {
+        return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime, sortByLikes);
     }
 
     @PutMapping("updateImages")

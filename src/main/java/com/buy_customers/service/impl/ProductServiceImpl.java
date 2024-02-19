@@ -47,7 +47,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
             }
         }
         // 在排序字段为 null 或空字符串时，添加一个随机排序规则
-        if (!sortField.isPresent() || sortField.get().isEmpty()) {
+        if (sortField.isEmpty() || sortField.get().isEmpty()) {
             wrapper.orderByAsc(String.format("RAND(%d)", randomSeed)); // 使用当前时间戳作为随机种子
         }
         // 调用 ProductDao 的 selectPage 方法进行分页查询
@@ -110,19 +110,28 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
      * @return 商品评价列表
      */
     @Override
-    public List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime) {
+    public List<Object> getCommentsByProductId(long productId, int pageNum, int pageSize, boolean sortByTime, boolean sortByLikes) {
         // 计算起始索引
         int startIndex = (pageNum - 1) * pageSize;
 
-        // 使用QueryWrapper构建查询条件，并根据sortByTime参数指定排序方式
+        // 使用QueryWrapper构建查询条件
         QueryWrapper<ProductComments> productCommentsQueryWrapper = new QueryWrapper<>();
-        QueryWrapper<ProductComments> orderByTime = productCommentsQueryWrapper
-                .eq("product_id", productId)
-                .orderBy(true, sortByTime, "time")
-                .last("LIMIT " + startIndex + ", " + pageSize);
+        QueryWrapper<ProductComments> orderBy = productCommentsQueryWrapper.eq("product_id", productId);
+
+        // 根据sortByTime参数指定排序方式
+        if (sortByTime) {
+            orderBy = orderBy.orderBy(true, false, "time"); // 修改这里，使用降序排序
+        }
+
+        // 如果 sortByLikes 为 true，则按照正赞数减去倒赞数进行排序
+        if (sortByLikes) {
+            orderBy = orderBy.orderByDesc("(positive_likes - dis_likes)");
+        }
+
+        orderBy.last("LIMIT " + startIndex + ", " + pageSize);
 
         // 调用DAO层获取商品评价列表
-        List<ProductComments> comments = productCommentsDao.selectList(orderByTime);
+        List<ProductComments> comments = productCommentsDao.selectList(orderBy);
 
         // 调用 DAO 层获取总的评论数量
         QueryWrapper<ProductComments> countWrapper = new QueryWrapper<>();
@@ -141,6 +150,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
             commentDto.setScore(comment.getScore());
             commentDto.setImgId(comment.getImgId());
             commentDto.setTime(comment.getTime());
+            commentDto.setIp(comment.getIp());
+            commentDto.setPositiveLikes(comment.getPositiveLikes());
+            commentDto.setDisLikes(comment.getDisLikes());
             User user = userDao.selectById(comment.getUserId());
             if (user==null){
                 commentDto.setUserName("账号已注销");
@@ -156,6 +168,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         pageInfo.put("pageNum", pageNum);
         pageInfo.put("pageSize", pageSize);
         pageInfo.put("sortByTime", sortByTime);
+        pageInfo.put("sortByLikes", sortByLikes); // 添加 sortByLikes 参数
         pageInfo.put("pages", totalPageNum);  // 添加总的页数
         pageInfo.put("total", total);  // 添加总的评论数量
 

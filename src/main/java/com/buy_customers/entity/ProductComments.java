@@ -32,5 +32,11 @@ public class ProductComments extends Model<ProductComments> {
     private Integer productId;
     //商品评分1-5
     private Integer score;
+    //评论属地
+    private String ip;
+    //正赞数量
+    private Integer positiveLikes;
+    //倒赞数量
+    private Integer disLikes;
 }
 

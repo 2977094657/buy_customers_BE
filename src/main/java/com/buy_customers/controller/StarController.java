@@ -2,13 +2,14 @@ package com.buy_customers.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.buy_customers.common.utils.Response;
+import com.buy_customers.dto.ProductStarDTO;
 import com.buy_customers.entity.Address;
 import com.buy_customers.entity.Product;
 import com.buy_customers.entity.Star;
-import com.buy_customers.dto.ProductStarDTO;
 import com.buy_customers.service.ProductService;
 import com.buy_customers.service.StarService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,29 +47,55 @@ public class StarController extends ApiController {
      * @return 新增结果
      */
     @PostMapping("staradd")
-    @Operation(summary  =  "新增用户的收藏")
+    @Operation(summary  =  "新增或取消用户的收藏")
     public R insert(@RequestBody Map<String, Integer> params) {
         try {
-            //  创建Star对象并设置其属性
-            Star star = new Star();
-            star.setUserId(params.get("userId"));
-            star.setProductId(params.get("productId"));
-            //  将Star对象保存到数据库中
-            boolean success = this.starService.save(star);
-            if (success) {
-                Integer star1 = productService.getById(params.get("productId")).getStar();
-                star1++;
-                Product product = new Product();
-                product.setStar(star1);
-                QueryWrapper<Product> wrapper = new QueryWrapper<>();
-                wrapper.eq("product_id",params.get("productId"));
-                productService.update(product,wrapper);
-                return success("用户收藏成功");
+            // 获取用户 ID 和商品 ID
+            Integer userId = params.get("userId");
+            Integer productId = params.get("productId");
+
+            // 创建查询条件
+            QueryWrapper<Star> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userId);
+            queryWrapper.eq("product_id", productId);
+
+            // 查询数据库中是否存在对应的收藏记录
+            Star star = this.starService.getOne(queryWrapper);
+            if (star != null) {
+                // 如果存在收藏记录，那么就删除这个记录
+                boolean success = this.starService.removeById(star.getId());
+                if (success) {
+                    Integer star1 = productService.getById(productId).getStar();
+                    star1--;
+                    Product product = new Product();
+                    product.setStar(star1);
+                    UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.eq("product_id", productId).set("star", star1);
+                    productService.update(updateWrapper);
+                    return success("用户取消收藏成功");
+                } else {
+                    return failed("用户取消收藏失败");
+                }
             } else {
-                return failed("用户收藏失败");
+                // 如果不存在收藏记录，那么就添加一个新的记录
+                star = new Star();
+                star.setUserId(userId);
+                star.setProductId(productId);
+                boolean success = this.starService.save(star);
+                if (success) {
+                    Integer star1 = productService.getById(productId).getStar();
+                    star1++;
+                    UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.eq("product_id", productId).set("star", star1);
+                    productService.update(updateWrapper);
+                    return success("用户收藏成功");
+                } else {
+                    return failed("用户收藏失败");
+                }
             }
         } catch (Exception e) {
-            return failed("用户已收藏此商品");
+            System.out.println(e.getMessage());
+            return failed("操作失败");
         }
     }
 

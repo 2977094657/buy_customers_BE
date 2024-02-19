@@ -15,4 +15,9 @@ public class CommentDTO {
     private String userAvatar;
     private Integer id;
     private Integer score;
+    private String ip;
+    //正赞数量
+    private Integer positiveLikes;
+    //倒赞数量
+    private Integer disLikes;
 }

@@ -43,16 +43,17 @@ public class ProductCommentsController extends ApiController {
 
     @PostMapping("add")
     @Operation(summary = "增加评价")
-    public R insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId,@RequestParam int score) {
+    public R insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId,@RequestParam int score,@RequestParam String ip) {
         ProductComments productComments = new ProductComments();
         productComments.setUserId(userId);
         productComments.setComments(comments);
         productComments.setScore(score);
         if (files!=null){
-             ResponseEntity<List<Map<String, String>>> comments1 = imageUpload.comments(userId,comments,files,productId,score);
+             ResponseEntity<List<Map<String, String>>> comments1 = imageUpload.comments(userId,comments,files,productId,score,ip);
              return success(comments1);
         }
         productComments.setProductId(productId);
+        productComments.setIp(ip);
         productCommentsService.save(productComments);
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("product_id", productId);
@@ -162,7 +163,6 @@ public class ProductCommentsController extends ApiController {
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
         //查询user_id等于userId的数据
         queryWrapper.eq("user_id", userId);
-
         return productCommentsService.list(queryWrapper);
     }
 }

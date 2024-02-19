@@ -29,7 +29,7 @@ public class JwtService {
 
         Date now = new Date();
         long expiryTime;
-        if (expirationTimeOption != null && expirationTimeOption == '1') {
+        if (expirationTimeOption != null && expirationTimeOption == 1) {
             expiryTime = 604800000L;  // 7 days
         } else {
             expiryTime = 86400000L;  // 1 day
