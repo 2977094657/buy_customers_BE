@@ -10,8 +10,6 @@ import com.buy_customers.entity.ProductComments;
 import com.buy_customers.service.ProductCommentsService;
 import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.service.ProductService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +27,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("productComments")
-@Tag(name = "商品评价")
 public class ProductCommentsController extends ApiController {
     /**
      * 服务对象
@@ -42,7 +39,6 @@ public class ProductCommentsController extends ApiController {
     private ProductService productService;
 
     @PostMapping("add")
-    @Operation(summary = "增加评价")
     public R insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId,@RequestParam int score,@RequestParam String ip) {
         ProductComments productComments = new ProductComments();
         productComments.setUserId(userId);
@@ -112,7 +108,6 @@ public class ProductCommentsController extends ApiController {
     }
 
     @DeleteMapping("delete")
-    @Operation(summary = "删除评价")
     public R delete(@RequestParam int id) {
         if (productCommentsService.getById(id)==null){
             return success("暂无此评论");
@@ -158,7 +153,6 @@ public class ProductCommentsController extends ApiController {
         return success(productService.update(updateWrapper));
     }
     @GetMapping("myComments")
-    @Operation(summary = "显示用户所有评价")
     public List<ProductComments> userComments(@RequestParam int userId) {
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
         //查询user_id等于userId的数据

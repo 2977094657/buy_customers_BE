@@ -1,7 +1,7 @@
 package com.buy_customers.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

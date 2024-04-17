@@ -17,8 +17,6 @@ import com.buy_customers.service.UserService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
@@ -41,7 +39,6 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping("order")
-@Tag(name = "订单功能")
 public class OrdersController extends ApiController {
     /**
      * 服务对象
@@ -56,7 +53,6 @@ public class OrdersController extends ApiController {
     private ProductService productService;
 
     @GetMapping("getOrder")
-    @Operation(summary = "通过订单号查询订单")
     public ResponseEntity<Response<?>> getOrder(@RequestParam String orderNumber) {
         // 从Redis中查找订单
         String key = "order:" + orderNumber + ":*";
@@ -100,7 +96,6 @@ public class OrdersController extends ApiController {
 
 
     @GetMapping("all")
-    @Operation(summary = "查询所有订单,管理员使用")
     public ResponseEntity<Response<IPage<Orders>>> getAllOrders(
             @RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
@@ -152,7 +147,6 @@ public class OrdersController extends ApiController {
      * 通过主键查询单条数据
      */
     @GetMapping("getUnpaidOrder")
-    @Operation(summary = "根据用户ID查询未付款订单")
     public ResponseEntity<Response<List<Orders>>> getUnpaidOrders(@RequestParam String userId) throws JsonProcessingException {
         Response<List<Orders>> response = new Response<>();
 
@@ -228,7 +222,6 @@ public class OrdersController extends ApiController {
      * 新增数据
      */
     @PostMapping("add")
-    @Operation(summary = "创建订单")
     public ResponseEntity<Response<?>> createOrder(@RequestBody Orders request) throws JsonProcessingException {
         // 查找用户
         QueryWrapper<User> wrapper = new QueryWrapper<>();
@@ -297,7 +290,6 @@ public class OrdersController extends ApiController {
      * 删除数据
      */
     @DeleteMapping("deleteUnpaidOrder")
-    @Operation(summary = "根据订单编号删除未付款订单")
     public ResponseEntity<Response<String>> deleteUnpaidOrder(@RequestParam String orderLong, @RequestParam String userId) {
         Response<String> response = new Response<>();
 
@@ -321,7 +313,6 @@ public class OrdersController extends ApiController {
     }
 
     @DeleteMapping("deleteOrder")
-    @Operation(summary = "根据订单ID删除订单")
     public ResponseEntity<Response<String>> deleteOrder(@RequestParam Integer id) {
         Response<String> response = new Response<>();
 
@@ -341,7 +332,6 @@ public class OrdersController extends ApiController {
 
 
     @PostMapping("confirmOrder")
-    @Operation(summary = "确认订单并存储到数据库")
     public ResponseEntity<Response<?>> confirmOrder(@RequestBody Map<String, String> params) throws JsonProcessingException {
         String orderLong = params.get("orderLong");
         String userId = params.get("userId");
@@ -382,7 +372,6 @@ public class OrdersController extends ApiController {
     }
 
     @PostMapping("getOrdersByUserId")
-    @Operation(summary = "根据用户ID查询所有订单，包括未付款的订单")
     public ResponseEntity<Response<List<Orders>>> getOrdersByUserId(@RequestBody Map<String, Integer> body) throws JsonProcessingException {
         Response<List<Orders>> response = new Response<>();
         Integer userId = body.get("userId");
@@ -402,7 +391,6 @@ public class OrdersController extends ApiController {
     }
 
     @PostMapping("shipOrder")
-    @Operation(summary = "发货订单")
     public ResponseEntity<Response<String>> shipOrder(@RequestBody Map<String, Integer> body) {
         Response<String> response = new Response<>();
         Integer orderId = body.get("orderId");
@@ -430,7 +418,6 @@ public class OrdersController extends ApiController {
 
 
     @PostMapping("getOrdersByUserIdAndState")
-    @Operation(summary = "根据用户ID和订单状态查询订单")
     public ResponseEntity<Response<List<Orders>>> getOrdersByUserIdAndState(@RequestBody Map<String, Object> body) {
         Response<List<Orders>> response = new Response<>();
         Integer userId = (Integer) body.get("userId");
@@ -444,7 +431,6 @@ public class OrdersController extends ApiController {
     }
 
     @PostMapping("receiveOrder")
-    @Operation(summary = "收货订单")
     public ResponseEntity<Response<String>> receiveOrder(@RequestBody Map<String, Integer> body) {
         Response<String> response = new Response<>();
         Integer orderId = body.get("orderId");
@@ -471,7 +457,6 @@ public class OrdersController extends ApiController {
     }
 
     @PutMapping("updateOrderStatus")
-    @Operation(summary = "修改订单状态")
     public ResponseEntity<Response<?>> updateOrderStatus(@RequestBody Orders order) {
         // 从数据库中获取订单
         Orders existingOrder = ordersService.getById(order.getOrderId());

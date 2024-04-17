@@ -9,10 +9,6 @@ import com.buy_customers.common.utils.ErnieBotTurbo;
 import com.buy_customers.common.utils.PromptImg;
 import com.buy_customers.entity.Vendor;
 import com.buy_customers.service.VendorService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,7 +24,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("vendor")
-@Tag(name = "商家功能")
 public class VendorController extends ApiController {
     //
     /**
@@ -45,13 +40,6 @@ public class VendorController extends ApiController {
      * @return 所有数据
      */
     @GetMapping("vendorInquire")
-    @Operation(summary = "分页查询所有商家")
-    @Parameters({
-            @Parameter(name = "page", description = "查询的页面"),
-            @Parameter(name = "vendor", description = "每页显示多少商家"),
-            @Parameter(name = "isAsc", description = "是否升序排列 false(否) true(是)"),
-            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
-    })
     public IPage<Vendor> page(
             @RequestParam(name = "page",defaultValue = "1") int page,
             @RequestParam(name = "vendor",defaultValue = "10") int vendor,
@@ -67,10 +55,6 @@ public class VendorController extends ApiController {
      * @return 单条数据
      */
     @PostMapping("vendoradd")
-    @Operation(summary = "查看商家信息")
-    @Parameters({
-            @Parameter(name = "id", description = "商家id"),
-    })
     public R selectOne(
             @RequestParam Serializable id) {
         return success(this.vendorService.getById(id));
@@ -84,11 +68,6 @@ public class VendorController extends ApiController {
          * password 商家密码
          */
         @PostMapping(value = "/login",produces  =  "text/plain;charset=UTF-8")
-        @Operation(summary = "商家登录")
-        @Parameters({
-                @Parameter(name = "phone", description = "手机号"),
-                @Parameter(name = "password", description = "商家密码"),
-        })
         public String login(
                 @RequestParam(defaultValue = "12222222222") String phone,
                 @RequestParam(defaultValue = "5555") String password){
@@ -107,12 +86,6 @@ public class VendorController extends ApiController {
          *
          */
         @PostMapping(value = "register",produces  =  "text/plain;charset=UTF-8")
-        @Operation(summary = "商家注册")
-        @Parameters({
-                @Parameter(name = "username", description = "商家名"),
-                @Parameter(name = "phone", description = "手机号"),
-                @Parameter(name = "password", description = "商家密码"),
-        })
         public String register(@RequestParam String username, @RequestParam String phone, @RequestParam String password) {
             Vendor vendor=vendorService.register(username, phone, password);
             if (vendor==null){
@@ -133,7 +106,6 @@ public class VendorController extends ApiController {
      */
 
     @PutMapping("update")
-    @Operation(summary = "修改商家信息")
     public R updateVendor(@RequestParam("vendorId") Integer vendorId,
                           @RequestParam(value = "phone", required = false) String phone,
                           @RequestParam(value = "name", required = false) String name,
@@ -179,22 +151,45 @@ public class VendorController extends ApiController {
         }
     }
 
+    /**
+     * 处理来自客户端的请求，获取特定提示信息后的供应商响应。
+     *
+     * @param prompt 客户端请求中包含的提示信息。
+     * @return 返回一个JSON对象，包含供应商的响应信息。
+     * @throws IOException 如果在处理过程中发生IO异常。
+     */
     @GetMapping("vendorPrompt")
-    @Operation(summary = "根据提示生成产品标题")
     public JSON vendorPrompt(String prompt) throws IOException {
+        // 调用ErnieBotTurbo类中的vendorPrompt方法，传入提示信息并返回响应的JSON对象
         return ErnieBotTurbo.vendorPrompt(prompt);
     }
 
+    /**
+     * 根据提供的提示文本生成对应的图片。
+     *
+     * @param prompt 提示文本，用于生成图片的内容。
+     * @return 返回一个字符串，表示生成图片的过程或结果。
+     * @throws IOException 如果在生成图片过程中发生IO异常。
+     */
     @GetMapping("promptImg")
-    @Operation(summary = "根据提示生成产品图片的task_id")
     public String promptImg(@RequestParam String prompt) throws IOException {
+        // 调用PromptImg类的promptImg方法，传入prompt参数，并返回结果
         return PromptImg.promptImg(prompt);
     }
 
+    /**
+     * 通过GET请求获取图片信息。
+     *
+     * @param task_id 任务ID，用于指定要获取图片信息的任务。
+     * @return 返回一个JSON对象，包含图片的相关信息。这个对象是通过解析从PromptImg.getImg(task_id)方法返回的JSON字符串得到的。
+     * @throws IOException 如果在获取图片信息过程中发生IO异常。
+     */
+    //注意，此接口如果在本地测试，连接的有vpn时访问会导致连接超时！！！！！
     @GetMapping("getImg")
-    @Operation(summary = "根据task_id返回图片的地址")
     public JSON getImg(@RequestParam String task_id) throws IOException {
-        String jsonString = PromptImg.getImg(task_id); // 这是你的函数返回的JSON字符串
+        // 调用PromptImg.getImg(task_id)方法获取图片信息的JSON字符串
+        String jsonString = PromptImg.getImg(task_id);
+        // 将获取到的JSON字符串解析成JSON对象并返回
         return JSON.parseObject(jsonString);
     }
 }

@@ -15,6 +15,7 @@ import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
+import java.util.Set;
 
 @Component
 @DependsOn
@@ -25,20 +26,35 @@ public class RSAKeyPairGenerator {
 
     @PostConstruct
     public void init() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA"); // 获取RSA密钥对生成器
-        keyPairGenerator.initialize(2048); // 初始化密钥对生成器，密钥长度为2048位
-        KeyPair keyPair = keyPairGenerator.generateKeyPair(); // 生成密钥对
-        // RSA私钥
-        PrivateKey privateKey = keyPair.getPrivate(); // 获取并保存私钥
-        this.publicKey = keyPair.getPublic(); // 获取并保存公钥
+        // 获取RSA密钥对生成器
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        // 初始化密钥对生成器，密钥长度为2048位
+        keyPairGenerator.initialize(2048);
+        // 生成密钥对
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        // 获取并保存私钥
+        PrivateKey privateKey = keyPair.getPrivate();
+        // 获取并保存公钥
+        this.publicKey = keyPair.getPublic();
 
         // 将公钥和私钥转换为字符串
         String publicKeyString = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         String privateKeyString = Base64.getEncoder().encodeToString(privateKey.getEncoded());
 
+        // 获取所有以特定前缀开始的键
+        Set<String> keys = stringRedisTemplate.keys("MIIBIjANBgkqhkiG9*");
+
+        // 删除这些键
+        if (keys != null) {
+            for (String key : keys) {
+                stringRedisTemplate.delete(key);
+            }
+        }
+
         // 将公钥和私钥存储在Redis中
         stringRedisTemplate.opsForValue().set(publicKeyString, privateKeyString);
     }
+
 
     /**
      * 获取RSA公钥

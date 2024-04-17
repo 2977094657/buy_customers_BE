@@ -59,12 +59,10 @@ public class PromptImg {
 
 
     public static String getImg(String taskId) throws IOException{
-        String accessToken = getAccessToken(); // 这是你的access token
-
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, String.format("{\"taskId\":\"%s\"}", taskId));
         Request request = new Request.Builder()
-                .url(String.format("https://aip.baidubce.com/rpc/2.0/ernievilg/v1/getImg?access_token=%s", accessToken))
+                .url("https://aip.baidubce.com/rpc/2.0/ernievilg/v1/getImg?access_token=" + getAccessToken())
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")

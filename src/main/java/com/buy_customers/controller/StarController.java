@@ -12,8 +12,6 @@ import com.buy_customers.entity.Product;
 import com.buy_customers.entity.Star;
 import com.buy_customers.service.ProductService;
 import com.buy_customers.service.StarService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +28,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("star")
-@Tag(name = "用户的收藏")
 public class StarController extends ApiController {
     /**
      * 服务对象
@@ -47,7 +44,6 @@ public class StarController extends ApiController {
      * @return 新增结果
      */
     @PostMapping("staradd")
-    @Operation(summary  =  "新增或取消用户的收藏")
     public R insert(@RequestBody Map<String, Integer> params) {
         try {
             // 获取用户 ID 和商品 ID
@@ -111,7 +107,6 @@ public class StarController extends ApiController {
     }
 
     @DeleteMapping("/delete")
-    @Operation(summary = "删除单个收藏")
     public ResponseEntity<Response<?>> deleteCartItem(@RequestParam Integer id) {
         Response<List<Address>> response = new Response<>();
         try {
@@ -136,7 +131,6 @@ public class StarController extends ApiController {
     }
 
     @DeleteMapping("/deleteAll")
-    @Operation(summary = "批量删除")
     public Map<String,Object> deleteAllCartItem(@RequestParam List<Integer> id){
         for (Integer ids : id) {
             Integer productId = starService.getById(ids).getProductId();

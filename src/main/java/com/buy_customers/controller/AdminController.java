@@ -15,10 +15,6 @@ import com.buy_customers.entity.User;
 import com.buy_customers.service.AdminService;
 import com.buy_customers.service.ProductService;
 import com.buy_customers.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +37,6 @@ import java.util.regex.Pattern;
 @RestController
 @CrossOrigin
 @RequestMapping("admin")
-@Tag(name = "管理员")
 public class AdminController extends ApiController {
     /**
      * 服务对象
@@ -63,15 +58,7 @@ public class AdminController extends ApiController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-
-    /**
-     * 搜索功能
-     */
     @GetMapping("/search")
-    @Operation(summary = "搜索用户")
-    @Parameters({
-            @Parameter(name = "keyword", description = "关键词，示例值：陈;刘"),
-    })
     public List<User> searchUsers(@RequestParam String keyword) {
         return userDao.searchUsers(keyword);
     }
@@ -85,13 +72,6 @@ public class AdminController extends ApiController {
      * cy
      */
     @GetMapping("all")
-    @Operation(summary = "分页查询所有用户")
-    @Parameters({
-            @Parameter(name = "current", description = "所在页面"),
-            @Parameter(name = "size", description = "每页显示数据"),
-            @Parameter(name = "isAsc", description = "是否升序排列"),
-            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
-    })
     public IPage<User> page(
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "10") int size,
@@ -105,12 +85,6 @@ public class AdminController extends ApiController {
      * cy
      */
     @PutMapping(value = "/pwd",produces  =  "text/plain;charset=UTF-8")
-    @Operation(summary  =  "修改用户信息")
-    @Parameters({
-            @Parameter(name = "userId", description = "用户id ;示例值：2"),
-            @Parameter(name = "pwd", description = "修改的密码 ;示例值:12345678"),
-            @Parameter(name = "description", description = "修改的简介 ;示例值:暂无"),
-    })
     public String updateUserPwd(@RequestParam Integer userId,
                                 @RequestParam(required = false) String pwd,
                                 @RequestParam(required = false) String description,
@@ -148,7 +122,6 @@ public class AdminController extends ApiController {
      * cy
      */
     @DeleteMapping(value = "/deleteuser",produces  =  "text/plain;charset=UTF-8")
-    @Operation(summary  =  "删除用户")
     @CrossOrigin(origins = "*", maxAge = 3600)
     public String deleteUserPwd(@RequestParam Integer userId) {
         if (userDao.selectById(userId) == null) {
@@ -163,11 +136,6 @@ public class AdminController extends ApiController {
      * 管理员登录
      */
     @PostMapping(value = "login",produces  =  "text/plain;charset=UTF-8")
-    @Operation(summary  =  "管理员登录")
-    @Parameters({
-            @Parameter(name = "admin", description = "管理员账号;示例值(admin)"),
-            @Parameter(name = "pwd", description = "管理员密码;示例值(admin)"),
-    })
     public String login(@RequestParam(value = "admin",defaultValue = "admin") String admin,
                         @RequestParam(value = "pwd",defaultValue = "admin") String pwd) {
         QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
@@ -184,12 +152,6 @@ public class AdminController extends ApiController {
 
 
     @PostMapping(value = "/register", produces = "text/plain;charset=UTF-8")
-    @Operation(summary = "管理员注册用户")
-    @Parameters({
-            @Parameter(name = "phone", description = "手机号", required = true),
-            @Parameter(name = "name", description = "用户名", required = true),
-            @Parameter(name = "pwd", description = "用户密码", required = true),
-    })
     public String register(@RequestParam(value = "phone") String phone,
                            @RequestParam(value = "name") String name,
                            @RequestParam(value = "pwd") String pwd,
@@ -221,11 +183,6 @@ public class AdminController extends ApiController {
     }
 
     @GetMapping("updateIp")
-    @Operation(summary = "修改图片数据库图片ip")
-    @Parameters({
-            @Parameter(name = "old", description = "旧ip", required = true),
-            @Parameter(name = "newIp", description = "新ip", required = true)
-    })
     public ResponseEntity<Response<?>> updateIp(@RequestParam String old, @RequestParam String newIp) {
         Response <String> response = new Response<>();
         try {
@@ -257,11 +214,6 @@ public class AdminController extends ApiController {
     }
 
     @GetMapping("updateAvatarIp")
-    @Operation(summary = "修改用户数据库图片ip")
-    @Parameters({
-            @Parameter(name = "old", description = "旧ip", required = true),
-            @Parameter(name = "newIp", description = "新ip", required = true)
-    })
     public ResponseEntity<Response<?>> updateAvatarIp(@RequestParam String old,@RequestParam String newIp) {
         Response <String> response = new Response<>();
         try {
@@ -293,7 +245,6 @@ public class AdminController extends ApiController {
     }
 
     @GetMapping("publicKey")
-    @Operation(summary = "获取RSA公钥")
     public R<Map<String, Object>> publicKey() {
         String publicKey = keyPairGenerator.getPublicKey();
         // 创建一个 Map 来存储用户信息和公钥
@@ -304,7 +255,6 @@ public class AdminController extends ApiController {
     }
 
     @PostMapping("privateKey")
-    @Operation(summary = "获取RSA私钥")
     public R<Map<String, Object>> privateKey(@RequestBody Map<String, String> body) {
         String publicKey = body.get("publicKey");
         // 使用公钥从Redis中获取私钥

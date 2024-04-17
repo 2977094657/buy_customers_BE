@@ -1,6 +1,7 @@
 package com.buy_customers.controller;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
@@ -11,11 +12,9 @@ import com.buy_customers.dao.VendorDao;
 import com.buy_customers.entity.User;
 import com.buy_customers.entity.Vendor;
 import com.buy_customers.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -40,7 +39,6 @@ import java.util.regex.Pattern;
 @Slf4j
 @RestController
 @RequestMapping("user")
-@Tag(name = "用户管理")
 @CrossOrigin
 public class UserController extends ApiController {
     /**
@@ -68,112 +66,138 @@ public class UserController extends ApiController {
     /**
      * 登录功能
      *
-     * @return 响应内容
+     * @param params 包含登录所需信息的Map，预期包含"usernameOrPhone"（用户名或手机号）、"pwd"（密码）和可选的"expirationTimeOption"（登录有效期选项）
+     * @return 返回一个响应实体，包含登录结果信息，如成功则包含token，失败则包含错误信息
+     * @throws NoSuchAlgorithmException 如果密码加密算法不可用
      */
     @PostMapping(value = "/login")
-    @Operation(summary = "用户登录")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
+    public ResponseEntity<Response<?>> login(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
         try {
+            // 处理登录有效期选项
+            long timeout = 0;
+            if (Objects.equals(params.get("expirationTimeOption"), "0")){
+                timeout = 86400; // 1天
+            }else if (Objects.equals(params.get("expirationTimeOption"), "1")){
+                timeout = 604800; // 1周
+            }
+
+            // 获取用户名或手机号和密码
             String usernameOrPhone = params.get("usernameOrPhone");
             String pwd = params.get("pwd");
-            Integer expirationTimeOption = null;
-            if (params.containsKey("expirationTimeOption") && !params.get("expirationTimeOption").isEmpty()) {
-                try {
-                    expirationTimeOption = Integer.parseInt(params.get("expirationTimeOption"));
-                } catch (NumberFormatException e) {
-                    // 如果需要，请处理异常
-                }
-            }
+
+            // 查询用户，支持用户名或手机号登录
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("phone", usernameOrPhone).or().eq("name", usernameOrPhone);
             User user = userService.getOne(queryWrapper);
+
+            // 验证用户存在性和密码正确性
             if (user == null || !user.getPwd().equals(Md5.MD5Encryption(pwd))) {
-                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "用户名或手机号不存在或密码错误"));
+                Response<String> response = new Response<>();
+                response.setCode(400);
+                response.setMsg("用户名或手机号不存在或密码错误");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
-            String token = jwtService.generateToken(user, expirationTimeOption);
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
+
+            // 登录成功，设置登录状态和返回信息
             Integer userId = user.getUserId();
-            response.put("userid", userId);
-            return ResponseEntity.ok(response);
+            StpUtil.login(userId,timeout);
+            Response<String> response = new Response<>();
+            response.setCode(200);
+            response.setMsg("登录成功");
+            response.setData(String.valueOf(StpUtil.getTokenValue()));
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            // 处理运行时异常，返回错误信息
+            Response<String> response = new Response<>();
+            response.setCode(500);
+            response.setMsg(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
 
+
+    /**
+     * 忘记密码功能的处理方法。
+     *
+     * @param params 包含手机号、新密码和验证码的键值对参数。
+     * @return 根据操作结果返回不同的ResponseEntity对象，包含操作成功或失败的信息。
+     * @throws NoSuchAlgorithmException 如果密码加密过程中算法找不到，则抛出此异常。
+     */
     @PostMapping(value = "/forgotPassword")
-    @Operation(summary = "用户忘记密码")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> params) throws NoSuchAlgorithmException {
         try {
+            // 从请求体中获取手机号、新密码和验证码
             String phoneNumber = params.get("phoneNumber");
             String newPassword = params.get("newPassword");
             String code = params.get("code");
 
-            // 从 Redis 中获取验证码
+            // 从 Redis 中获取存储的验证码
             String redisCode = stringRedisTemplate.opsForValue().get(phoneNumber);
 
-            // 比对验证码
+            // 验证码比对，不一致则返回错误信息
             if (!code.equals(redisCode)) {
                 return ResponseEntity.badRequest().body(Collections.singletonMap("error", "验证码错误"));
             }
 
-            // 通过手机号查找用户
+            // 根据手机号查询用户信息
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("phone", phoneNumber);
             User user = userService.getOne(queryWrapper);
 
-            // 修改密码
+            // 更新用户密码
             user.setPwd(Md5.MD5Encryption(newPassword));
             userService.updateById(user);
 
             return ResponseEntity.ok(Collections.singletonMap("success", "密码已成功修改"));
         } catch (RuntimeException e) {
+            // 捕获运行时异常，返回错误信息
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
 
-
-
-
-
-    @GetMapping(value = "/token", produces = "application/json")
-    @Operation(summary = "解析token")
-    @Parameters({
-            @Parameter(name = "Authorization", description = "用户token"),
-    })
+    /**
+     * 通过请求头中的Authorization字段获取用户信息。
+     *
+     * @param authHeader 请求头中的Authorization字段，包含Bearer令牌。
+     * @return 如果成功解析令牌，返回包含用户信息的响应实体；如果解析失败，返回包含错误信息的响应实体。
+     */
+    @GetMapping(value = "/token")
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String authHeader) {
         try {
-            // 提取 token，移除 "Bearer " 前缀
+            // 从Authorization头部提取token，移除"Bearer "前缀
             String token = authHeader.substring(7);
-            User user = jwtService.parseToken(token);
-            return ResponseEntity.ok(user);
+            User user = jwtService.parseToken(token); // 解析token，获取用户信息
+            return ResponseEntity.ok(user); // 返回成功响应，包含用户信息
         } catch (RuntimeException e) {
+            // 捕获运行时异常，返回错误信息
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
     /**
-     * 用户注册功能
+     * 用户注册功能。
+     * 接收用户提交的注册信息，包括手机号、用户名、密码和验证码，进行一系列校验后，
+     * 若信息符合要求则完成用户注册。
+     *
+     * @param phone 用户的手机号，作为注册账号的唯一标识。
+     * @param name 用户的姓名。
+     * @param pwd 用户设置的密码。
+     * @param code 用户输入的验证码。
+     * @return 根据注册结果返回相应的提示信息。
+     * @throws NoSuchAlgorithmException 如果在注册过程中遇到未知的算法异常。
      */
     @PostMapping(value = "/register", produces = "text/plain;charset=UTF-8")
-    @Operation(summary = "注册")
-    @Parameters({
-            @Parameter(name = "phone", description = "手机号", required = true),
-            @Parameter(name = "name", description = "用户名", required = true),
-            @Parameter(name = "pwd", description = "用户密码", required = true),
-            @Parameter(name = "code", description = "验证码", required = true),
-    })
     public String register(@RequestParam(value = "phone") String phone,
                            @RequestParam(value = "name") String name,
                            @RequestParam(value = "pwd") String pwd,
                            @RequestParam(value = "code") int code) throws NoSuchAlgorithmException {
-        // 校验参数
+        // 校验参数完整性及手机号格式
         if (phone == null) {
             return "手机号不能为空";
         }
-        // 手机号正则校验，可自行定义
+        // 执行手机号格式的正则表达式校验
         if (!Pattern.matches("^1[3-9]\\d{9}$", phone)) {
             return "手机号格式不正确";
         }
@@ -183,17 +207,18 @@ public class UserController extends ApiController {
         user.setName(name);
         user.setPwd(pwd);
 
-        // 校验验证码
+        // 检查验证码的有效性
         boolean hasKey = Boolean.TRUE.equals(stringRedisTemplate.hasKey(phone));
         if (!hasKey) {
             return "验证码已过期，请重新发送";
         }
+        // 对输入的验证码进行校验
         int redisCode = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(phone)));
         if (code != redisCode) {
             return "验证码错误";
         }
 
-        // 注册用户
+        // 尝试注册用户
         boolean success = userService.register(user);
         if (success) {
             return "注册成功";
@@ -203,24 +228,17 @@ public class UserController extends ApiController {
     }
 
 
+
     /**
      * 短信获取
      */
     @PostMapping(value = "/message", produces = "text/plain;charset=UTF-8")
-    @Operation(summary = "获取短信")
-    @Parameters({
-            @Parameter(name = "phoneNumber", description = "手机号", required = true),
-    })
     public String sms(String phoneNumber) throws TencentCloudSDKException {
         return txSendSms.sms(phoneNumber);
     }
 
     @ResponseBody
     @PostMapping("mail")
-    @Operation(summary = "获取邮件")
-    @Parameters({
-            @Parameter(name = "mail", description = "用户邮箱", required = true),
-    })
     public ResponseEntity<Response<?>> mail(String mail) {
         return mailUtil.sendEmailWithVerificationCode(mail);
     }
@@ -230,10 +248,6 @@ public class UserController extends ApiController {
      * 搜索商家功能
      */
     @GetMapping("/search")
-    @Operation(summary = "搜索商家")
-    @Parameters({
-            @Parameter(name = "keyword", description = "关键词，示例值：江湖菜;瓦香鸡"),
-    })
     public List<Vendor> searchVendors(@RequestParam(required = false, defaultValue = "江湖菜") String keyword) {
         return vendorDao.searchVendors(keyword);
     }
@@ -244,7 +258,6 @@ public class UserController extends ApiController {
      */
     @GetMapping("all")
     @EncryptResponse
-    @Operation(summary = "个人中心的获取用户")
     public R<Map<String, Object>> selectUserById(@RequestParam Integer userId) throws NoSuchAlgorithmException {
         // 根据传入的 userId 查询对应的用户信息
         User user = userService.selectUserById(userId);
@@ -258,13 +271,6 @@ public class UserController extends ApiController {
 
 
     @PutMapping("updateUser")
-    @Operation(summary = "个人中心的用户修改")
-    @Parameters({
-            @Parameter(name = "userId", description = "根据用户id修改"),
-            @Parameter(name = "name", description = "用户名字"),
-            @Parameter(name = "description", description = "用户简介"),
-            @Parameter(name = "gender", description = "用户性别"),
-    })
     public ResponseEntity<Response<?>> updateUser(
             @RequestParam Integer userId,
             @RequestParam String name,
@@ -322,13 +328,6 @@ public class UserController extends ApiController {
 
 
     @PostMapping(value = "/password")
-    @Operation(summary = "用户修改密码")
-    @Parameters({
-            @Parameter(name = "userId", description = "用户id", required = true),
-            @Parameter(name = "oldPassword", description = "旧密码", required = true),
-            @Parameter(name = "newPassword", description = "新密码", required = true),
-            @Parameter(name = "confirmPassword", description = "确认密码", required = true),
-    })
     public ResponseEntity<Response<?>> updatePassword(@RequestParam("userId") Integer userId,
                                                  @RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
@@ -363,7 +362,6 @@ public class UserController extends ApiController {
 
 
     @PutMapping("updateAvatar")
-    @Operation(summary = "用户修改头像")
     public ResponseEntity<Map<String, String>> updateAvatar(
             @RequestParam(name = "image") MultipartFile file,
             @RequestParam(name = "userid") Integer userid) throws IOException {
@@ -371,7 +369,6 @@ public class UserController extends ApiController {
     }
 
     @PostMapping("addHistory")
-    @Operation(summary = "添加浏览记录")
     public ResponseEntity<Response<?>> addHistory(
             @RequestParam Integer userid,
             @RequestParam Integer productId
@@ -395,7 +392,6 @@ public class UserController extends ApiController {
     }
 
     @GetMapping("getHistoryByUserId")
-    @Operation(summary = "显示浏览记录")
     public ResponseEntity<Map<String, Object>> getHistoryByUserId(@RequestParam Integer userId){
         String keyPattern = "user:" + userId + ":*";
         Set<String> keys = stringRedisTemplate.keys(keyPattern);
@@ -423,58 +419,80 @@ public class UserController extends ApiController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 删除用户的特定产品浏览历史记录。
+     *
+     * @param userid 用户ID，用于标识删除记录的用户。
+     * @param productId 产品ID，用于标识要删除的产品浏览记录。
+     * @param date 浏览日期，用于精确指定要删除的浏览记录日期。
+     * @return ResponseEntity<Response<?>> 包含操作结果的响应体，成功则返回200和删除成功的信息，失败则返回400和删除失败的信息。
+     */
     @DeleteMapping("deleteHistory")
-    @Operation(summary = "删除浏览记录")
     public ResponseEntity<Response<?>> deleteHistory(
             @RequestParam Integer userid,
             @RequestParam Integer productId,
             @RequestParam String date
     ) {
+        // 构造Redis中存储的键名
         String key = "user:" + userid + ":product:" + productId + ":date:" + date;
         System.out.println(key);
         Response<String> response = new Response<>();
 
         try {
-            // 删除指定的key
+            // 尝试删除指定的键
             stringRedisTemplate.delete(key);
             response.setCode(200);
             response.setMsg("浏览记录删除成功");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            // 捕获异常，设置删除失败的响应
             response.setCode(400);
             response.setMsg("浏览记录删除失败");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
+    /**
+     * 删除指定用户的全部浏览记录
+     *
+     * @param userid 用户ID，用于指定要删除浏览记录的用户
+     * @return ResponseEntity<Response<?>> 包含操作结果的响应体，其中Response<?>是自定义的响应数据结构，
+     *         包含操作状态码和操作消息
+     */
     @DeleteMapping("deleteAllHistory")
-    @Operation(summary = "删除用户的全部浏览记录")
     public ResponseEntity<Response<?>> deleteAllHistory(@RequestParam Integer userid) {
+        // 构造Redis中浏览记录的键名模式
         String pattern = "user:" + userid + ":product:*:date:*";
         Response<String> response = new Response<>();
         try {
+            // 根据模式查找所有匹配的键
             Set<String> keys = stringRedisTemplate.keys(pattern);
             if (keys != null && !keys.isEmpty()) {
+                // 如果找到键，则删除这些键
                 stringRedisTemplate.delete(keys);
             }
+            // 设置操作成功响应
             response.setCode(200);
             response.setMsg("用户的全部浏览记录删除成功");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            // 设置操作失败响应
             response.setCode(400);
             response.setMsg("用户的全部浏览记录删除失败");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
+    /**
+     * 修改用户手机号码
+     *
+     * @param userid 用户ID，用于标识需要修改手机号的用户
+     * @param phone 新的手机号码
+     * @param oldPhone 用户当前的手机号码，用于校验验证码
+     * @param code 验证码，用于验证用户身份和手机号码的正确性
+     * @return ResponseEntity<Response<?>> 包含操作结果的状态码和信息
+     */
     @PutMapping(value = "/changePhone")
-    @Operation(summary = "修改手机号")
-    @Parameters({
-            @Parameter(name = "userid", description = "用户id"),
-            @Parameter(name = "oldPhone", description = "旧手机号"),
-            @Parameter(name = "code", description = "验证码"),
-            @Parameter(name = "phone", description = "新手机号"),
-    })
     public ResponseEntity<Response<?>> changePhone(
             @RequestParam Integer userid,
             @RequestParam String phone,
@@ -529,6 +547,90 @@ public class UserController extends ApiController {
             response.setCode(400);
             response.setMsg("修改失败");
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * 获取当前登录用户的ID。
+     *
+     * 该接口使用GET请求访问路径"getLoginId"，不接受任何参数，响应为当前会话登录用户的ID字符串。
+     * 如果用户未登录，将返回默认的null值。
+     *
+     * @return 返回当前会话登录用户的ID字符串。如果用户未登录，则返回null。
+     */
+    @GetMapping("getLoginId")
+    public String getLoginId() {
+        // 获取并返回当前会话登录用户的ID
+        return "当前会话登录id："+ StpUtil.getLoginIdDefaultNull();
+    }
+
+    /**
+     * 用户登出处理
+     *
+     * @param userid 用户ID，用于标识登出的用户
+     * @return 返回一个字符串提示信息，表明用户已成功登出
+     */
+    @GetMapping("logout")
+    public String logout(Integer userid) {
+        // 执行用户登出操作
+        StpUtil.logout(userid);
+        return "已退出登录";
+    }
+
+    /**
+     * 通过令牌值注销用户。
+     *
+     * @param token 用户的令牌值，用于标识和验证用户。
+     * @return 返回一个字符串提示用户已成功退出登录。
+     */
+    @GetMapping("logoutByTokenValue")
+    public String logoutByTokenValue(String token) {
+        // 使用提供的令牌值注销用户
+        StpUtil.logoutByTokenValue(token);
+        return "已退出登录";
+    }
+
+    /**
+     * 通过token获取登录用户ID。
+     *
+     * @param params 包含token信息的请求体参数，其中需包含一个键为"tokenValue"的元素，其值为token字符串。
+     * @return 返回登录用户的ID，如果无法获取或token无效，则可能返回null或其他特定错误信息。
+     */
+    @PostMapping("getLoginIdByToken")
+    public Object getLoginIdByToken(@RequestBody Map<String, String> params) {
+        // 通过token获取登录用户ID
+        return StpUtil.getLoginIdByToken(params.get("tokenValue"));
+    }
+
+    /**
+     * 获取指定token的超时时间。
+     *
+     * @param token 用户的token，用于查询其超时时间。
+     * @return 返回该token的超时时间，单位为毫秒。
+     */
+    @GetMapping("getTokenTimeout")
+    public long getTokenTimeout(String token) {
+        // 调用STP工具类，获取token的超时时间
+        return StpUtil.getTokenTimeout(token);
+    }
+
+    @GetMapping("allToken")
+    public ResponseEntity<Response<?>> allToken() throws JsonProcessingException {
+        Set<String> keys = stringRedisTemplate.keys("satoken:login:token:*");
+        Map<String, Object> tokens = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        if (keys != null) {
+            for (String key : keys) {
+                String value = stringRedisTemplate.opsForValue().get(key);
+                Object obj = mapper.readValue(value, Object.class);
+                tokens.put(key, obj);
+            }
+        }
+        Response<Map<String, Object>> response = new Response<>();
+        response.setCode(200);
+        response.setMsg("查询当前所有已登录用户成功");
+        response.setData(tokens);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

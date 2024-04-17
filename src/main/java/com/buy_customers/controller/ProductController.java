@@ -12,10 +12,6 @@ import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.common.utils.Response;
 import com.buy_customers.entity.Product;
 import com.buy_customers.service.ProductService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +34,6 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("product")
-@Tag(name = "商品功能")
 public class ProductController extends ApiController {
     /**
      * 服务对象
@@ -56,13 +51,6 @@ public class ProductController extends ApiController {
      * @return 返回所有数据
      */
     @GetMapping("all")
-    @Operation(summary = "分页查询所有商品")
-    @Parameters({
-            @Parameter(name = "current", description = "所在页面"),
-            @Parameter(name = "size", description = "每页显示数据"),
-            @Parameter(name = "isAsc", description = "是否升序排列"),
-            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
-    })
     @EncryptResponse
     public IPage<Product> page(
             @RequestParam(name = "current",defaultValue = "1") int current,
@@ -83,12 +71,6 @@ public class ProductController extends ApiController {
      * @return 返回查询结果
      */
     @GetMapping("productsByCategory")
-    @Operation(summary = "按照category字段的内容查询所有商品")
-    @Parameters({
-            @Parameter(name = "current", description = "所在页面"),
-            @Parameter(name = "size", description = "每页数量"),
-            @Parameter(name = "category", description = "商品类别")
-    })
     public List<Product> selectByCategory(@RequestParam(defaultValue = "1",name = "current") int current,
                                           @RequestParam(defaultValue = "10",name = "size") int size,
                                           @RequestParam(defaultValue = "主食",name = "category") String category) {
@@ -106,14 +88,6 @@ public class ProductController extends ApiController {
      * @return 返回增加结果
      */
     @PostMapping("add")
-    @Operation(summary = "新增商品")
-    @Parameters({
-            @Parameter(name = "images", description = "多个图片，以数组存入"),
-            @Parameter(name = "productName", description = "商品名字"),
-            @Parameter(name = "name", description = "商家名字，根据商家登陆的账号来传入此参数，不允许商家填入"),
-            @Parameter(name = "price", description = "价格"),
-            @Parameter(name = "category", description = "商品分类，此处应为下拉栏，不允许商家填入，四个分类:主食、小吃、甜品、饮料")
-    })
     public ResponseEntity<Map<String, Object>> addProduct(
             @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
@@ -156,7 +130,6 @@ public class ProductController extends ApiController {
      * @param category 商品分类，此处应为下拉栏，不允许商家填写，四个分类: 主食、小吃、甜品、饮料。类型为字符串
      * @return 返回修改结果
      */
-    @Operation(summary = "根据商品id修改商品")
     @PutMapping("update")
     public R update(
             @RequestParam Integer productId,
@@ -187,11 +160,7 @@ public class ProductController extends ApiController {
      * @param id 主键
      * @return 删除结果
      */
-    @Operation(summary = "根据商品id删除商品")
     @DeleteMapping("delete")
-    @Parameters({
-            @Parameter(name = "id", description = "商品id，根据商家点击删除的商品id来传入此参数，不允许商家填入，根据此参数来确定要删除的商品"),
-            })
     public R delete(@RequestParam List<Long> id) {
         return success(this.productService.removeByIds(id));
     }
@@ -206,15 +175,7 @@ public class ProductController extends ApiController {
      * @param sortField 根据此参数传入的字段排序
      * @return 返回搜索结果
      */
-    @Operation(summary = "根据商品名字模糊搜索商品")
     @GetMapping("search")
-    @Parameters({
-            @Parameter(name = "keyword", description = "搜索关键字"),
-            @Parameter(name = "current", description = "所在页面"),
-            @Parameter(name = "size", description = "每页显示数据"),
-            @Parameter(name = "isAsc", description = "是否升序排列，不传或传入空值则不排序"),
-            @Parameter(name = "sortField", description = "根据此参数传入的字段排序")
-    })
     public IPage<Product> search(
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "current",defaultValue = "1") int current,
@@ -234,13 +195,6 @@ public class ProductController extends ApiController {
      * @return 评论列表
      */
     @GetMapping("comments")
-    @Operation(summary = "商品评价")
-    @Parameters({
-            @Parameter(name = "productId", description = "商品id"),
-            @Parameter(name = "pageNum", description = "所在页面", example = "1"),
-            @Parameter(name = "pageSize", description = "每页显示数量", example = "10"),
-            @Parameter(name = "sortByTime", description = "是否按照时间排序", example = "true")
-    })
     public List<Object> getProductComments(@RequestParam Integer productId,
                                            @RequestParam(defaultValue = "1") Integer pageNum,
                                            @RequestParam(defaultValue = "10") Integer pageSize,
@@ -251,7 +205,6 @@ public class ProductController extends ApiController {
     }
 
     @PutMapping("updateImages")
-    @Operation(summary = "根据商品id修改商品图片")
     public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         return imageUpload.update(productId, files);
     }
@@ -265,7 +218,6 @@ public class ProductController extends ApiController {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
     @GetMapping("/example")
-    @Operation(summary = "自定义状态码测试")
     public ResponseEntity<Map<String, Object>> example() {
         Map<String, Object> response = new HashMap<>();
         response.put("code", CustomStatusCode.SUCCESS.getCode());
@@ -274,10 +226,6 @@ public class ProductController extends ApiController {
     }
 
     @GetMapping(value = "selectById",produces = "application/json")
-    @Operation(summary = "根据id查询商品")
-    @Parameters({
-            @Parameter(name = "productId", description = "商品id"),
-    })
     public ResponseEntity<Object> selectById(@RequestParam Integer productId){
         Product product = productService.getById(productId);
 
@@ -289,10 +237,6 @@ public class ProductController extends ApiController {
     }
 
     @GetMapping("selectByIds")
-    @Operation(summary = "根据id查询多个商品")
-    @Parameters({
-            @Parameter(name = "productIds", description = "商品id列表"),
-    })
     public ResponseEntity<Response<?>> selectByIds(@RequestParam List<Integer> productIds){
         // 构建响应
         Response<List<Product>> response = new Response<>();
@@ -320,12 +264,6 @@ public class ProductController extends ApiController {
     }
 
     @GetMapping("vendor")
-    @Operation(summary = "查询商家所有商品")
-    @Parameters({
-            @Parameter(name = "name", description = "商品名称"),
-            @Parameter(name = "pageNum", description = "页码"),
-            @Parameter(name = "pageSize", description = "每页显示数量")
-    })
     public ResponseEntity<IPage<Product>> vendor(@RequestParam String name,
                                                  @RequestParam(defaultValue = "1") Integer pageNum,
                                                  @RequestParam(defaultValue = "30") Integer pageSize){

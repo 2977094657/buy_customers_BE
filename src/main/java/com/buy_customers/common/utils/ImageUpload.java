@@ -9,10 +9,6 @@ import com.buy_customers.service.ProductCommentsService;
 import com.buy_customers.service.impl.UserServiceImpl;
 import com.buy_customers.service.ProductService;
 import com.buy_customers.service.impl.ProductServiceImpl;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@Tag(name = "图片上传")
 public class ImageUpload {
     @Resource
     private UserServiceImpl userServiceImpl;
@@ -39,11 +34,6 @@ public class ImageUpload {
     private ProductCommentsService productCommentsService;
 
     @PostMapping("/upload")
-    @Operation(summary = "单图上传,最大1MB")
-    @Parameters({
-            @Parameter(name = "image", description = "传入的图片"),
-            @Parameter(name = "userid", description = "用户id"),
-    })
     public ResponseEntity<Map<String, String>> upload(
             @RequestParam(name = "image") MultipartFile file,
             @RequestParam(name = "userid") Integer userid) throws IOException {
@@ -391,11 +381,6 @@ public class ImageUpload {
         return ResponseEntity.ok(responseList);
     }
 
-    @Operation(summary = "根据商品id修改商品图片")
-    @Parameters({
-            @Parameter(name = "productId", description = "商品id"),
-            @Parameter(name = "images", description = "多个图片，以数组存入")
-    })
     public ResponseEntity<List<Map<String, String>>> update(@RequestParam(name = "productId") Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
         List<Map<String, String>> responseList = new ArrayList<>(); // 用于存储上传结果的列表
         List<Product> productImgList = new ArrayList<>(); // 用于存储数据库实体的列表
