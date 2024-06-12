@@ -5,19 +5,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
+import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.entity.Product;
 import com.buy_customers.entity.ProductComments;
 import com.buy_customers.service.ProductCommentsService;
-import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.service.ProductService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 商品评价表(ProductComments)表控制层
@@ -45,8 +43,8 @@ public class ProductCommentsController extends ApiController {
         productComments.setComments(comments);
         productComments.setScore(score);
         if (files!=null){
-             ResponseEntity<List<Map<String, String>>> comments1 = imageUpload.comments(userId,comments,files,productId,score,ip);
-             return success(comments1);
+            Object comments1 = imageUpload.comments(files);
+            productComments.setImgId((String) comments1);
         }
         productComments.setProductId(productId);
         productComments.setIp(ip);

@@ -1,5 +1,6 @@
 package com.buy_customers.common.config;
 
+import com.buy_customers.common.annotation.EncryptResponse;
 import com.buy_customers.common.utils.RSAKeyPairGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

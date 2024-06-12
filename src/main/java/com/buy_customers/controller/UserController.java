@@ -5,7 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
-import com.buy_customers.common.config.EncryptResponse;
+import com.buy_customers.common.annotation.EncryptResponse;
 import com.buy_customers.common.utils.*;
 import com.buy_customers.dao.UserDao;
 import com.buy_customers.dao.VendorDao;
@@ -365,8 +365,20 @@ public class UserController extends ApiController {
     public ResponseEntity<Map<String, String>> updateAvatar(
             @RequestParam(name = "image") MultipartFile file,
             @RequestParam(name = "userid") Integer userid) throws IOException {
-        return imageUpload.upload(file, userid);
+        ResponseEntity<Map<String, String>> uploadResponse = imageUpload.upload(file);
+        if (uploadResponse.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> responseBody = uploadResponse.getBody();
+            if (responseBody != null) {
+                String url = responseBody.get("url");
+                User user = new User();
+                user.setUserAvatar(url);
+                user.setUserId(userid);
+                userService.updateById(user);
+            }
+        }
+        return uploadResponse;
     }
+
 
     @PostMapping("addHistory")
     public ResponseEntity<Response<?>> addHistory(

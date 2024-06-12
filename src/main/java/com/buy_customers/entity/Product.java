@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2023-05-06 20:16:11
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Product extends Model<Product> {
     @TableId(type = IdType.AUTO)

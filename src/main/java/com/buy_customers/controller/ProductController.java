@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.buy_customers.common.config.EncryptResponse;
+import com.buy_customers.common.annotation.EncryptResponse;
 import com.buy_customers.common.httpstatus.CustomStatusCode;
 import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.common.utils.Response;
@@ -40,8 +40,6 @@ public class ProductController extends ApiController {
      */
     @Resource
     private ProductService productService;
-    @Resource
-    private ImageUpload imageUpload;
 
     /**
      * @param current   当前所在页面
@@ -100,24 +98,16 @@ public class ProductController extends ApiController {
             responseBody.put("message", "请上传商品图片！");
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         }
-        List<Map<String, String>> responseList = imageUpload.add(files, productName, name, price, category).getBody();
-        boolean isSuccess = true;
-        if (responseList != null) {
-            for (Map<String, String> response : responseList) {
-                if (response.containsKey("message")) {
-                    isSuccess = false;
-                    break;
-                }
-            }
-        }
-        if (isSuccess) {
-            responseBody.put("message", "商品添加成功");
-            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
-        } else {
-            responseBody.put("message", "商品添加失败");
-            responseBody.put("errors", responseList);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
-        }
+        String productImgList = (String) ImageUpload.add(files);
+        Product product = new Product();
+        product.setProductName(productName);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setImg(productImgList);
+        product.setName(name);
+        productService.save(product);
+        responseBody.put("message", "商品添加成功");
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
     /**
@@ -204,9 +194,40 @@ public class ProductController extends ApiController {
         return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime, sortByLikes);
     }
 
-    @PutMapping("updateImages")
+    @PutMapping("/updateImages")
     public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
-        return imageUpload.update(productId, files);
+        // 检查商品是否存在
+        Product product = productService.getById(productId);
+        if (product == null) {
+            Map<String, String> error = Map.of("message", "商品不存在");
+            return new ResponseEntity<>(List.of(error), HttpStatus.NOT_FOUND);
+        }
+
+        // 调用 ImageUploadService 处理文件上传
+        ResponseEntity<List<Map<String, String>>> uploadResponse;
+        try {
+            uploadResponse = ImageUpload.update(files);
+        } catch (IOException e) {
+            Map<String, String> error = Map.of("message", "文件上传过程中发生错误: " + e.getMessage());
+            return new ResponseEntity<>(List.of(error), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (uploadResponse.getStatusCode() == HttpStatus.OK) {
+            List<Map<String, String>> responseList = uploadResponse.getBody();
+            if (responseList != null) {
+                // 提取上传成功的图片 URL
+                List<String> imgUrls = responseList.stream()
+                        .map(map -> map.get("url"))
+                        .filter(Objects::nonNull)
+                        .toList();
+
+                // 更新商品图片信息
+                product.setImg(String.join(",", imgUrls));
+                productService.updateById(product);
+            }
+        }
+
+        return uploadResponse;
     }
 
     @GetMapping("/download")

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 管理员表(Admin)表实体类
@@ -11,6 +12,7 @@ import lombok.Data;
  * @author makejava
  * @since 2023-05-06 19:46:25
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Admin extends Model<Admin> {
     @TableId(type = IdType.AUTO)

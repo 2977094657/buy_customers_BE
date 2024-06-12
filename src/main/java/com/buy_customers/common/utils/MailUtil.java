@@ -51,7 +51,7 @@ public class MailUtil {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);    /* 创建一个MimeMessageHelper对象来帮助构建MimeMessage，第二个参数true表示这是一个multipart消息 */
             helper.setFrom("3434549571@qq.com");  // 这里的发件人地址必须与 spring.mail.username 的值相同
             helper.setTo(to);    /* 设置收信人邮箱地址 */
-            helper.setSubject("欢迎使用淘多多");     /* 设置邮件主题 */
+            helper.setSubject("欢迎使用百客");     /* 设置邮件主题 */
             helper.setText(htmlContent, true);     /* 设置邮件正文内容和是否为HTML格式,这里传递了true参数表示该邮件正文为HTML格式 */
 
             emailSender.send(message);     /* 调用emailSender（JavaMailSender）的send方法发送邮件 */

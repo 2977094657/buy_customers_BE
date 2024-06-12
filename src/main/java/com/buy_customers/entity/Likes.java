@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -13,7 +14,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2024-02-05 22:34:35
  */
-@SuppressWarnings("serial")
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Likes extends Model<Likes> {
     // 主键自增
