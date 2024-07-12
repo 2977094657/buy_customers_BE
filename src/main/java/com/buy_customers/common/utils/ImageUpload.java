@@ -2,6 +2,7 @@ package com.buy_customers.common.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class ImageUpload {
     public static ResponseEntity<Map<String, String>> upload(MultipartFile file) throws IOException {
         if (file.getSize() > 1024 * 1024) {

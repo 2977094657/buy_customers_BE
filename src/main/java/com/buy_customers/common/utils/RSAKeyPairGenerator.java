@@ -26,6 +26,13 @@ public class RSAKeyPairGenerator {
 
     @PostConstruct
     public void init() throws NoSuchAlgorithmException {
+        // 获取所有以特定前缀开始的键
+        Set<String> keys = stringRedisTemplate.keys("MIIBIjANBgkqhkiG9*");
+
+        // 如果有，则直接返回，不再生成新密钥对
+        if (keys != null && !keys.isEmpty()) {
+            return;
+        }
         // 获取RSA密钥对生成器
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         // 初始化密钥对生成器，密钥长度为2048位
@@ -41,15 +48,6 @@ public class RSAKeyPairGenerator {
         String publicKeyString = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         String privateKeyString = Base64.getEncoder().encodeToString(privateKey.getEncoded());
 
-        // 获取所有以特定前缀开始的键
-        Set<String> keys = stringRedisTemplate.keys("MIIBIjANBgkqhkiG9*");
-
-        // 删除这些键
-        if (keys != null) {
-            for (String key : keys) {
-                stringRedisTemplate.delete(key);
-            }
-        }
 
         // 将公钥和私钥存储在Redis中
         stringRedisTemplate.opsForValue().set(publicKeyString, privateKeyString);

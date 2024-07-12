@@ -24,6 +24,8 @@ public class SecurityConfig {
 
     @Resource
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Resource
+    private APIVerification apiVerification;
 
     // 创建一个名为 securityFilterChain 的 Bean，这个 Bean 返回一个 SecurityFIlterChain 实例。
     // 在这个方法中，我们可以配置所有的安全规则。
@@ -31,6 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .addFilterBefore(corsFilter(), ChannelProcessingFilter.class) // 添加 CORS 过滤器
+                .addFilterBefore(apiVerification, UsernamePasswordAuthenticationFilter.class) // 添加 API 验证过滤器
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable() // 禁用 CSRF 防护
                 .authorizeRequests()
@@ -42,7 +45,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 创建一个名为 corsFilter 的 Bean，这个 Bean 返回一个 CorsFIlter 实例。
+    // 创建一个名为 corsFilter 的 Bean，这个 Bean 返回一个 CorsFIlter 实例
+    // 注意，每个新添加的响应头都要在此处配置前端才可以访问
     // 在这个方法中，我们可以配置所有的跨域规则。
     @Bean
     public CorsFilter corsFilter() {
@@ -51,7 +55,8 @@ public class SecurityConfig {
         config.addAllowedOrigin("*");  // 允许任意来源
         config.addAllowedHeader("*");  // 允许任意请求头
         config.addAllowedMethod("*");  // 允许任意 HTTP 方法
-        config.addExposedHeader("X-Encrypted");  // 添加自定义的响应头
+        config.addExposedHeader("X-Encrypted");  // 加密响应头
+        config.addExposedHeader("X-Response-Sign");  // 校验标签响应头
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

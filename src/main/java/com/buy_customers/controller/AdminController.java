@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -269,7 +270,20 @@ public class AdminController extends ApiController {
         return R.ok(response);
     }
 
-
+    @PostMapping("setNonce")
+    public ResponseEntity<?> setNonce(@RequestBody Map<String, String> nonce) {
+        try {
+            if (nonce != null) {
+                String nonce1 = nonce.get("nonce");
+                stringRedisTemplate.opsForValue().set(nonce1, nonce1, 60, TimeUnit.SECONDS);
+                return ResponseEntity.ok("nonce存储成功");
+            } else {
+                return ResponseEntity.badRequest().body("请求正文中缺少nonce");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("无法存储nonce");
+        }
+    }
 
 }
 

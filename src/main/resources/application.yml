@@ -88,4 +88,7 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
+  sign:
+    # API 接口签名秘钥 （随便乱摁几个字母即可）
+    secret-key: skfjnANJjmvkAFSVBNvn
 
