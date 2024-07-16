@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -69,12 +70,29 @@ public class APIVerification extends OncePerRequestFilter {
 
         long requestTime = Long.parseLong(timestamp);
         long currentTime = System.currentTimeMillis();
-        if (currentTime - requestTime > 60000) { // 1 minute
+        if (currentTime - requestTime > 60000) {
             returnErrorResponse(response, "请求已过期");
             return false;
         }
 
-        Map<String, String[]> parameterMap = request.getParameterMap();
+        // 获取 URL 中的参数
+        String queryString = request.getQueryString();
+        Map<String, String[]> parameterMap = new HashMap<>();
+        if (queryString != null && !queryString.isEmpty()) {
+            String[] params = queryString.split("&");
+            for (String param : params) {
+                String[] keyValue = param.split("=");
+                if (keyValue.length == 2) {
+                    parameterMap.put(keyValue[0], new String[]{keyValue[1]});
+                }
+            }
+        }
+
+        // 如果没有通过 getParameterMap 获取到参数，再尝试用 getParameterMap 获取
+        if (parameterMap.isEmpty()) {
+            parameterMap = request.getParameterMap();
+        }
+
         if (parameterMap.isEmpty()) {
             return true;
         }
@@ -84,9 +102,11 @@ public class APIVerification extends OncePerRequestFilter {
 
         StringBuilder paramsString = new StringBuilder();
         for (String key : keys) {
-            paramsString.append(key).append('=').append(request.getParameter(key)).append('&');
+            paramsString.append(key).append('=').append(parameterMap.get(key)[0]).append('&');
         }
         paramsString.setLength(paramsString.length() - 1);
+
+        // System.out.println("接收到的参数: " + paramsString); // 打印接收到的参数
 
         String signString = paramsString + "&timestamp=" + timestamp + "&nonce=" + nonce + "&secret=" + secretKey;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -104,6 +124,7 @@ public class APIVerification extends OncePerRequestFilter {
 
         return true;
     }
+
 
     private void postHandle(ContentCachingResponseWrapper response) throws IOException, NoSuchAlgorithmException {
         byte[] content = response.getContentAsByteArray();
@@ -124,6 +145,7 @@ public class APIVerification extends OncePerRequestFilter {
         System.out.println("计算响应符号: " + responseSign);
 
         response.setHeader("X-Response-Sign", responseSign);
+        response.copyBodyToResponse(); // 确保响应正文被正确写回
     }
 
     private void returnErrorResponse(HttpServletResponse response, String message) throws IOException {

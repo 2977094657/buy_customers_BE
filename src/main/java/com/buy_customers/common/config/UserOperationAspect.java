@@ -57,7 +57,7 @@ public class UserOperationAspect {
         System.out.println("URL: " + url);
         System.out.println("HTTP Method: " + httpMethod);
         System.out.println("Method: " + methodName);
-        System.out.println("Arguments: " + Arrays.toString(args));
+        System.out.println("Request Body: " + Arrays.toString(args));
         System.out.println("Response status: " + status);
         System.out.println("Response content: " + resultJson);
 

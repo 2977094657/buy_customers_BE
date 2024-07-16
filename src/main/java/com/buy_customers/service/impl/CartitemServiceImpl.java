@@ -3,7 +3,9 @@ package com.buy_customers.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.buy_customers.dao.CartitemDao;
+import com.buy_customers.dao.ProductDao;
 import com.buy_customers.entity.CartItem;
+import com.buy_customers.entity.Product;
 import com.buy_customers.service.CartitemService;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.*;
 public class CartitemServiceImpl extends ServiceImpl<CartitemDao, CartItem> implements CartitemService {
     @Resource
     private CartitemDao cartitemDao;
+    @Resource
+    private ProductDao productDao;
     @Override
     public Map<String, Object> addToCart(Integer userId, Integer productId, Integer quantity) {
         Map<String, Object> response = new HashMap<>();
@@ -43,22 +47,30 @@ public class CartitemServiceImpl extends ServiceImpl<CartitemDao, CartItem> impl
 
         if (existingCartItem != null) {
             existingCartItem.setNumber(newQuantity);
-            return updateOrAddItem(existingCartItem, "购物车中商品数量已更新", "购物车商品数量更新失败");
+            Map<String, Object> result = updateOrAddItem(existingCartItem, "购物车中商品数量已更新", "购物车商品数量更新失败");
+            if ((int) result.get("status") == 200) {
+                updateProductStar(productId);
+            }
+            return result;
         } else {
             CartItem newCartItem = new CartItem();
             newCartItem.setUserId(userId);
             newCartItem.setProductId(productId);
             newCartItem.setNumber(quantity);
             newCartItem.setTime(new Date());
-            return updateOrAddItem(newCartItem, "添加成功", "添加失败");
+            Map<String, Object> result = updateOrAddItem(newCartItem, "添加成功", "添加失败");
+            if ((int) result.get("status") == 200) {
+                updateProductStar(productId);
+            }
+            return result;
         }
     }
 
     private Integer getCurrentCartNumber(Integer userId) {
         Map<String, Object> columnMap = new HashMap<>();
         columnMap.put("user_id", userId);
-        List<CartItem> CartItems = cartitemDao.selectByMap(columnMap);
-        return CartItems.stream().mapToInt(CartItem::getNumber).sum();
+        List<CartItem> cartItems = cartitemDao.selectByMap(columnMap);
+        return cartItems.stream().mapToInt(CartItem::getNumber).sum();
     }
 
     private CartItem getCartItem(Integer userId, Integer productId) {
@@ -75,6 +87,14 @@ public class CartitemServiceImpl extends ServiceImpl<CartitemDao, CartItem> impl
         response.put("message", isSuccess ? successMessage : failureMessage);
         response.put("data", isSuccess ? item : null);
         return response;
+    }
+
+    private void updateProductStar(Integer productId) {
+        Product product = productDao.selectById(productId);
+        if (product != null) {
+            product.setStar(product.getStar() + 1);
+            productDao.updateById(product);
+        }
     }
 
 

@@ -61,13 +61,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
         return iPage;
     }
     @Override
-    public boolean updateProduct(Integer productId, String productName, Double price, String category) {
+    public boolean updateProduct(Integer productId, String productName, String price, String category) {
         Product product = new Product();
         product.setProductId(productId);
         if (productName!=null&& !productName.isEmpty()){
             product.setProductName(productName);
         }
-        if (price!=null&&price!=0){
+        if (price!=null&& !price.equals("0")){
             product.setPrice(price);
         }
         if (category!=null&& !category.isEmpty()){

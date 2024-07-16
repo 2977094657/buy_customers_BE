@@ -90,7 +90,7 @@ public class ProductController extends ApiController {
             @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
             @RequestParam String name,
-            @RequestParam(defaultValue = "32",name = "price") Double price,
+            @RequestParam(defaultValue = "32",name = "price") String price,
             @RequestParam(defaultValue = "主食",name = "category") String category
     ) {
         Map<String, Object> responseBody = new HashMap<>();
@@ -125,13 +125,13 @@ public class ProductController extends ApiController {
             @RequestParam Integer productId,
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) Double price,
+            @RequestParam(required = false) String price,
             @RequestParam(required = false) String category
     ) {
         // 检查每个参数是否为null值或空字符串
         if ((productName == null || productName.isEmpty())
                 && (description == null || description.isEmpty())
-                && (price == null || price.toString().isEmpty())
+                && (price == null || price.isEmpty())
                 && (category == null || category.isEmpty())) {
             return failed("没有提供要更新的值");
         }
@@ -195,7 +195,7 @@ public class ProductController extends ApiController {
     }
 
     @PutMapping("/updateImages")
-    public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) {
         // 检查商品是否存在
         Product product = productService.getById(productId);
         if (product == null) {
@@ -246,15 +246,21 @@ public class ProductController extends ApiController {
         return ResponseEntity.status(CustomStatusCode.SUCCESS.getCode()).body(response);
     }
 
-    @GetMapping(value = "selectById",produces = "application/json")
-    public ResponseEntity<Object> selectById(@RequestParam Integer productId){
+    @GetMapping("selectById")
+    public ResponseEntity<Response<Product>> selectById(@RequestParam Integer productId) {
         Product product = productService.getById(productId);
+        Response<Product> response = new Response<>();
 
         if (product == null) {
-            return new ResponseEntity<>("商品不存在", HttpStatus.NOT_FOUND);
+            response.setCode(400);
+            response.setMsg("商品不存在");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(product, HttpStatus.OK);
+        response.setCode(200);
+        response.setData(product);
+        response.setMsg("请求成功");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("selectByIds")

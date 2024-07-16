@@ -14,6 +14,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Set;
 
@@ -26,45 +28,56 @@ public class RSAKeyPairGenerator {
 
     @PostConstruct
     public void init() throws NoSuchAlgorithmException {
-        // 获取所有以特定前缀开始的键
-        Set<String> keys = stringRedisTemplate.keys("MIIBIjANBgkqhkiG9*");
-
-        // 如果有，则直接返回，不再生成新密钥对
-        if (keys != null && !keys.isEmpty()) {
+        // 检查Redis中是否已存在公钥
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey("publicKey"))) {
+            // 如果已存在公钥，则直接返回
             return;
         }
-        // 获取RSA密钥对生成器
+
+        // 生成RSA密钥对生成器
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         // 初始化密钥对生成器，密钥长度为2048位
         keyPairGenerator.initialize(2048);
         // 生成密钥对
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        // 获取并保存私钥
+        // 获取私钥
         PrivateKey privateKey = keyPair.getPrivate();
-        // 获取并保存公钥
-        this.publicKey = keyPair.getPublic();
+        // 获取公钥
+        PublicKey publicKey = keyPair.getPublic();
 
         // 将公钥和私钥转换为字符串
         String publicKeyString = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         String privateKeyString = Base64.getEncoder().encodeToString(privateKey.getEncoded());
 
-
-        // 将公钥和私钥存储在Redis中
+        // 将公钥存储在Redis中，同时存储一个标识键
+        stringRedisTemplate.opsForValue().set("publicKey", publicKeyString);
         stringRedisTemplate.opsForValue().set(publicKeyString, privateKeyString);
     }
-
 
     /**
      * 获取RSA公钥
      *
-     * @return RSA公钥
+     * @return RSA公钥的Base64编码字符串
      */
     public String getPublicKey() {
-        if (publicKey == null) {
+        // 从Redis中加载公钥
+        String publicKeyString = stringRedisTemplate.opsForValue().get("publicKey");
+        if (publicKeyString == null) {
             throw new IllegalStateException("Public key has not been initialized yet.");
         }
-        return Base64.getEncoder().encodeToString(publicKey.getEncoded());
+
+        // 解码为公钥对象
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyString);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
+            return Base64.getEncoder().encodeToString(publicKey.getEncoded());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException("Failed to retrieve public key.", e);
+        }
     }
+
 
     /**
      * 使用AES加密数据

@@ -15,7 +15,7 @@ import java.util.Optional;
  */
 public interface ProductService extends IService<Product> {
     IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField, Long randomSeed);
-    boolean updateProduct(Integer productId, String productName, Double price, String category);
+    boolean updateProduct(Integer productId, String productName, String price, String category);
     /**
      * 模糊搜索商品
      *

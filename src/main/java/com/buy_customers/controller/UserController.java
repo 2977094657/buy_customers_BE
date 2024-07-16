@@ -9,6 +9,7 @@ import com.buy_customers.common.annotation.EncryptResponse;
 import com.buy_customers.common.utils.*;
 import com.buy_customers.dao.UserDao;
 import com.buy_customers.dao.VendorDao;
+import com.buy_customers.entity.Product;
 import com.buy_customers.entity.User;
 import com.buy_customers.entity.Vendor;
 import com.buy_customers.service.UserService;
@@ -188,18 +189,26 @@ public class UserController extends ApiController {
      * @return 根据注册结果返回相应的提示信息。
      * @throws NoSuchAlgorithmException 如果在注册过程中遇到未知的算法异常。
      */
-    @PostMapping(value = "/register", produces = "text/plain;charset=UTF-8")
-    public String register(@RequestParam(value = "phone") String phone,
+    @PostMapping("register")
+    public ResponseEntity<Response<?>> register(@RequestParam(value = "phone") String phone,
                            @RequestParam(value = "name") String name,
                            @RequestParam(value = "pwd") String pwd,
                            @RequestParam(value = "code") int code) throws NoSuchAlgorithmException {
+        // 构建响应
+        Response<List<User>> response = new Response<>();
+        List<User> users = new ArrayList<>();
+
         // 校验参数完整性及手机号格式
         if (phone == null) {
-            return "手机号不能为空";
+            response.setCode(400);
+            response.setMsg("手机号不能为空");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         // 执行手机号格式的正则表达式校验
         if (!Pattern.matches("^1[3-9]\\d{9}$", phone)) {
-            return "手机号格式不正确";
+            response.setCode(400);
+            response.setMsg("手机号格式不正确");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         User user = new User();
@@ -210,20 +219,28 @@ public class UserController extends ApiController {
         // 检查验证码的有效性
         boolean hasKey = Boolean.TRUE.equals(stringRedisTemplate.hasKey(phone));
         if (!hasKey) {
-            return "验证码已过期，请重新发送";
+            response.setCode(400);
+            response.setMsg("验证码已过期，请重新发送");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         // 对输入的验证码进行校验
         int redisCode = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(phone)));
         if (code != redisCode) {
-            return "验证码错误";
+            response.setCode(400);
+            response.setMsg("验证码错误");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         // 尝试注册用户
         boolean success = userService.register(user);
         if (success) {
-            return "注册成功";
+            response.setCode(200);
+            response.setMsg("注册成功");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return "注册失败，用户名或手机号已存在";
+            response.setCode(400);
+            response.setMsg("注册失败，用户名或手机号已存在");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
