@@ -32,8 +32,6 @@ public class ProductCommentsController extends ApiController {
     @Resource
     private ProductCommentsService productCommentsService;
     @Resource
-    private ImageUpload imageUpload;
-    @Resource
     private ProductService productService;
 
     @PostMapping("add")
@@ -43,7 +41,7 @@ public class ProductCommentsController extends ApiController {
         productComments.setComments(comments);
         productComments.setScore(score);
         if (files!=null){
-            Object comments1 = imageUpload.comments(files);
+            Object comments1 = ImageUpload.comments(files);
             productComments.setImgId((String) comments1);
         }
         productComments.setProductId(productId);

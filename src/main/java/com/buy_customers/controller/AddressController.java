@@ -68,27 +68,21 @@ public class AddressController extends ApiController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<Response<String>> addAddress(
-            @RequestParam Integer userId,
-            @RequestParam String consignee,
-            @RequestParam String area,
-            @RequestParam String fullAddress,
-            @RequestParam String phone) {
-
+    public ResponseEntity<Response<String>> addAddress(@RequestBody Address request) {
         // 去除前后空格
-        consignee = consignee.trim();
-        area = area.trim();
-        fullAddress = fullAddress.trim();
-        phone = phone.trim();
+        String consignee = request.getConsignee().trim();
+        String area = request.getArea().trim();
+        String fullAddress = request.getFullAddress().trim();
+        String phone = request.getPhone().trim();
 
         // 查找用户
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
+        wrapper.eq("user_id", request.getUserId());
         int user = userService.count(wrapper);
 
         // 查找用户所有收货地址
         QueryWrapper<Address> addressQueryWrapper = new QueryWrapper<>();
-        addressQueryWrapper.eq("user_id", userId);
+        addressQueryWrapper.eq("user_id", request.getUserId());
         int count = addressService.count(addressQueryWrapper);
         if (user == 0) {
             Response<String> response = new Response<>();
@@ -111,7 +105,7 @@ public class AddressController extends ApiController {
         fieldDescriptions.put("phone", "手机号");
 
         Map<String, Object> fields = new HashMap<>();
-        fields.put("userId", userId);
+        fields.put("userId", request.getUserId());
         fields.put("consignee", consignee);
         fields.put("area", area);
         fields.put("fullAddress", fullAddress);
@@ -160,7 +154,7 @@ public class AddressController extends ApiController {
 
         // 构造并保存 Address 对象
         Address address = new Address();
-        address.setUserId(userId);
+        address.setUserId(request.getUserId());
         address.setConsignee(consignee);
         address.setArea(area);
         address.setFullAddress(fullAddress);
@@ -179,12 +173,13 @@ public class AddressController extends ApiController {
      */
     @PutMapping("update")
     public ResponseEntity<Response<?>> update(
-            @RequestParam Integer id,
-            @RequestParam String consignee,
-            @RequestParam String area,
-            @RequestParam String fullAddress,
-            @RequestParam String phone) {
+            @RequestBody Address request) {
         Response<String> response = new Response<>();
+        Integer id = request.getId();
+        String consignee = request.getConsignee();
+        String area = request.getArea();
+        String fullAddress = request.getFullAddress();
+        String phone = request.getPhone();
         // 验证非空
         if (id == null || consignee == null || consignee.isEmpty() || area == null || area.isEmpty()
                 || fullAddress == null || fullAddress.isEmpty() || phone == null || phone.isEmpty()) {

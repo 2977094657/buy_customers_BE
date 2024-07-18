@@ -9,7 +9,6 @@ import com.buy_customers.common.annotation.EncryptResponse;
 import com.buy_customers.common.utils.*;
 import com.buy_customers.dao.UserDao;
 import com.buy_customers.dao.VendorDao;
-import com.buy_customers.entity.Product;
 import com.buy_customers.entity.User;
 import com.buy_customers.entity.Vendor;
 import com.buy_customers.service.UserService;
@@ -59,8 +58,6 @@ public class UserController extends ApiController {
     private MailUtil mailUtil;
     @Resource
     private JwtService jwtService;
-    @Resource
-    private ImageUpload imageUpload;
     @Resource
     private RSAKeyPairGenerator rsaKeyPairGenerator;
 
@@ -382,7 +379,7 @@ public class UserController extends ApiController {
     public ResponseEntity<Map<String, String>> updateAvatar(
             @RequestParam(name = "image") MultipartFile file,
             @RequestParam(name = "userid") Integer userid) throws IOException {
-        ResponseEntity<Map<String, String>> uploadResponse = imageUpload.upload(file);
+        ResponseEntity<Map<String, String>> uploadResponse = ImageUpload.upload(file);
         if (uploadResponse.getStatusCode() == HttpStatus.OK) {
             Map<String, String> responseBody = uploadResponse.getBody();
             if (responseBody != null) {
@@ -512,32 +509,17 @@ public class UserController extends ApiController {
         }
     }
 
-    /**
-     * 修改用户手机号码
-     *
-     * @param userid 用户ID，用于标识需要修改手机号的用户
-     * @param phone 新的手机号码
-     * @param oldPhone 用户当前的手机号码，用于校验验证码
-     * @param code 验证码，用于验证用户身份和手机号码的正确性
-     * @return ResponseEntity<Response<?>> 包含操作结果的状态码和信息
-     */
-    @PutMapping(value = "/changePhone")
-    public ResponseEntity<Response<?>> changePhone(
-            @RequestParam Integer userid,
-            @RequestParam String phone,
-            @RequestParam String oldPhone,
-            @RequestParam int code) {
+    @PutMapping(value = "changePhone")
+    public ResponseEntity<Response<?>> changePhone(@RequestBody Map<String, Object> request) {
         Response<String> response = new Response<>();
+        Integer userid = (Integer) request.get("userid");
+        String phone = (String) request.get("phone");
+        String oldPhone = (String) request.get("oldPhone");
+        String code = (String) request.get("code");
         // 校验参数
         if (phone == null) {
             response.setCode(400);
             response.setMsg("手机号不能为空");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        // 手机号正则校验，可自行定义
-        if (!Pattern.matches("^1[3-9]\\d{9}$", phone)) {
-            response.setCode(400);
-            response.setMsg("手机号格式不正确");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 //        检验手机号是否唯一
@@ -557,8 +539,8 @@ public class UserController extends ApiController {
             response.setMsg("验证码已过期，请重新发送");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        int redisCode = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(oldPhone)));
-        if (code != redisCode) {
+        String redisCode = String.valueOf(Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(oldPhone))));
+        if (!Objects.equals(code, redisCode)) {
             response.setCode(400);
             response.setMsg("验证码错误");
             return new ResponseEntity<>(response, HttpStatus.OK);
