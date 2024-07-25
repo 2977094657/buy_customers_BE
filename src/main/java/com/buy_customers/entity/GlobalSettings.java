@@ -20,8 +20,10 @@ public class GlobalSettings extends Model<GlobalSettings> {
     @TableId(type = IdType.AUTO)
     // 主键自增
     private Integer id;
-    // 侧边栏显示,0假1真
-    private String sidebar;
+    // 全局设置名称
+    private String name;
+    // 值，1真0假
+    private Integer value;
 
 
     /**

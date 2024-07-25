@@ -4,26 +4,16 @@ package com.buy_customers.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.buy_customers.common.annotation.EncryptResponse;
-import com.buy_customers.common.httpstatus.CustomStatusCode;
+import com.buy_customers.common.config.api.ResultData;
 import com.buy_customers.common.utils.ImageUpload;
-import com.buy_customers.common.utils.Response;
 import com.buy_customers.entity.Product;
 import com.buy_customers.service.ProductService;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -49,7 +39,6 @@ public class ProductController extends ApiController {
      * @return 返回所有数据
      */
     @GetMapping("all")
-    @EncryptResponse
     public IPage<Product> page(
             @RequestParam(name = "current",defaultValue = "1") int current,
             @RequestParam(name = "size",defaultValue = "10") int size,
@@ -57,7 +46,31 @@ public class ProductController extends ApiController {
             @RequestParam(name = "sortField", required = false) Optional<String> sortField,
             @RequestParam(name = "randomSeed",required = false) Long randomSeed
     ) {
-        return productService.testSelectPage(current, size, isAsc, sortField,randomSeed);
+        // 创建一个 Page 对象，指定当前页码和每页记录数
+        Page<Product> page = new Page<>(current, size);
+        // 创建一个 QueryWrapper 对象
+        QueryWrapper<Product> wrapper = new QueryWrapper<>();
+        // 判断是否传入了 isAsc 参数
+        if (isAsc.isPresent()) {
+            if (isAsc.get()) {
+                wrapper.orderByAsc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 升序排序，否则不排序
+            } else {
+                wrapper.orderByDesc(sortField.orElse("")); // 如果传入了 sortField 参数，则按照 sortField 降序排序，否则不排序
+            }
+        }
+        // 在排序字段为 null 或空字符串时，添加一个随机排序规则
+        if (sortField.isEmpty() || sortField.get().isEmpty()) {
+            wrapper.orderByAsc(String.format("RAND(%d)", randomSeed)); // 使用当前时间戳作为随机种子
+        }
+        // 调用 ProductDao 的 selectPage 方法进行分页查询
+        IPage<Product> iPage = productService.page(page, wrapper);
+        // 打印总页数
+        System.out.println("总页数: " + iPage.getPages());
+        // 打印总记录数
+        System.out.println("总记录数: " + iPage.getTotal());
+        // 打印当前页上的记录
+        System.out.println("记录: " + iPage.getRecords());
+        return iPage;
     }
 
     /**
@@ -86,28 +99,25 @@ public class ProductController extends ApiController {
      * @return 返回增加结果
      */
     @PostMapping("add")
-    public ResponseEntity<Map<String, Object>> addProduct(
+    public ResultData<String> addProduct(
             @RequestParam(value = "images",required = false) MultipartFile[] files,
             @RequestParam(defaultValue = "水煮肉片",name = "productName") String productName,
             @RequestParam String name,
             @RequestParam(defaultValue = "32",name = "price") String price,
             @RequestParam(defaultValue = "主食",name = "category") String category
-    ) {
-        Map<String, Object> responseBody = new HashMap<>();
+    ) throws IOException {
         if (files==null){
-            responseBody.put("message", "请上传商品图片！");
-            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+            return ResultData.fail(400, "请上传商品图片！");
         }
-        String productImgList = (String) ImageUpload.add(files);
+        String add = ImageUpload.add(files).getData().toString();
         Product product = new Product();
         product.setProductName(productName);
         product.setCategory(category);
         product.setPrice(price);
-        product.setImg(productImgList);
+        product.setImg(add);
         product.setName(name);
         productService.save(product);
-        responseBody.put("message", "商品添加成功");
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+        return ResultData.success("商品添加成功");
     }
 
     /**
@@ -121,7 +131,7 @@ public class ProductController extends ApiController {
      * @return 返回修改结果
      */
     @PutMapping("update")
-    public R update(
+    public ResultData<String> update(
             @RequestParam Integer productId,
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String description,
@@ -133,14 +143,14 @@ public class ProductController extends ApiController {
                 && (description == null || description.isEmpty())
                 && (price == null || price.isEmpty())
                 && (category == null || category.isEmpty())) {
-            return failed("没有提供要更新的值");
+            return ResultData.fail(400,"没有提供要更新的值");
         }
 
         boolean result = this.productService.updateProduct(productId, productName, price, category);
         if (result) {
-            return success("商品修改成功");
+            return ResultData.success("商品修改成功");
         } else {
-            return failed("商品修改失败");
+            return ResultData.fail(500,"商品修改失败");
         }
     }
 
@@ -151,8 +161,8 @@ public class ProductController extends ApiController {
      * @return 删除结果
      */
     @DeleteMapping("delete")
-    public R delete(@RequestParam List<Long> id) {
-        return success(this.productService.removeByIds(id));
+    public ResultData<Boolean> delete(@RequestParam List<Long> id) {
+        return ResultData.success(this.productService.removeByIds(id));
     }
 
     /**
@@ -194,79 +204,19 @@ public class ProductController extends ApiController {
         return productService.getCommentsByProductId(productId, pageNum, pageSize, sortByTime, sortByLikes);
     }
 
-    @PutMapping("/updateImages")
-    public ResponseEntity<List<Map<String, String>>> updateImages(@RequestParam Integer productId, @RequestParam(name = "images") MultipartFile[] files) {
-        // 检查商品是否存在
-        Product product = productService.getById(productId);
-        if (product == null) {
-            Map<String, String> error = Map.of("message", "商品不存在");
-            return new ResponseEntity<>(List.of(error), HttpStatus.NOT_FOUND);
-        }
-
-        // 调用 ImageUploadService 处理文件上传
-        ResponseEntity<List<Map<String, String>>> uploadResponse;
-        try {
-            uploadResponse = ImageUpload.update(files);
-        } catch (IOException e) {
-            Map<String, String> error = Map.of("message", "文件上传过程中发生错误: " + e.getMessage());
-            return new ResponseEntity<>(List.of(error), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        if (uploadResponse.getStatusCode() == HttpStatus.OK) {
-            List<Map<String, String>> responseList = uploadResponse.getBody();
-            if (responseList != null) {
-                // 提取上传成功的图片 URL
-                List<String> imgUrls = responseList.stream()
-                        .map(map -> map.get("url"))
-                        .filter(Objects::nonNull)
-                        .toList();
-
-                // 更新商品图片信息
-                product.setImg(String.join(",", imgUrls));
-                productService.updateById(product);
-            }
-        }
-
-        return uploadResponse;
-    }
-
-    @GetMapping("/download")
-    public ResponseEntity<InputStreamSource> download(@RequestParam String url) throws IOException {
-        InputStream in = new URL(url).openStream();
-        InputStreamSource resource = new InputStreamResource(in);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=image.webp");
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-    }
-    @GetMapping("/example")
-    public ResponseEntity<Map<String, Object>> example() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", CustomStatusCode.SUCCESS.getCode());
-        response.put("message", CustomStatusCode.SUCCESS.getMessage());
-        return ResponseEntity.status(CustomStatusCode.SUCCESS.getCode()).body(response);
-    }
-
     @GetMapping("selectById")
-    public ResponseEntity<Response<Product>> selectById(@RequestParam Integer productId) {
+    public ResultData<Product> selectById(@RequestParam Integer productId) {
         Product product = productService.getById(productId);
-        Response<Product> response = new Response<>();
 
         if (product == null) {
-            response.setCode(400);
-            response.setMsg("商品不存在");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(404, "商品不存在");
         }
 
-        response.setCode(200);
-        response.setData(product);
-        response.setMsg("请求成功");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.success(product);
     }
 
     @GetMapping("selectByIds")
-    public ResponseEntity<Response<?>> selectByIds(@RequestParam List<Integer> productIds){
-        // 构建响应
-        Response<List<Product>> response = new Response<>();
+    public ResultData<List<Product>> selectByIds(@RequestParam List<Integer> productIds){
         List<Product> products = new ArrayList<>();
 
         for (Integer productId : productIds) {
@@ -277,28 +227,19 @@ public class ProductController extends ApiController {
         }
 
         if (products.isEmpty()) {
-            response.setCode(404);
-            response.setMsg("商品不存在");
-            response.setData(null);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(404,"商品不存在");
         }
 
-        response.setCode(200);
-        response.setMsg("查询成功");
-        response.setData(products);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.success(products);
     }
 
     @GetMapping("vendor")
-    public ResponseEntity<IPage<Product>> vendor(@RequestParam String name,
+    public IPage<Product> vendor(@RequestParam String name,
                                                  @RequestParam(defaultValue = "1") Integer pageNum,
                                                  @RequestParam(defaultValue = "30") Integer pageSize){
         QueryWrapper<Product> wrapper = new QueryWrapper<>();
         wrapper.eq("name", name);
         Page<Product> page = new Page<>(pageNum, pageSize);
-        IPage<Product> pageResult = productService.page(page, wrapper);
-        return ResponseEntity.ok(pageResult);
+        return productService.page(page, wrapper);
     }
-
 }

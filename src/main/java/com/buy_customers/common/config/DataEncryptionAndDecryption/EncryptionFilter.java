@@ -1,7 +1,8 @@
-package com.buy_customers.common.config;
+package com.buy_customers.common.config.DataEncryptionAndDecryption;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.buy_customers.common.config.DecryptHttpServletRequestWrapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -36,7 +37,6 @@ public class EncryptionFilter implements Filter {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
         ServletRequest processedRequest = requestWrapper;
         String requestURI = requestWrapper.getRequestURI();
-        System.out.println("Request URI: " + requestURI);
         // 检查请求头中的 'X-Needs-Decryption' 字段
         String needsDecryption = requestWrapper.getHeader("X-Needs-Decryption");
         if ("true".equals(needsDecryption)) {

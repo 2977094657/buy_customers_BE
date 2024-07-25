@@ -67,12 +67,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return true;
     }
 
-
-    @Override
-    public User selectUserById(Integer userId) {
-        return userDao.selectUserById(userId);
-    }
-
     @Override
     public boolean update(User user) {
         return false;

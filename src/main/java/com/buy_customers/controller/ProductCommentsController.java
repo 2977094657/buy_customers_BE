@@ -4,7 +4,7 @@ package com.buy_customers.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.baomidou.mybatisplus.extension.api.R;
+import com.buy_customers.common.config.api.ResultData;
 import com.buy_customers.common.utils.ImageUpload;
 import com.buy_customers.entity.Product;
 import com.buy_customers.entity.ProductComments;
@@ -35,7 +35,7 @@ public class ProductCommentsController extends ApiController {
     private ProductService productService;
 
     @PostMapping("add")
-    public R insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId,@RequestParam int score,@RequestParam String ip) {
+    public ResultData<Boolean> insert(@RequestParam int userId, @RequestParam String comments, @RequestParam(name = "imgId",required = false) MultipartFile[] files, @RequestParam int productId,@RequestParam int score,@RequestParam String ip) {
         ProductComments productComments = new ProductComments();
         productComments.setUserId(userId);
         productComments.setComments(comments);
@@ -81,7 +81,7 @@ public class ProductCommentsController extends ApiController {
                 break;
         }
 
-        return success(productService.update(updateWrapper));
+        return ResultData.success(productService.update(updateWrapper));
     }
 
     /**
@@ -104,9 +104,9 @@ public class ProductCommentsController extends ApiController {
     }
 
     @DeleteMapping("delete")
-    public R delete(@RequestParam int id) {
+    public ResultData<?> delete(@RequestParam int id) {
         if (productCommentsService.getById(id)==null){
-            return success("暂无此评论");
+            return ResultData.fail(404,"暂无此评论");
         }
         ProductComments byId = productCommentsService.getById(id);
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
@@ -145,15 +145,19 @@ public class ProductCommentsController extends ApiController {
                 updateWrapper.set("one", product.getOne() - 1);
                 break;
         }
-
-        return success(productService.update(updateWrapper));
+        boolean update = productService.update(updateWrapper);
+        if (update){
+            return ResultData.success("删除成功");
+        }else {
+            return ResultData.fail(400,"删除失败");
+        }
     }
     @GetMapping("myComments")
-    public List<ProductComments> userComments(@RequestParam int userId) {
+    public ResultData<List<ProductComments>> userComments(@RequestParam int userId) {
         QueryWrapper<ProductComments> queryWrapper = new QueryWrapper<>();
         //查询user_id等于userId的数据
         queryWrapper.eq("user_id", userId);
-        return productCommentsService.list(queryWrapper);
+        return ResultData.success(productCommentsService.list(queryWrapper));
     }
 }
 

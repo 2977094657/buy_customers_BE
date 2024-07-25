@@ -17,16 +17,6 @@ public interface UserService extends IService<User> {
 
     boolean register(User user) throws NoSuchAlgorithmException;
 
-
-
-    /**
-     * 根据用户ID查询用户信息
-     *
-     * @param userId 用户ID
-     * @return 用户信息
-     */
-    User selectUserById(Integer userId);
-
     boolean update(User user);
 
 }

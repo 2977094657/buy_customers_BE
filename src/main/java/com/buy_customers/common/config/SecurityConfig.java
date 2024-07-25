@@ -1,5 +1,6 @@
 package com.buy_customers.common.config;
 
+import com.buy_customers.common.config.api.APIVerification;
 import com.buy_customers.common.utils.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,7 +1,6 @@
-package com.buy_customers.common.config;
+package com.buy_customers.common.config.DataEncryptionAndDecryption;
 
 import com.buy_customers.common.annotation.EncryptResponse;
-import com.buy_customers.common.utils.RSAKeyPairGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -45,17 +44,19 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             String aesKey = result.getAesKey();
             String iv = result.getIv();
 
-            // 创建一个新的JsonNode来保存加密后的数据、AES密钥和IV
-            ObjectNode resultNode = objectMapper.createObjectNode();
-            resultNode.set("data", encryptedJsonNode);
-            resultNode.put("aesKey", aesKey);
-            resultNode.put("iv", iv);
+            // 将AES密钥和IV添加到加密数据里面
+            if (encryptedJsonNode.isObject()) {
+                ((ObjectNode) encryptedJsonNode).put("aesKey", aesKey);
+                ((ObjectNode) encryptedJsonNode).put("iv", iv);
+            } else {
+                throw new RuntimeException("Encrypted data is not a JSON object.");
+            }
 
             // 设置响应头
             response.getHeaders().add("X-Encrypted", "true");
 
-            // 返回包含加密后的数据、AES密钥和IV的JsonNode
-            return resultNode;
+            // 返回包含加密数据、AES密钥和IV的JsonNode
+            return encryptedJsonNode;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -14,8 +14,5 @@ import java.util.Optional;
  * @since 2023-05-06 19:46:25
  */
 public interface AdminService extends IService<Admin> {
-
-    IPage<User> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField);
-
 }
 

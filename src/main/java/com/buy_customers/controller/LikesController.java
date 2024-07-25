@@ -3,23 +3,18 @@ package com.buy_customers.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.baomidou.mybatisplus.extension.api.R;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.buy_customers.common.utils.Response;
+import com.buy_customers.common.config.api.ResultData;
 import com.buy_customers.entity.Likes;
 import com.buy_customers.entity.ProductComments;
 import com.buy_customers.service.LikesService;
 import com.buy_customers.service.ProductCommentsService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * 评论点赞表(Likes)表控制层
@@ -38,36 +33,13 @@ public class LikesController extends ApiController {
     @Resource
     private ProductCommentsService productCommentsService;
 
-    /**
-     * 分页查询所有数据
-     *
-     * @param page  分页对象
-     * @param likes 查询实体
-     * @return 所有数据
-     */
-    @GetMapping
-    public R selectAll(Page<Likes> page, Likes likes) {
-        return success(this.likesService.page(page, new QueryWrapper<>(likes)));
-    }
-
-    /**
-     * 通过主键查询单条数据
-     *
-     * @param id 主键
-     * @return 单条数据
-     */
-    @GetMapping("{id}")
-    public R selectOne(@PathVariable Serializable id) {
-        return success(this.likesService.getById(id));
-    }
 
     /**
      * 点赞处理
      *
      */
     @PostMapping("likes")
-    public ResponseEntity<Response<?>> likes(@RequestBody Likes newLikes){
-        Response<String> response = new Response<>();
+    public ResultData<String> likes(@RequestBody Likes newLikes){
         QueryWrapper<Likes> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", newLikes.getUserId());
         queryWrapper.eq("comments_id", newLikes.getCommentsId());
@@ -81,10 +53,9 @@ public class LikesController extends ApiController {
                 productComments.setDisLikes(productComments.getDisLikes() + 1);
             }
             likesService.save(newLikes);
-            response.setCode(200);
-            response.setMsg("新增成功");
+            return ResultData.success("新增成功");
         } else {
-            if (newLikes.getPositiveLikes() != null && likes.getPositiveLikes() != newLikes.getPositiveLikes()) {
+            if (newLikes.getPositiveLikes() != null && !Objects.equals(likes.getPositiveLikes(), newLikes.getPositiveLikes())) {
                 if (newLikes.getPositiveLikes() == 1) {
                     likes.setDisLikes(0);
                     productComments.setPositiveLikes(productComments.getPositiveLikes() + 1);
@@ -99,7 +70,7 @@ public class LikesController extends ApiController {
                 }
                 likes.setPositiveLikes(newLikes.getPositiveLikes());
             }
-            if (newLikes.getDisLikes() != null && likes.getDisLikes() != newLikes.getDisLikes()) {
+            if (newLikes.getDisLikes() != null && !Objects.equals(likes.getDisLikes(), newLikes.getDisLikes())) {
                 if (newLikes.getDisLikes() == 1) {
                     likes.setPositiveLikes(0);
                     productComments.setDisLikes(productComments.getDisLikes() + 1);
@@ -115,27 +86,19 @@ public class LikesController extends ApiController {
                 likes.setDisLikes(newLikes.getDisLikes());
             }
             likesService.updateById(likes);
-            response.setCode(200);
-            response.setMsg("修改成功");
         }
         productCommentsService.updateById(productComments);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.success("修改成功");
     }
 
 
-
-
-
-
     @GetMapping("userLikes")
-    public ResponseEntity<Response<?>> getUserLikes(@RequestParam Integer userId){
-        Response<List<Map<String, Object>>> response = new Response<>();
+    public ResultData<?> getUserLikes(@RequestParam Integer userId) {
         QueryWrapper<Likes> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         List<Likes> userLikes = likesService.list(queryWrapper);
         if (userLikes.isEmpty()) {
-            response.setCode(404);
-            response.setMsg("未找到点赞");
+            return ResultData.fail(404, "未找到点赞");
         } else {
             List<Map<String, Object>> likesInfo = userLikes.stream().map(like -> {
                 Map<String, Object> info = new HashMap<>();
@@ -148,35 +111,9 @@ public class LikesController extends ApiController {
                     info.put("likeType", "暂无");
                 }
                 return info;
-            }).collect(Collectors.toList());
-            response.setData(likesInfo);
-            response.setCode(200);
-            response.setMsg("查询成功");
+            }).toList();
+            return ResultData.success(likesInfo);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-    /**
-     * 修改数据
-     *
-     * @param likes 实体对象
-     * @return 修改结果
-     */
-    @PutMapping
-    public R update(@RequestBody Likes likes) {
-        return success(this.likesService.updateById(likes));
-    }
-
-    /**
-     * 删除数据
-     *
-     * @param idList 主键结合
-     * @return 删除结果
-     */
-    @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.likesService.removeByIds(idList));
     }
 }
 

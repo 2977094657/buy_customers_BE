@@ -3,13 +3,11 @@ package com.buy_customers.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
-import com.buy_customers.common.utils.Response;
+import com.buy_customers.common.config.api.ResultData;
 import com.buy_customers.entity.Address;
 import com.buy_customers.entity.User;
 import com.buy_customers.service.AddressService;
 import com.buy_customers.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,7 +36,7 @@ public class AddressController extends ApiController {
     private UserService userService;
 
     @GetMapping("all")
-    public ResponseEntity<Response<?>> getAddressesByUserId(@RequestParam Integer userId) {
+    public ResultData<?> getAddressesByUserId(@RequestParam Integer userId) {
         // 查找用户
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
@@ -46,10 +44,7 @@ public class AddressController extends ApiController {
 
         // 如果用户不存在，返回404
         if (userCount == 0) {
-            Response<String> response = new Response<>();
-            response.setCode(200);
-            response.setMsg("用户不存在");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            return ResultData.fail(404, "用户不存在");
         }
 
         // 获取地址列表
@@ -57,18 +52,12 @@ public class AddressController extends ApiController {
         addressQueryWrapper.eq("user_id", userId);
         List<Address> addressList = addressService.list(addressQueryWrapper);
 
-        // 构建响应
-        Response<List<Address>> response = new Response<>();
-        response.setCode(200);
-        response.setMsg("获取成功");
-        response.setData(addressList);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.success(addressList);
     }
 
 
     @PostMapping("/add")
-    public ResponseEntity<Response<String>> addAddress(@RequestBody Address request) {
+    public ResultData<String> addAddress(@RequestBody Address request) {
         // 去除前后空格
         String consignee = request.getConsignee().trim();
         String area = request.getArea().trim();
@@ -85,16 +74,10 @@ public class AddressController extends ApiController {
         addressQueryWrapper.eq("user_id", request.getUserId());
         int count = addressService.count(addressQueryWrapper);
         if (user == 0) {
-            Response<String> response = new Response<>();
-            response.setCode(404);
-            response.setMsg("用户不存在");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            return ResultData.fail(404,"用户不存在");
         }
         if (count == 20) {
-            Response<String> response = new Response<>();
-            response.setCode(400);
-            response.setMsg("地址已满，请删除或修改不常用的地址");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return ResultData.fail(400,"地址已满，请删除或修改不常用的地址");
         }
 
         Map<String, String> fieldDescriptions = new HashMap<>();
@@ -121,35 +104,23 @@ public class AddressController extends ApiController {
         }
 
         if (!errors.isEmpty()) {
-            Response<String> response = new Response<>();
-            response.setCode(400);
-            response.setMsg("以下字段不能为空: " + String.join(", ", errors));
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"以下字段不能为空: " + String.join(", ", errors));
         }
 
         // 判断 area 和 fullAddress 是否为纯数字
         if (area.matches("\\d+") || fullAddress.matches("\\d+")) {
-            Response<String> response = new Response<>();
-            response.setCode(400);
-            response.setMsg("所在地区和详细地址不能为纯数字");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"所在地区和详细地址不能为纯数字");
         }
 
         // 判断 consignee 是否大于20字符
         if (consignee.length() > 20) {
-            Response<String> response = new Response<>();
-            response.setCode(400);
-            response.setMsg(fieldDescriptions.get("consignee") + "不能超过20个字符");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,fieldDescriptions.get("consignee") + "不能超过20个字符");
         }
 
         // 验证手机号是否合法
         Pattern pattern = Pattern.compile("^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}$");
         if (!pattern.matcher(phone).matches()) {
-            Response<String> response = new Response<>();
-            response.setCode(400);
-            response.setMsg("手机号不合法");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"手机号不合法");
         }
 
         // 构造并保存 Address 对象
@@ -162,19 +133,14 @@ public class AddressController extends ApiController {
         addressService.save(address);
 
         // 返回成功信息
-        Response<String> response = new Response<>();
-        response.setCode(200);
-        response.setMsg("收货地址添加成功");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.success("收货地址添加成功");
     }
 
     /**
      * 修改数据
      */
     @PutMapping("update")
-    public ResponseEntity<Response<?>> update(
-            @RequestBody Address request) {
-        Response<String> response = new Response<>();
+    public ResultData<String> update(@RequestBody Address request) {
         Integer id = request.getId();
         String consignee = request.getConsignee();
         String area = request.getArea();
@@ -183,9 +149,7 @@ public class AddressController extends ApiController {
         // 验证非空
         if (id == null || consignee == null || consignee.isEmpty() || area == null || area.isEmpty()
                 || fullAddress == null || fullAddress.isEmpty() || phone == null || phone.isEmpty()) {
-            response.setCode(400);
-            response.setMsg("所有字段不能为空");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"所有字段不能为空");
         }
 
         // 去除前后空格
@@ -196,17 +160,13 @@ public class AddressController extends ApiController {
 
         // 验证 area 和 fullAddress 不为纯数字
         if (area.matches("\\d+") || fullAddress.matches("\\d+")) {
-            response.setCode(400);
-            response.setMsg("区域和详细地址不能为纯数字");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"区域和详细地址不能为纯数字");
         }
 
         // 验证手机号是否合法
         Pattern pattern = Pattern.compile("^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}$");
         if (!pattern.matcher(phone).matches()) {
-            response.setCode(400);
-            response.setMsg("手机号不合法");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return ResultData.fail(400,"手机号不合法");
         }
 
         // 查找地址
@@ -214,9 +174,7 @@ public class AddressController extends ApiController {
         wrapper.eq("id", id);
         int address = addressService.count(wrapper);
         if (address == 0) {
-            response.setCode(400);
-            response.setMsg("地址不存在");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            return ResultData.fail(404,"地址不存在");
         }else {
             // 执行更新操作
             try {
@@ -227,13 +185,9 @@ public class AddressController extends ApiController {
                 address1.setFullAddress(fullAddress);
                 address1.setPhone(phone);
                 addressService.updateById(address1);
-                response.setCode(200);
-                response.setMsg("修改成功");
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return ResultData.success("修改成功");
             } catch (Exception e) {
-                response.setCode(400);
-                response.setMsg("修改失败");
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return ResultData.fail(400,"修改失败");
             }
         }
     }
@@ -242,36 +196,28 @@ public class AddressController extends ApiController {
      * 删除数据
      */
     @DeleteMapping("delete")
-    public ResponseEntity<Response<?>> delete(@RequestParam Integer id) {
-        Response<String> response = new Response<>();
+    public ResultData<String> delete(@RequestParam Integer id) {
         Address byId = addressService.getById(id);
         if (byId == null) {
-            response.setCode(400);
-            response.setMsg("地址不存在");
+            return ResultData.fail(404, "地址不存在");
         } else {
             boolean b = addressService.removeById(id);
             if (b) {
-                response.setCode(200);
-                response.setMsg("删除成功");
+                return ResultData.success("删除成功");
             } else {
-                response.setCode(400);
-                response.setMsg("删除失败");
+                return ResultData.fail(400, "删除失败");
             }
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("updateDefault")
-    public ResponseEntity<Response<?>> updateDefault(
+    public ResultData<String> updateDefault(
             @RequestParam Integer id,
             @RequestParam Integer defaultOperate
     ){
-        Response <String> response = new Response<>();
         Address byId = addressService.getById(id);
-        System.out.println(byId);
         if (byId == null) {
-            response.setCode(400);
-            response.setMsg("地址不存在");
+            return ResultData.fail(404,"地址不存在");
         }else {
             Address address = new Address();
             address.setId(id);
@@ -281,10 +227,8 @@ public class AddressController extends ApiController {
                 address.setDefaultOperate(0);
             }
             addressService.updateById(address);
-            response.setCode(200);
-            response.setMsg("修改成功");
+            return ResultData.success("修改成功");
         }
-        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
 

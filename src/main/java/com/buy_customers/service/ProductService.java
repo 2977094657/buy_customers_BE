@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.buy_customers.entity.Product;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 商品表(Product)表服务接口
@@ -14,7 +13,6 @@ import java.util.Optional;
  * @since 2023-05-06 20:16:11
  */
 public interface ProductService extends IService<Product> {
-    IPage<Product> testSelectPage(int current, int size, Optional<Boolean> isAsc, Optional<String> sortField, Long randomSeed);
     boolean updateProduct(Integer productId, String productName, String price, String category);
     /**
      * 模糊搜索商品

@@ -14,8 +14,5 @@ import java.util.Map;
  * @since 2023-05-08 11:38:11
  */
 public interface StarService extends IService<Star> {
-    List<ProductStarDTO> getProductStarDTOsByUserId(Integer userId);
-    Map<String, Object> deleteCartItem(Integer id);
-    Map<String, Object> deleteCartItemByIds(List<Integer> id);
 }
 

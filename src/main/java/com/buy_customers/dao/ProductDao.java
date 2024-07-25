@@ -17,7 +17,7 @@ import java.util.Map;
 public interface ProductDao extends BaseMapper<Product> {
     @Update("UPDATE product SET img=#{img} WHERE product_id=#{productId}")
     int updateImgByProductId(@Param("productId") Integer productId, @Param("img") String img);
-    @Select("SELECT * FROM product WHERE category = #{category} LIMIT #{offset}, #{limit}")
+    @Select("SELECT * FROM product WHERE category LIKE CONCAT('%', #{category}, '%') LIMIT #{offset}, #{limit}")
     List<Product> selectByCategory(Map<String, Object> params);
 }
 

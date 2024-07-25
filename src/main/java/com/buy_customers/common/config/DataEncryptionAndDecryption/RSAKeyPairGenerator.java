@@ -1,4 +1,4 @@
-package com.buy_customers.common.utils;
+package com.buy_customers.common.config.DataEncryptionAndDecryption;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +17,6 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Set;
 
 @Component
 @DependsOn

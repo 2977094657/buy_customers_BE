@@ -24,12 +24,6 @@ public interface UserDao extends BaseMapper<User> {
     @Select("SELECT * FROM user WHERE phone = #{phone}")
     User selectUserByPhone(String phone);
 
-    @Select("SELECT * FROM user WHERE user_Id = #{userId}")//用于修改用户密码
-    User selectByUserId1(Integer userId);
-
-    @Select("SELECT * FROM user WHERE phone LIKE CONCAT('%', #{keyword}, '%') OR name LIKE CONCAT('%', #{keyword}, '%')")
-    List<User> searchUsers(@Param("keyword") String keyword);
-
 
     /**
      * 根据用户ID查询用户信息

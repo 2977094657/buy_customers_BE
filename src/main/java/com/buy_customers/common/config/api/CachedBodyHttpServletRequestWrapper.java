@@ -1,4 +1,4 @@
-package com.buy_customers.common.config;
+package com.buy_customers.common.config.api;
 
 
 import javax.servlet.ReadListener;

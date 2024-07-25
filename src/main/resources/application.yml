@@ -35,7 +35,7 @@ spring:
     host: 124.221.7.201
     port: 6379
     timeout: 5000
-    password: 17628887613Hyw.
+    password: wjivIFSscsNVvnBAevjnYBV
 
   servlet:
     multipart:
@@ -54,9 +54,12 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:mapper/*Mapper.xml
   type-aliases-package: com.buy_customers.demo.model
-  #  加入日志功能
+  #  加入MyBatisPlus日志功能
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    关闭
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+#    开启
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 upload: D:\logger
 
 logging:

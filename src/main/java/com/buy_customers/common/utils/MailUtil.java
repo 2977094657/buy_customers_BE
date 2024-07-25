@@ -1,5 +1,6 @@
 package com.buy_customers.common.utils;
 
+import com.buy_customers.common.config.api.ResultData;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,7 @@ public class MailUtil {
     @Resource
     private SpringTemplateEngine templateEngine;
 
-    public ResponseEntity<Response<?>> sendEmailWithVerificationCode(String to) {
-        Response<String> response = new Response<>();
+    public ResultData<String> sendEmailWithVerificationCode(String to) {
 
         // 去除邮箱地址前后的空格
         to = to.trim();
@@ -33,9 +33,7 @@ public class MailUtil {
         // 验证邮箱地址是否合法
         String regex = "\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}";
         if (!to.matches(regex)) {
-            response.setCode(400);
-            response.setMsg("输入的邮箱地址不合法");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.fail(400,"输入的邮箱地址不合法");
         }
 
         //            生成验证码
@@ -56,14 +54,10 @@ public class MailUtil {
 
             emailSender.send(message);     /* 调用emailSender（JavaMailSender）的send方法发送邮件 */
             stringRedisTemplate.opsForValue().set(to, String.valueOf(code),5, TimeUnit.MINUTES);
-            response.setCode(200);
-            response.setMsg("邮箱验证码发送成功，请注意查看");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResultData.success("邮箱验证码发送成功，请注意查看");
         } catch (MessagingException e) {
             // 处理异常...
         }
-        response.setCode(400);
-        response.setMsg("邮箱验证码发送失败");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResultData.fail(400,"邮箱验证码发送失败");
     }
 }

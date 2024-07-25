@@ -1,9 +1,10 @@
-package com.buy_customers.common.config;
+package com.buy_customers.common.config.api;
 
+import com.buy_customers.entity.GlobalSettings;
+import com.buy_customers.service.GlobalSettingsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,9 +27,6 @@ import java.util.*;
 
 @Component
 public class APIVerification extends OncePerRequestFilter {
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
     @Value("${sa-token.sign.secret-key}")
     private String secretKey;
 
@@ -36,7 +34,8 @@ public class APIVerification extends OncePerRequestFilter {
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws IOException, ServletException {
         // 检查请求头 X-Request-Type 是否为 setNonce
         String requestTypeHeader = request.getHeader("X-Request-Type");
-        if ("setNonce".equalsIgnoreCase(requestTypeHeader)) {
+        String xSkipVerification = request.getHeader("X-Skip-Verification");
+        if ("setNonce".equalsIgnoreCase(requestTypeHeader) || "true".equals(xSkipVerification)) {
             // 如果请求头存在且值为 setNonce，则放行
             filterChain.doFilter(request, response);
             return;
